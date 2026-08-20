@@ -1,0 +1,36 @@
+[package]
+name = "shacl-structural-model"
+version = "0.1.0"
+description = "Typed SHACL structural values for Rust"
+authors = ["Jacobus Geluk <jacobus.geluk@dataroad.com>"]
+edition = "2024"
+rust-version = "1.89"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/legra-ai/shacl-structural-model"
+documentation = "https://docs.rs/shacl-structural-model"
+readme = "README.md"
+keywords = ["shacl", "rdf", "semantic-web", "validation", "ontology"]
+categories = ["data-structures", "encoding"]
+include = [
+    "Cargo.toml",
+    "README.md",
+    "LICENSE-APACHE",
+    "LICENSE-MIT",
+    "src/**/*.rs",
+]
+
+[lib]
+doctest = true
+
+[dependencies]
+iri-rfc3987 = "=0.1.6"
+rdf-syntax = { version = "1", features = ["serde"] }
+serde = { version = "1", features = ["derive"] }
+thiserror = "2"
+
+[lints.rust]
+missing_docs = "deny"
+
+[lints.clippy]
+all = "deny"
+pedantic = "deny"
