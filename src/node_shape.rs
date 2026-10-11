@@ -7,16 +7,16 @@ use crate::{Component, Severity, ShaclRule, Target};
 /// A SHACL node shape.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(bound(
-    serialize = "Value: serde::Serialize",
-    deserialize = "Value: serde::Deserialize<'de>"
+    serialize = "Value: serde::Serialize, Count: serde::Serialize",
+    deserialize = "Value: serde::Deserialize<'de>, Count: serde::Deserialize<'de>"
 ))]
-pub struct NodeShape<Value = crate::DefaultTerm> {
+pub struct NodeShape<Value = crate::DefaultTerm, Count = Value> {
     /// The IRI identifying this shape.
     pub id: Iri<String>,
     /// Target declarations.
     pub targets: Vec<Target>,
     /// Constraint components applied to the focus node.
-    pub components: Vec<Component<Value>>,
+    pub components: Vec<Component<Value, Count>>,
     /// IRIs of property shapes attached to this node shape.
     pub property_shapes: Vec<Iri<String>>,
     /// Whether this shape is deactivated.
@@ -29,7 +29,7 @@ pub struct NodeShape<Value = crate::DefaultTerm> {
     pub rules: Vec<ShaclRule>,
 }
 
-impl<Value> NodeShape<Value> {
+impl<Value, Count> NodeShape<Value, Count> {
     /// Create an empty node shape with the given IRI.
     #[must_use]
     pub fn new(id: Iri<String>) -> Self {
@@ -54,7 +54,7 @@ impl<Value> NodeShape<Value> {
 
     /// Add a constraint component.
     #[must_use]
-    pub fn with_component(mut self, component: Component<Value>) -> Self {
+    pub fn with_component(mut self, component: Component<Value, Count>) -> Self {
         self.components.push(component);
         self
     }

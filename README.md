@@ -89,3 +89,9 @@ Licensed under either of:
 - MIT License
 
 at your option.
+
+Count and length parameters preserve the caller's RDF value type, including
+signed and arbitrary-size integers. `Component<Value, Count>`,
+`NodeShape<Value, Count>`, and `PropertyShape<Value, Count>` also accept a
+separate compiled count type; `Count` defaults to `Value`. The model does not
+parse lexical forms, impose a `u64` limit, or read literal payloads.
