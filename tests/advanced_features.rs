@@ -110,7 +110,8 @@ fn direct_and_parameterized_targets_and_functions_retain_their_declarations() {
         query("SELECT ?this WHERE { ?this a ex:Person }"),
     );
     target.ask = Some(query("ASK { $this a ex:Person }"));
-    let mut target_type = SparqlTargetType::<String>::new(iri("urn:People"), target.select.clone());
+    let mut target_type =
+        SparqlTargetType::<String>::new("urn:People".to_owned(), target.select.clone());
     target_type.ask = target.ask.clone();
     target_type
         .parameters
