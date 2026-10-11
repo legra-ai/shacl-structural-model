@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # The authorized writer merges, which starts the main pipeline itself.
-      - uses: actions/create-github-app-token@v2
+      - uses: actions/create-github-app-token@v3
         id: writer
         with:
           app-id: ${{ secrets.RELEASE_WRITER_APP_ID }}

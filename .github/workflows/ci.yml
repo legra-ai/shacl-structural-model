@@ -27,9 +27,10 @@ jobs:
         with:
           fetch-depth: 0
       # The authorized release writer: the organisation's GitHub App, minted
-      # per run and scoped to this repository only.
-      - uses: actions/create-github-app-token@v2
+      # only on main and scoped to this repository. PRs have no release secrets.
+      - uses: actions/create-github-app-token@v3
         id: writer
+        if: github.ref == 'refs/heads/main'
         with:
           app-id: ${{ secrets.RELEASE_WRITER_APP_ID }}
           private-key: ${{ secrets.RELEASE_WRITER_APP_KEY }}
@@ -38,7 +39,9 @@ jobs:
       - uses: legra-ai/github-actions/.github/actions/prepare-cargo-release@main
         id: release
         with:
-          token: ${{ steps.writer.outputs.token }}
+          # Non-main preparation is read-only. A missing writer token on main
+          # must remain an error, so select the non-main token first.
+          token: ${{ github.ref != 'refs/heads/main' && github.token || steps.writer.outputs.token }}
 
   test:
     needs: prepare
