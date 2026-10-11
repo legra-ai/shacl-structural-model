@@ -44,7 +44,7 @@ let name_shape = PropertyShape::<DefaultTerm>::new(
     ShaclPath::Predicate(name),
 )
 .with_component(Component::MinCount(DefaultTerm::literal(
-    rdf_syntax::Literal::new("1", rdf_syntax::XSD_INTEGER),
+    rdf_syntax::Literal::new("1", rdf_syntax::iri!("http://www.w3.org/2001/XMLSchema#integer")),
 )));
 
 let person_shape = NodeShape::<DefaultTerm>::new(
@@ -53,7 +53,7 @@ let person_shape = NodeShape::<DefaultTerm>::new(
 .with_target(Target::Class(person))
 .with_property_shape(name_shape.id.clone())
 .with_component(Component::MinCount(DefaultTerm::literal(
-    rdf_syntax::Literal::new("1", rdf_syntax::XSD_INTEGER),
+    rdf_syntax::Literal::new("1", rdf_syntax::iri!("http://www.w3.org/2001/XMLSchema#integer")),
 )));
 
 assert_eq!(person_shape.property_count(), 1);

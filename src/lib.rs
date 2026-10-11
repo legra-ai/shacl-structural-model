@@ -53,7 +53,7 @@ mod tests {
     /// )
     /// .with_target(Target::Class(person))
     /// .with_component(Component::MinCount(DefaultTerm::literal(
-    ///     rdf_syntax::Literal::new("1", rdf_syntax::XSD_INTEGER),
+    ///     rdf_syntax::Literal::new("1", rdf_syntax::iri!("http://www.w3.org/2001/XMLSchema#integer")),
     /// ))));
     ///
     /// assert_eq!(shape.components[0].kind_name(), "minCount");
