@@ -12,15 +12,20 @@ use crate::{Parameter, ParameterValues, SparqlValidator};
 #[serde(
     deny_unknown_fields,
     bound(
-        serialize = "Value: serde::Serialize, Count: serde::Serialize, Flags: serde::Serialize",
-        deserialize = "Value: serde::Deserialize<'de>, Count: serde::Deserialize<'de>, Flags: serde::Deserialize<'de>"
+        serialize = "Value: serde::Serialize, Count: serde::Serialize, Flags: serde::Serialize, Pattern: serde::Serialize",
+        deserialize = "Value: serde::Deserialize<'de>, Count: serde::Deserialize<'de>, Flags: serde::Deserialize<'de>, Pattern: serde::Deserialize<'de>"
     )
 )]
-pub struct CustomConstraintComponent<Value = crate::DefaultTerm, Count = Value, Flags = Value> {
+pub struct CustomConstraintComponent<
+    Value = crate::DefaultTerm,
+    Count = Value,
+    Flags = Value,
+    Pattern = Value,
+> {
     /// The component IRI.
     pub id: Iri<String>,
     /// Parameter declarations in caller order; no ordering is evaluated here.
-    pub parameters: Vec<Parameter<Value, Count, Flags>>,
+    pub parameters: Vec<Parameter<Value, Count, Flags, Pattern>>,
     /// Generic `sh:validator` declarations.
     pub validators: Vec<SparqlValidator<Value>>,
     /// `sh:nodeValidator` declarations.
@@ -31,7 +36,7 @@ pub struct CustomConstraintComponent<Value = crate::DefaultTerm, Count = Value, 
     pub label_templates: Vec<Value>,
 }
 
-impl<Value, Count, Flags> CustomConstraintComponent<Value, Count, Flags> {
+impl<Value, Count, Flags, Pattern> CustomConstraintComponent<Value, Count, Flags, Pattern> {
     /// Create a component whose declarations can be populated by the caller.
     #[must_use]
     pub fn new(id: Iri<String>) -> Self {

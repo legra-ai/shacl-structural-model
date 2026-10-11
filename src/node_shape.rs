@@ -9,17 +9,17 @@ use crate::{Component, Severity, ShaclRule, Target};
 #[serde(
     deny_unknown_fields,
     bound(
-        serialize = "Value: serde::Serialize, Count: serde::Serialize, Flags: serde::Serialize",
-        deserialize = "Value: serde::Deserialize<'de>, Count: serde::Deserialize<'de>, Flags: serde::Deserialize<'de>"
+        serialize = "Value: serde::Serialize, Count: serde::Serialize, Flags: serde::Serialize, Pattern: serde::Serialize",
+        deserialize = "Value: serde::Deserialize<'de>, Count: serde::Deserialize<'de>, Flags: serde::Deserialize<'de>, Pattern: serde::Deserialize<'de>"
     )
 )]
-pub struct NodeShape<Value = crate::DefaultTerm, Count = Value, Flags = Value> {
+pub struct NodeShape<Value = crate::DefaultTerm, Count = Value, Flags = Value, Pattern = Value> {
     /// The IRI or blank node identifying this shape.
     pub id: Value,
     /// Target declarations.
     pub targets: Vec<Target<Value>>,
     /// Constraint components applied to the focus node.
-    pub components: Vec<Component<Value, Count, Flags>>,
+    pub components: Vec<Component<Value, Count, Flags, Pattern>>,
     /// IRI or blank-node references to attached property shapes.
     pub property_shapes: Vec<Value>,
     /// Whether this shape is deactivated.
@@ -34,7 +34,7 @@ pub struct NodeShape<Value = crate::DefaultTerm, Count = Value, Flags = Value> {
     pub order: Option<Value>,
 }
 
-impl<Value, Count, Flags> NodeShape<Value, Count, Flags> {
+impl<Value, Count, Flags, Pattern> NodeShape<Value, Count, Flags, Pattern> {
     /// Create an empty node shape with the given IRI or blank-node term.
     #[must_use]
     pub fn new(id: Value) -> Self {
@@ -60,7 +60,7 @@ impl<Value, Count, Flags> NodeShape<Value, Count, Flags> {
 
     /// Add a constraint component.
     #[must_use]
-    pub fn with_component(mut self, component: Component<Value, Count, Flags>) -> Self {
+    pub fn with_component(mut self, component: Component<Value, Count, Flags, Pattern>) -> Self {
         self.components.push(component);
         self
     }

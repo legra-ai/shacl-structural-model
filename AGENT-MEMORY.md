@@ -1,3 +1,30 @@
+# Pattern parameter representation
+
+- Exclusive dependency lane: `/Users/jgeluk/Work/shacl-structural-model-memory`.
+- Owner: Codex `/root`, assigned streaming literal lane; user approved patterns.
+- Branch: `fix/regex-pattern-parameters`, based on published 4.0.0 `ae6771c`.
+- Paired private lane: `/Users/jgeluk/Work/legra-memory`, `fix/llp05-schema-pattern`.
+- The flags branch and its post-release handoff `7d1e4fb` are preserved.
+- Two serialization regressions failed before the fix: opaque pattern values
+  were rejected with `invalid type: map, expected a string`. RED log:
+  `/tmp/shacl-pattern-model-red.log`.
+- Fix: independent fourth generic Pattern, defaulting to Value, propagated
+  through components, both shape kinds, parameters and all parameter owners.
+  Callers may retain an RDF reference beside their compiled representation.
+- Focused validation covers opaque RDF values, nested parameter constraints,
+  independently compiled patterns/flags/counts, all declaration owners and
+  construction without Clone/Debug/Serde bounds. Broad and archive tests follow
+  the implementation commit; record their outcome below before opening a PR.
+- No regex parser/compiler or private storage implementation is included.
+  This removes the structural String restriction only. Streaming source reads,
+  compiler resource accounting and compiled-schema persistence remain private
+  consumer work; do not report those as delivered by this model change.
+- Existing main CI is the sole publisher. Do not bump locally or add a release
+  path. Required checks/title/review settings remain unverified; this is not
+  evidence of complete ADR 0105 adoption.
+
+## Prior flag delivery
+
 # Streaming schema flag parameters
 
 - Exclusive dependency lane: `/Users/jgeluk/Work/shacl-structural-model-memory`.

@@ -9,11 +9,11 @@ use crate::Component;
 #[serde(
     deny_unknown_fields,
     bound(
-        serialize = "Value: serde::Serialize, Count: serde::Serialize, Flags: serde::Serialize",
-        deserialize = "Value: serde::Deserialize<'de>, Count: serde::Deserialize<'de>, Flags: serde::Deserialize<'de>"
+        serialize = "Value: serde::Serialize, Count: serde::Serialize, Flags: serde::Serialize, Pattern: serde::Serialize",
+        deserialize = "Value: serde::Deserialize<'de>, Count: serde::Deserialize<'de>, Flags: serde::Deserialize<'de>, Pattern: serde::Deserialize<'de>"
     )
 )]
-pub struct Parameter<Value = crate::DefaultTerm, Count = Value, Flags = Value> {
+pub struct Parameter<Value = crate::DefaultTerm, Count = Value, Flags = Value, Pattern = Value> {
     /// The parameter's IRI or blank node.
     pub id: Value,
     /// The parameter predicate (`sh:path`), from which its variable is derived.
@@ -27,10 +27,10 @@ pub struct Parameter<Value = crate::DefaultTerm, Count = Value, Flags = Value> {
     /// RDF `sh:description` literals.
     pub descriptions: Vec<Value>,
     /// Constraints on supplied parameter values.
-    pub components: Vec<Component<Value, Count, Flags>>,
+    pub components: Vec<Component<Value, Count, Flags, Pattern>>,
 }
 
-impl<Value, Count, Flags> Parameter<Value, Count, Flags> {
+impl<Value, Count, Flags, Pattern> Parameter<Value, Count, Flags, Pattern> {
     /// Create a required parameter with no constraints or annotations.
     #[must_use]
     pub fn new(id: Value, path: Iri<String>) -> Self {

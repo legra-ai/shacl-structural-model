@@ -7,11 +7,12 @@ use crate::{Component, Severity, ShaclPath, ShaclRule, Target};
 #[serde(
     deny_unknown_fields,
     bound(
-        serialize = "Value: serde::Serialize, Count: serde::Serialize, Flags: serde::Serialize",
-        deserialize = "Value: serde::Deserialize<'de>, Count: serde::Deserialize<'de>, Flags: serde::Deserialize<'de>"
+        serialize = "Value: serde::Serialize, Count: serde::Serialize, Flags: serde::Serialize, Pattern: serde::Serialize",
+        deserialize = "Value: serde::Deserialize<'de>, Count: serde::Deserialize<'de>, Flags: serde::Deserialize<'de>, Pattern: serde::Deserialize<'de>"
     )
 )]
-pub struct PropertyShape<Value = crate::DefaultTerm, Count = Value, Flags = Value> {
+pub struct PropertyShape<Value = crate::DefaultTerm, Count = Value, Flags = Value, Pattern = Value>
+{
     /// The IRI or blank node identifying this shape.
     pub id: Value,
     /// The property path.
@@ -21,7 +22,7 @@ pub struct PropertyShape<Value = crate::DefaultTerm, Count = Value, Flags = Valu
     /// Target declarations, which may also occur on property shapes.
     pub targets: Vec<Target<Value>>,
     /// Constraint components applied to value nodes.
-    pub components: Vec<Component<Value, Count, Flags>>,
+    pub components: Vec<Component<Value, Count, Flags, Pattern>>,
     /// IRI or blank-node references to nested property shapes.
     pub property_shapes: Vec<Value>,
     /// Whether this shape is deactivated.
@@ -42,7 +43,7 @@ pub struct PropertyShape<Value = crate::DefaultTerm, Count = Value, Flags = Valu
     pub rules: Vec<ShaclRule<Value>>,
 }
 
-impl<Value, Count, Flags> PropertyShape<Value, Count, Flags> {
+impl<Value, Count, Flags, Pattern> PropertyShape<Value, Count, Flags, Pattern> {
     /// Create an empty property shape with an IRI or blank-node term and path.
     #[must_use]
     pub fn new(id: Value, path: ShaclPath) -> Self {
@@ -66,7 +67,7 @@ impl<Value, Count, Flags> PropertyShape<Value, Count, Flags> {
 
     /// Add a constraint component.
     #[must_use]
-    pub fn with_component(mut self, component: Component<Value, Count, Flags>) -> Self {
+    pub fn with_component(mut self, component: Component<Value, Count, Flags, Pattern>) -> Self {
         self.components.push(component);
         self
     }

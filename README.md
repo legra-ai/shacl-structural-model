@@ -90,7 +90,12 @@ Regex flag parameters likewise retain `Value` by default. The independent
 third generic `Flags` is available on components, shapes, parameters, custom
 components, target types and functions. An engine can retain an opaque RDF
 reference beside its bounded compiled flags without materializing the original
-string. The model does not interpret flag syntax. Pattern bodies remain strings.
+string. Pattern parameters also retain `Value` by default, with an independent
+fourth generic `Pattern` for compiled representations. For example,
+`Component<Value, Count, Flags, Pattern>` allows four different types. Both
+representations propagate through all declarations containing constraints.
+The model does not parse regex syntax, compile patterns, or read payloads.
+Consumers own compilation, resource accounting, and validation of RDF metadata.
 
 ## SPARQL and Advanced Features
 
@@ -138,8 +143,8 @@ direct structural values; they are not a replacement for streaming an entire
 input document.
 
 This is a parsed structural model, not an RDF graph archive. Paths retain
-their structure but not all RDF-list cell identities. Boolean parameters and Core pattern/language strings are interpreted fields.
-Regex flags retain their RDF values or a caller-defined compiled representation. Callers that need exact
+their structure but not all RDF-list cell identities. Boolean parameters and Core language strings are interpreted fields.
+Regex patterns and flags retain their RDF values or caller-defined compiled representations. Callers that need exact
 source triples or graph context must retain those separately. `path_node`
 can retain a path's source root for result reporting. Display helpers are
 human-readable labels, not RDF or SPARQL serialization.
