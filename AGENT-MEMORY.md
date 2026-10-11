@@ -22,6 +22,9 @@
   same 32 tests plus three doctests using exact repository Rust 1.89.0.
   Logs: `/tmp/shacl-pattern-model-all.log`, `-doc.log`, `-rustdoc.log`, and
   `/tmp/shacl-pattern-model-package-pinned.log`. No new release exists yet.
+- PR https://github.com/legra-ai/shacl-structural-model/pull/9 is open and
+  mergeable. Ready for review; main CI remains the only publisher. Merge/release
+  watch is active. Do not consume an unpublished revision or claim publication.
 - No regex parser/compiler or private storage implementation is included.
   This removes the structural String restriction only. Streaming source reads,
   compiler resource accounting and compiled-schema persistence remain private
