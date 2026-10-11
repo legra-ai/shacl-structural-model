@@ -1,10 +1,35 @@
-"""Local hooks must reject the same invalid headers as release automation."""
+"""Check commit policy and credential boundaries in release automation."""
 
 from pathlib import Path
 import re
 import subprocess
 import tempfile
 import unittest
+
+
+class ReleaseCredentialTests(unittest.TestCase):
+    def setUp(self):
+        root = Path(__file__).resolve().parents[1]
+        workflow = (root / ".github/workflows/ci.yml").read_text()
+        prepare = workflow.split("\n  prepare:\n", 1)[1].split("\n  test:\n", 1)[0]
+        self.steps = re.split(r"^      - ", prepare, flags=re.MULTILINE)[1:]
+
+    def test_release_credentials_are_only_requested_on_main(self):
+        writers = [step for step in self.steps if "id: writer\n" in step]
+        self.assertEqual(len(writers), 1)
+        # Dependabot and fork PR runs have no Actions secrets. A read-only
+        # dispatch on another branch must not require the writer either.
+        self.assertIn("        if: github.ref == 'refs/heads/main'\n", writers[0])
+
+    def test_pr_preparation_uses_read_only_token(self):
+        releases = [step for step in self.steps if "id: release\n" in step]
+        self.assertEqual(len(releases), 1)
+        # Branch on the non-main case first: a missing main writer token must
+        # never silently select the read-only token and conceal bad secrets.
+        self.assertIn(
+            "token: ${{ github.ref != 'refs/heads/main' && github.token || steps.writer.outputs.token }}",
+            releases[0],
+        )
 
 
 class CommitPolicyTests(unittest.TestCase):
