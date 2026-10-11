@@ -10,8 +10,7 @@ enum Value {
 
 #[test]
 fn flags_preserve_opaque_rdf_values() {
-    let encoded =
-        r#"{"Pattern":{"pattern":"^a","flags":{"LiteralReference":{"identity":"urn:flags"}}}}"#;
+    let encoded = r#"{"Pattern":{"pattern":{"LiteralReference":{"identity":"urn:pattern"}},"flags":{"LiteralReference":{"identity":"urn:flags"}}}}"#;
     let component: Component<Value> =
         serde_json::from_str(encoded).expect("regex flags must retain the caller's RDF value");
     assert_eq!(serde_json::to_string(&component).unwrap(), encoded);
@@ -19,7 +18,7 @@ fn flags_preserve_opaque_rdf_values() {
 
 #[test]
 fn parameter_constraints_preserve_flag_values() {
-    let encoded = r#"{"id":{"Resource":"urn:parameter"},"path":"urn:value","optional":false,"order":null,"names":[],"descriptions":[],"components":[{"Pattern":{"pattern":"^a","flags":{"LiteralReference":{"identity":"urn:flags"}}}}]}"#;
+    let encoded = r#"{"id":{"Resource":"urn:parameter"},"path":"urn:value","optional":false,"order":null,"names":[],"descriptions":[],"components":[{"Pattern":{"pattern":{"LiteralReference":{"identity":"urn:pattern"}},"flags":{"LiteralReference":{"identity":"urn:flags"}}}}]}"#;
     let parameter: Parameter<Value> =
         serde_json::from_str(encoded).expect("parameter constraints must retain RDF flag values");
     assert_eq!(serde_json::to_string(&parameter).unwrap(), encoded);
@@ -31,9 +30,12 @@ struct CompiledFlags {
     case_insensitive: bool,
 }
 
+type Node = NodeShape<Value, u64, CompiledFlags, String>;
+type Property = PropertyShape<Value, u64, CompiledFlags, String>;
+
 #[test]
 fn shapes_support_independently_compiled_flags() {
-    let component = Component::<Value, u64, CompiledFlags>::Pattern {
+    let component = Component::<Value, u64, CompiledFlags, String>::Pattern {
         pattern: "^a".to_owned(),
         flags: Some(CompiledFlags {
             original: Value::LiteralReference {
@@ -50,9 +52,6 @@ fn shapes_support_independently_compiled_flags() {
     )
     .with_component(component);
     let encoded = serde_json::to_string(&(node.clone(), property.clone())).unwrap();
-    let decoded: (
-        NodeShape<Value, u64, CompiledFlags>,
-        PropertyShape<Value, u64, CompiledFlags>,
-    ) = serde_json::from_str(&encoded).unwrap();
+    let decoded: (Node, Property) = serde_json::from_str(&encoded).unwrap();
     assert_eq!(decoded, (node, property));
 }
