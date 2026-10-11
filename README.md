@@ -102,6 +102,8 @@ Declarations retain source nodes and RDF-valued messages. Parameter values
 are kept in full before an engine constructs query bindings. Prefix resources
 and imports are references, so shared declarations need not be copied into
 every query. Property shapes support targets as well as node shapes.
+Implicit class targets and custom target-type identifiers use the caller's
+RDF value type, preserving blank-node identity as well as named resources.
 
 ```rust
 use shacl_structural_model::{Component, DefaultTerm, NodeShape, SparqlConstraint, SparqlQuery};
@@ -140,6 +142,15 @@ The parser/consumer checks RDF node kinds, cardinality, query syntax, shape
 references and expression cycles. This crate does not inspect opaque `Value`
 payloads or certify a declaration as well-formed. Serde rejects unrecognized
 fields on shapes and the new declarations, rather than discarding them.
+
+## Migrating from 2.x
+
+`Target::ImplicitClass`, `SparqlTargetType::id` and `CustomTarget::target_type`
+now hold `Value` rather than `Iri<String>`. Pass the corresponding RDF term,
+including for named resources. `Target::iri()` and `NodeShape::target_class_iris()`
+cover explicit IRI-valued targets; they do not inspect opaque implicit-class
+terms. This is a breaking API and serialized-shape change for callers whose
+RDF value representation differs from an IRI string.
 
 ## Migrating from 1.x
 

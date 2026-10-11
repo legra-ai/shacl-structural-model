@@ -107,10 +107,12 @@ impl<Value, Count> NodeShape<Value, Count> {
         self
     }
 
-    /// Iterate over class and implicit-class target IRIs.
+    /// Iterate over explicit class target IRIs.
+    ///
+    /// Implicit class targets use opaque `Value` terms and are not inspected.
     pub fn target_class_iris(&self) -> impl Iterator<Item = &Iri<String>> + '_ {
         self.targets.iter().filter_map(|target| match target {
-            Target::Class(iri) | Target::ImplicitClass(iri) => Some(iri),
+            Target::Class(iri) => Some(iri),
             _ => None,
         })
     }

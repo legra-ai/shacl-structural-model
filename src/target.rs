@@ -16,8 +16,8 @@ pub enum Target<Value = crate::DefaultTerm> {
     SubjectsOf(Iri<String>),
     /// `sh:targetObjectsOf` — objects of the predicate are focus nodes.
     ObjectsOf(Iri<String>),
-    /// An implicit class target.
-    ImplicitClass(Iri<String>),
+    /// An implicit class target, retaining an IRI or blank-node class term.
+    ImplicitClass(Value),
     /// A direct SHACL-AF SPARQL target.
     Sparql(Box<SparqlTarget<Value>>),
     /// An application of a separately declared target type.
@@ -41,15 +41,13 @@ impl<Value> Target<Value> {
 
     /// Return an IRI-valued Core class or predicate target, when applicable.
     ///
-    /// Node targets use the caller's term representation, even for IRI nodes.
+    /// Node and implicit-class targets use the caller's term representation,
+    /// even for IRI nodes; this helper does not inspect those opaque values.
     #[must_use]
     pub fn iri(&self) -> Option<&Iri<String>> {
         match self {
-            Self::Class(iri)
-            | Self::SubjectsOf(iri)
-            | Self::ObjectsOf(iri)
-            | Self::ImplicitClass(iri) => Some(iri),
-            Self::Node(_) | Self::Sparql(_) | Self::Custom(_) => None,
+            Self::Class(iri) | Self::SubjectsOf(iri) | Self::ObjectsOf(iri) => Some(iri),
+            Self::Node(_) | Self::ImplicitClass(_) | Self::Sparql(_) | Self::Custom(_) => None,
         }
     }
 }
@@ -59,13 +57,10 @@ impl<Value: std::fmt::Debug> Target<Value> {
     #[must_use]
     pub fn display(&self) -> String {
         match self {
-            Self::Class(iri)
-            | Self::SubjectsOf(iri)
-            | Self::ObjectsOf(iri)
-            | Self::ImplicitClass(iri) => local_name(iri),
-            Self::Node(value) => format!("{value:?}"),
+            Self::Class(iri) | Self::SubjectsOf(iri) | Self::ObjectsOf(iri) => local_name(iri),
+            Self::Node(value) | Self::ImplicitClass(value) => format!("{value:?}"),
             Self::Sparql(target) => format!("{:?}", target.id),
-            Self::Custom(target) => local_name(&target.target_type),
+            Self::Custom(target) => format!("{:?}", target.target_type),
         }
     }
 }
@@ -104,8 +99,8 @@ impl<Value> SparqlTarget<Value> {
     )
 )]
 pub struct SparqlTargetType<Value = crate::DefaultTerm, Count = Value> {
-    /// The target type IRI.
-    pub id: Iri<String>,
+    /// The target type's IRI or blank-node term.
+    pub id: Value,
     /// Parameter declarations in caller order.
     pub parameters: Vec<Parameter<Value, Count>>,
     /// The SELECT query identifying focus nodes.
@@ -119,7 +114,7 @@ pub struct SparqlTargetType<Value = crate::DefaultTerm, Count = Value> {
 impl<Value, Count> SparqlTargetType<Value, Count> {
     /// Create a target type with no parameters, ASK query, or label templates.
     #[must_use]
-    pub fn new(id: Iri<String>, select: SparqlQuery<Value>) -> Self {
+    pub fn new(id: Value, select: SparqlQuery<Value>) -> Self {
         Self {
             id,
             select,
@@ -136,8 +131,8 @@ impl<Value, Count> SparqlTargetType<Value, Count> {
 pub struct CustomTarget<Value = crate::DefaultTerm> {
     /// The target instance's IRI or blank node.
     pub id: Value,
-    /// The IRI of a separately supplied target type declaration.
-    pub target_type: Iri<String>,
+    /// An IRI or blank-node reference to a separately supplied target type.
+    pub target_type: Value,
     /// Supplied values; consumers check target parameter cardinality.
     pub parameters: Vec<ParameterValues<Value>>,
 }
