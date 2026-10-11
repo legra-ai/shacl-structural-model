@@ -43,14 +43,18 @@ let name_shape = PropertyShape::<DefaultTerm>::new(
     "https://example.org/nameShape".parse().expect("valid IRI"),
     ShaclPath::Predicate(name),
 )
-.with_component(Component::MinCount(1));
+.with_component(Component::MinCount(DefaultTerm::literal(
+    rdf_syntax::Literal::new("1", rdf_syntax::XSD_INTEGER),
+)));
 
 let person_shape = NodeShape::<DefaultTerm>::new(
     "https://example.org/PersonShape".parse().expect("valid IRI"),
 )
 .with_target(Target::Class(person))
 .with_property_shape(name_shape.id.clone())
-.with_component(Component::MinCount(1));
+.with_component(Component::MinCount(DefaultTerm::literal(
+    rdf_syntax::Literal::new("1", rdf_syntax::XSD_INTEGER),
+)));
 
 assert_eq!(person_shape.property_count(), 1);
 assert_eq!(name_shape.components[0].kind_name(), "minCount");
