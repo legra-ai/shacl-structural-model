@@ -28,7 +28,7 @@ jobs:
           fetch-depth: 0
       # The authorized release writer: the organisation's GitHub App, minted
       # per run and scoped to this repository only.
-      - uses: actions/create-github-app-token@v2
+      - uses: actions/create-github-app-token@v3
         id: writer
         with:
           app-id: ${{ secrets.RELEASE_WRITER_APP_ID }}
