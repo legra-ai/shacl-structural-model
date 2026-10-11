@@ -7,15 +7,17 @@
 
 Typed structural values for SHACL shapes in Rust.
 
-`shacl-structural-model` is a small model for representing SHACL shapes,
-property paths, targets, constraint components, severities, messages, and
-SHACL Advanced Features rule declarations. It is intended for parsers,
+`shacl-structural-model` represents SHACL shapes, property paths, targets,
+constraint components, severities, RDF messages, SPARQL declarations, and
+SHACL Advanced Features functions, expressions and rules. It is intended for parsers,
 editors, validators, serializers, and storage adapters that need typed shape
 values without taking a dependency on an RDF graph implementation.
 
 The default value type is [`rdf_syntax::Term`]. The structural types are also
 generic over the value type, so an application can use its own RDF term model
-without copying or converting every constraint value.
+without copying or converting RDF-valued fields. Shape IDs and references
+retain blank nodes; target nodes can also be literals. Messages keep language
+tags and datatypes. Numeric ordering literals retain their lexical precision.
 
 This crate models structural values only. It does not parse RDF, read or
 write files, access a graph store, execute validation, run SPARQL, or collect
@@ -25,10 +27,11 @@ retain only the structural values needed by their operation.
 ## W3C specifications
 
 The stable baseline is the [SHACL Recommendation](https://www.w3.org/TR/shacl/).
-The model is also designed to track the [SHACL 1.2 Core Working Draft](https://www.w3.org/TR/shacl12-core/),
-which is not yet a W3C Recommendation. SHACL-AF rule values are represented
-without executing the rules; the relevant working-group material is described
-in the [SHACL 1.2 Rules specification](https://www.w3.org/TR/shacl12-rules/).
+SPARQL and AF declarations follow that recommendation and
+[SHACL Advanced Features](https://www.w3.org/TR/shacl-af/).
+Representing these declarations does not establish validator conformance or
+pySHACL compatibility. SHACL-JS and complete SHACL 1.2 draft coverage are outside
+the current scope.
 
 ## Example
 
@@ -40,17 +43,18 @@ let person: Iri<String> = "https://example.org/Person".parse().expect("valid IRI
 let name: Iri<String> = "https://example.org/name".parse().expect("valid IRI");
 
 let name_shape = PropertyShape::<DefaultTerm>::new(
-    "https://example.org/nameShape".parse().expect("valid IRI"),
+    DefaultTerm::from(rdf_syntax::BlankIdBuf::new("_:nameShape".to_owned()).unwrap()),
     ShaclPath::Predicate(name),
 )
-.with_component(Component::MinCount(1));
+.with_component(Component::MinCount(DefaultTerm::literal(
+    rdf_syntax::Literal::new("1", rdf_syntax::iri!("http://www.w3.org/2001/XMLSchema#integer")),
+)));
 
 let person_shape = NodeShape::<DefaultTerm>::new(
-    "https://example.org/PersonShape".parse().expect("valid IRI"),
+    DefaultTerm::iri("https://example.org/PersonShape".parse().expect("valid IRI")),
 )
 .with_target(Target::Class(person))
-.with_property_shape(name_shape.id.clone())
-.with_component(Component::MinCount(1));
+.with_property_shape(name_shape.id.clone());
 
 assert_eq!(person_shape.property_count(), 1);
 assert_eq!(name_shape.components[0].kind_name(), "minCount");
@@ -58,8 +62,11 @@ assert_eq!(name_shape.components[0].kind_name(), "minCount");
 
 ## Value types
 
-`Component`, `NodeShape`, and `PropertyShape` default to
-`rdf_syntax::Term`, while remaining generic over a caller-provided value type:
+RDF-valued fields default to `rdf_syntax::Term`. Applications can instead use
+`oxrdf::Term`, references to their existing terms, or opaque term handles.
+Construction has no `Clone`, `Debug`, or Serde bounds; those traits are required
+only when calling the corresponding operations. IRIs in IRI-only roles, such
+as predicates and datatypes, continue to use `iri_rfc3987::Iri<String>`.
 
 ```rust
 use shacl_structural_model::Component;
@@ -72,6 +79,47 @@ let constraint: Component<String> = Component::Pattern {
 assert_eq!(constraint.kind_name(), "pattern");
 ```
 
+Count and length parameters preserve the caller's RDF value type, including
+signed and arbitrary-size integers. `Component<Value, Count>`,
+`NodeShape<Value, Count>`, `PropertyShape<Value, Count>`, and parameterized
+declarations also accept a separate compiled count type; `Count` defaults to
+`Value`. The model does not parse lexical forms, impose a `u64` limit, or read
+literal payloads. Order values stay as RDF terms, independently of `Count`.
+
+## SPARQL and Advanced Features
+
+| Declaration | Structural types |
+| --- | --- |
+| SELECT constraints, ASK/SELECT validators, result annotations | `SparqlConstraint`, `SparqlValidator`, `ResultAnnotation` |
+| Query literals, prefix resources and imports | `SparqlQuery`, `PrefixDeclaration`, `PrefixDeclarations` |
+| Custom components and parameter values | `CustomConstraintComponent`, `CustomConstraint`, `Parameter`, `ParameterValues` |
+| Direct SPARQL targets and reusable target types | `SparqlTarget`, `SparqlTargetType`, `CustomTarget` |
+| ASK/SELECT functions | `ShaclFunction`, `SparqlSelectOrAsk` |
+| All seven AF node-expression forms, including nested path inputs | `NodeExpression`, `ExpressionKind`, `ExpressionConstraint` |
+| Triple and SPARQL rules, conditions, order and deactivation | `ShaclRule`, `RuleKind`, `TripleRule` |
+
+Declarations retain source nodes and RDF-valued messages. Parameter values
+are kept in full before an engine constructs query bindings. Prefix resources
+and imports are references, so shared declarations need not be copied into
+every query. Property shapes support targets as well as node shapes.
+
+```rust
+use shacl_structural_model::{Component, DefaultTerm, NodeShape, SparqlConstraint, SparqlQuery};
+
+let blank = |label: &str| DefaultTerm::from(
+    rdf_syntax::BlankIdBuf::new(format!("_:{label}")).unwrap()
+);
+let query = SparqlQuery::new(DefaultTerm::literal(rdf_syntax::Literal::new(
+    "SELECT $this WHERE { $this ex:status ex:Invalid }", rdf_syntax::XSD_STRING,
+)))
+.with_prefixes(blank("prefixes"));
+let shape = NodeShape::<DefaultTerm>::new(blank("shape"))
+    .with_component(Component::Sparql(Box::new(
+        SparqlConstraint::new(blank("constraint"), query),
+    )));
+assert_eq!(shape.components[0].kind_name(), "sparql");
+```
+
 ## Scope and memory
 
 The crate exposes individual shapes and nested structural values. It does not
@@ -80,6 +128,38 @@ at a time and let the caller decide whether to validate, serialize, persist,
 or retain them. Collections inside a single shape represent that shape's
 direct structural values; they are not a replacement for streaming an entire
 input document.
+
+This is a parsed structural model, not an RDF graph archive. Paths retain
+their structure but not all RDF-list cell identities. Boolean flags and Core
+pattern/language strings are interpreted fields. Callers that need exact
+source triples or graph context must retain those separately. `path_node`
+can retain a path's source root for result reporting. Display helpers are
+human-readable labels, not RDF or SPARQL serialization.
+
+The parser/consumer checks RDF node kinds, cardinality, query syntax, shape
+references and expression cycles. This crate does not inspect opaque `Value`
+payloads or certify a declaration as well-formed. Serde rejects unrecognized
+fields on shapes and the new declarations, rather than discarding them.
+
+## Migrating from 1.x
+
+This is a breaking API and Serde format change:
+
+- Shape IDs, shape references, `Target::Node`, and message builders now take
+  `Value`. Construct an RDF IRI/blank-node/literal term for those fields.
+- `PropertyShape::name` and `description` become `names` and `descriptions`:
+  vectors of RDF literals. Their builders append values, retaining languages.
+- Shape and rule `order` values use `Option<Value>`, replacing floating-point
+  ordering on property shapes. Node shapes now also have `order`.
+- `ShaclRule::Sparql` becomes `ShaclRule::new(id, RuleKind::Sparql(query))`.
+  Query text is an RDF literal in `SparqlQuery`, with explicit prefix references.
+- `Severity` supports custom IRIs and is no longer `Copy`. Its accessors borrow
+  the value. Invalid text returns `InvalidSeverityIri`.
+- Shape `local_name()` methods are removed because IDs need not be IRIs.
+  Inspect the caller's term type and use `local_name` for actual IRIs.
+  `Target::iri()` now returns `Option` for Core class/predicate targets.
+- Exhaustive matches on `Component`, `Target`, and `Severity` need the new
+  variants. Migrate stored Serde values explicitly; no legacy fields are ignored.
 
 ## License
 
