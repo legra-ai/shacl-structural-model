@@ -58,6 +58,8 @@ jobs:
       - uses: actions-rust-lang/setup-rust-toolchain@v2
         with:
           components: clippy
+          # Cargo 1.89 predates CARGO_BUILD_WARNINGS, which v2 uses by default.
+          rustflags: -D warnings
       - run: ./scripts/fmt.sh --check
       - run: cargo test --locked --all-targets
       - run: cargo test --locked --doc
@@ -78,6 +80,8 @@ jobs:
           fetch-depth: 0
           ref: ${{ needs.prepare.outputs.revision }}
       - uses: actions-rust-lang/setup-rust-toolchain@v2
+        with:
+          rustflags: -D warnings
       - uses: legra-ai/github-actions/.github/actions/tag-tested-release@main
         with:
           version: ${{ needs.prepare.outputs.version }}
