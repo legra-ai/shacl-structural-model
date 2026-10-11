@@ -4,21 +4,24 @@ use std::fmt;
 
 use iri_rfc3987::Iri;
 
-use crate::{NodeKind, ShaclPath};
+use crate::{CustomConstraint, ExpressionConstraint, NodeKind, ShaclPath, SparqlConstraint};
 
 /// The default value type used by [`Component`].
 pub type DefaultValue = rdf_syntax::Term;
 
-/// A SHACL Core constraint component.
+/// A Core, SPARQL, or AF constraint declaration applied to a shape.
 ///
 /// Integer count and length parameters use `Count`, which defaults to the
 /// caller's RDF value type. Consumers may instead supply a compiled comparison
 /// type without imposing a machine-integer limit on the structural model.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(bound(
-    serialize = "Value: serde::Serialize, Count: serde::Serialize",
-    deserialize = "Value: serde::Deserialize<'de>, Count: serde::Deserialize<'de>"
-))]
+#[serde(
+    deny_unknown_fields,
+    bound(
+        serialize = "Value: serde::Serialize, Count: serde::Serialize",
+        deserialize = "Value: serde::Deserialize<'de>, Count: serde::Deserialize<'de>"
+    )
+)]
 pub enum Component<Value = DefaultValue, Count = Value> {
     /// `sh:class` — the value must be an instance of the class.
     Class(Iri<String>),
@@ -62,19 +65,19 @@ pub enum Component<Value = DefaultValue, Count = Value> {
     /// `sh:lessThanOrEquals`.
     LessThanOrEquals(ShaclPath),
     /// `sh:and`.
-    And(Vec<Iri<String>>),
+    And(Vec<Value>),
     /// `sh:or`.
-    Or(Vec<Iri<String>>),
+    Or(Vec<Value>),
     /// `sh:not`.
-    Not(Iri<String>),
+    Not(Value),
     /// `sh:xone`.
-    Xone(Vec<Iri<String>>),
+    Xone(Vec<Value>),
     /// `sh:node`.
-    Node(Iri<String>),
+    Node(Value),
     /// `sh:qualifiedValueShape` with optional min/max counts.
     QualifiedValueShape {
         /// The shape to count conforming values against.
-        shape: Iri<String>,
+        shape: Value,
         /// Minimum number of conforming values.
         min_count: Option<Count>,
         /// Maximum number of conforming values.
@@ -93,6 +96,12 @@ pub enum Component<Value = DefaultValue, Count = Value> {
         /// Properties exempt from the closure check.
         ignored_properties: Vec<Iri<String>>,
     },
+    /// A `sh:sparql` constraint declaration.
+    Sparql(Box<SparqlConstraint<Value>>),
+    /// A `sh:expression` constraint declaration.
+    Expression(Box<ExpressionConstraint<Value>>),
+    /// A use of a separately declared custom component.
+    Custom(CustomConstraint<Value>),
 }
 
 impl<Value, Count> Component<Value, Count> {
@@ -127,6 +136,9 @@ impl<Value, Count> Component<Value, Count> {
             Self::HasValue(_) => "hasValue",
             Self::In(_) => "in",
             Self::Closed { .. } => "closed",
+            Self::Sparql(_) => "sparql",
+            Self::Expression(_) => "expression",
+            Self::Custom(_) => "custom",
         }
     }
 }
@@ -136,9 +148,7 @@ impl<Value: fmt::Debug, Count: fmt::Debug> Component<Value, Count> {
     #[must_use]
     pub fn display_value(&self) -> String {
         match self {
-            Self::Class(iri) | Self::Datatype(iri) | Self::Not(iri) | Self::Node(iri) => {
-                crate::local_name(iri)
-            }
+            Self::Class(iri) | Self::Datatype(iri) => crate::local_name(iri),
             Self::NodeKind(kind) => format!("{kind:?}"),
             Self::MinCount(count)
             | Self::MaxCount(count)
@@ -148,7 +158,9 @@ impl<Value: fmt::Debug, Count: fmt::Debug> Component<Value, Count> {
             | Self::MinInclusive(value)
             | Self::MaxExclusive(value)
             | Self::MaxInclusive(value)
-            | Self::HasValue(value) => format!("{value:?}"),
+            | Self::HasValue(value)
+            | Self::Not(value)
+            | Self::Node(value) => format!("{value:?}"),
             Self::Pattern { pattern, flags } => match flags {
                 Some(flags) => format!("/{pattern}/{flags}"),
                 None => format!("/{pattern}/"),
@@ -161,7 +173,7 @@ impl<Value: fmt::Debug, Count: fmt::Debug> Component<Value, Count> {
             | Self::LessThanOrEquals(path) => path.to_string(),
             Self::And(iris) | Self::Or(iris) | Self::Xone(iris) => iris
                 .iter()
-                .map(crate::local_name)
+                .map(|value| format!("{value:?}"))
                 .collect::<Vec<_>>()
                 .join(", "),
             Self::QualifiedValueShape {
@@ -170,7 +182,7 @@ impl<Value: fmt::Debug, Count: fmt::Debug> Component<Value, Count> {
                 max_count,
                 ..
             } => {
-                let mut parts = vec![crate::local_name(shape)];
+                let mut parts = vec![format!("{shape:?}")];
                 if let Some(min) = min_count {
                     parts.push(format!("min={min:?}"));
                 }
@@ -202,6 +214,9 @@ impl<Value: fmt::Debug, Count: fmt::Debug> Component<Value, Count> {
                     "false".to_owned()
                 }
             }
+            Self::Sparql(constraint) => format!("{:?}", constraint.select.text),
+            Self::Expression(constraint) => format!("{:?}", constraint.expression.node),
+            Self::Custom(constraint) => crate::local_name(&constraint.component),
         }
     }
 }

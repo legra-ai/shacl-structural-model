@@ -9,10 +9,10 @@ pub enum StructuralModelError {
         /// The unrecognised IRI.
         value: String,
     },
-    /// An IRI did not identify a known SHACL severity.
-    #[error("unknown SHACL severity IRI: {value}")]
-    UnknownSeverity {
-        /// The unrecognised IRI.
+    /// A severity value was not a valid absolute IRI.
+    #[error("invalid SHACL severity IRI: {value}")]
+    InvalidSeverityIri {
+        /// The invalid IRI text.
         value: String,
     },
 }
