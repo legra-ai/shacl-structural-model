@@ -1,55 +1,62 @@
 //! SHACL property shapes.
 
-use iri_rfc3987::Iri;
-
-use crate::{Component, Severity, ShaclPath, ShaclRule};
+use crate::{Component, Severity, ShaclPath, ShaclRule, Target};
 
 /// A SHACL property shape.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(bound(
-    serialize = "Value: serde::Serialize, Count: serde::Serialize",
-    deserialize = "Value: serde::Deserialize<'de>, Count: serde::Deserialize<'de>"
-))]
+#[serde(
+    deny_unknown_fields,
+    bound(
+        serialize = "Value: serde::Serialize, Count: serde::Serialize",
+        deserialize = "Value: serde::Deserialize<'de>, Count: serde::Deserialize<'de>"
+    )
+)]
 pub struct PropertyShape<Value = crate::DefaultTerm, Count = Value> {
-    /// The IRI identifying this shape.
-    pub id: Iri<String>,
+    /// The IRI or blank node identifying this shape.
+    pub id: Value,
     /// The property path.
     pub path: ShaclPath,
+    /// The original path node, when retained for source/result identity.
+    pub path_node: Option<Value>,
+    /// Target declarations, which may also occur on property shapes.
+    pub targets: Vec<Target<Value>>,
     /// Constraint components applied to value nodes.
     pub components: Vec<Component<Value, Count>>,
-    /// IRIs of nested property shapes.
-    pub property_shapes: Vec<Iri<String>>,
+    /// IRI or blank-node references to nested property shapes.
+    pub property_shapes: Vec<Value>,
     /// Whether this shape is deactivated.
     pub deactivated: bool,
     /// The severity for results from this shape.
     pub severity: Severity,
-    /// Human-readable name.
-    pub name: Option<String>,
-    /// Human-readable description.
-    pub description: Option<String>,
-    /// Display ordering hint.
-    pub order: Option<f64>,
+    /// RDF `sh:name` literals, including any language tags.
+    pub names: Vec<Value>,
+    /// RDF `sh:description` literals, including any language tags.
+    pub descriptions: Vec<Value>,
+    /// The original numeric `sh:order` literal for display and rule ordering.
+    pub order: Option<Value>,
     /// Default RDF value.
     pub default_value: Option<Value>,
-    /// Custom validation messages.
-    pub messages: Vec<String>,
+    /// RDF `sh:message` literals, including any language tags.
+    pub messages: Vec<Value>,
     /// SHACL-AF rules attached to this shape.
-    pub rules: Vec<ShaclRule>,
+    pub rules: Vec<ShaclRule<Value>>,
 }
 
 impl<Value, Count> PropertyShape<Value, Count> {
-    /// Create an empty property shape with the given IRI and path.
+    /// Create an empty property shape with an IRI or blank-node term and path.
     #[must_use]
-    pub fn new(id: Iri<String>, path: ShaclPath) -> Self {
+    pub fn new(id: Value, path: ShaclPath) -> Self {
         Self {
             id,
             path,
+            path_node: None,
+            targets: Vec::new(),
             components: Vec::new(),
             property_shapes: Vec::new(),
             deactivated: false,
             severity: Severity::default(),
-            name: None,
-            description: None,
+            names: Vec::new(),
+            descriptions: Vec::new(),
             order: None,
             default_value: None,
             messages: Vec::new(),
@@ -66,8 +73,8 @@ impl<Value, Count> PropertyShape<Value, Count> {
 
     /// Add a nested property-shape reference.
     #[must_use]
-    pub fn with_property_shape(mut self, iri: Iri<String>) -> Self {
-        self.property_shapes.push(iri);
+    pub fn with_property_shape(mut self, shape: Value) -> Self {
+        self.property_shapes.push(shape);
         self
     }
 
@@ -85,23 +92,23 @@ impl<Value, Count> PropertyShape<Value, Count> {
         self
     }
 
-    /// Set the human-readable name.
+    /// Add an RDF name literal.
     #[must_use]
-    pub fn with_name(mut self, name: impl Into<String>) -> Self {
-        self.name = Some(name.into());
+    pub fn with_name(mut self, name: Value) -> Self {
+        self.names.push(name);
         self
     }
 
-    /// Set the human-readable description.
+    /// Add an RDF description literal.
     #[must_use]
-    pub fn with_description(mut self, description: impl Into<String>) -> Self {
-        self.description = Some(description.into());
+    pub fn with_description(mut self, description: Value) -> Self {
+        self.descriptions.push(description);
         self
     }
 
-    /// Set the display order.
+    /// Set the original numeric ordering literal.
     #[must_use]
-    pub fn with_order(mut self, order: f64) -> Self {
+    pub fn with_order(mut self, order: Value) -> Self {
         self.order = Some(order);
         self
     }
@@ -115,15 +122,23 @@ impl<Value, Count> PropertyShape<Value, Count> {
 
     /// Add a custom validation message.
     #[must_use]
-    pub fn with_message(mut self, message: impl Into<String>) -> Self {
-        self.messages.push(message.into());
+    pub fn with_message(mut self, message: Value) -> Self {
+        self.messages.push(message);
         self
     }
 
-    /// Return the local name of this shape's IRI.
+    /// Add a target declaration.
     #[must_use]
-    pub fn local_name(&self) -> String {
-        crate::local_name(&self.id)
+    pub fn with_target(mut self, target: Target<Value>) -> Self {
+        self.targets.push(target);
+        self
+    }
+
+    /// Attach a rule declaration.
+    #[must_use]
+    pub fn with_rule(mut self, rule: ShaclRule<Value>) -> Self {
+        self.rules.push(rule);
+        self
     }
 
     /// Return a display string for the property path.
