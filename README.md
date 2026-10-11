@@ -143,9 +143,10 @@ direct structural values; they are not a replacement for streaming an entire
 input document.
 
 This is a parsed structural model, not an RDF graph archive. Paths retain
-their structure but not all RDF-list cell identities. Boolean parameters and Core language strings are interpreted fields.
-Regex patterns and flags retain their RDF values or caller-defined compiled representations. Callers that need exact
-source triples or graph context must retain those separately. `path_node`
+their structure but not all RDF-list cell identities. Boolean parameters and
+Core language strings are interpreted fields. Regex patterns and flags retain
+their RDF values or caller-defined compiled representations. Callers that need
+exact source triples or graph context must retain those separately. `path_node`
 can retain a path's source root for result reporting. Display helpers are
 human-readable labels, not RDF or SPARQL serialization.
 

@@ -11,10 +11,17 @@
 - Fix: independent fourth generic Pattern, defaulting to Value, propagated
   through components, both shape kinds, parameters and all parameter owners.
   Callers may retain an RDF reference beside their compiled representation.
-- Focused validation covers opaque RDF values, nested parameter constraints,
+- Implementation commit `00fdf81` passes all nine focused tests and mandatory
+  hooks. Both new test files are committed; no pending implementation changes.
+  Coverage includes opaque RDF values, nested parameter constraints,
   independently compiled patterns/flags/counts, all declaration owners and
-  construction without Clone/Debug/Serde bounds. Broad and archive tests follow
-  the implementation commit; record their outcome below before opening a PR.
+  construction without Clone/Debug/Serde bounds.
+- Post-commit validation: all 32 library/integration tests, three doctests,
+  five maintenance-policy tests and public documentation generation pass.
+  The packaged archive includes every test and both licenses, and passes the
+  same 32 tests plus three doctests using exact repository Rust 1.89.0.
+  Logs: `/tmp/shacl-pattern-model-all.log`, `-doc.log`, `-rustdoc.log`, and
+  `/tmp/shacl-pattern-model-package-pinned.log`. No new release exists yet.
 - No regex parser/compiler or private storage implementation is included.
   This removes the structural String restriction only. Streaming source reads,
   compiler resource accounting and compiled-schema persistence remain private
