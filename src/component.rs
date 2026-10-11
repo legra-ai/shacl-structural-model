@@ -10,12 +10,16 @@ use crate::{NodeKind, ShaclPath};
 pub type DefaultValue = rdf_syntax::Term;
 
 /// A SHACL Core constraint component.
+///
+/// Integer count and length parameters use `Count`, which defaults to the
+/// caller's RDF value type. Consumers may instead supply a compiled comparison
+/// type without imposing a machine-integer limit on the structural model.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(bound(
-    serialize = "Value: serde::Serialize",
-    deserialize = "Value: serde::Deserialize<'de>"
+    serialize = "Value: serde::Serialize, Count: serde::Serialize",
+    deserialize = "Value: serde::Deserialize<'de>, Count: serde::Deserialize<'de>"
 ))]
-pub enum Component<Value = DefaultValue> {
+pub enum Component<Value = DefaultValue, Count = Value> {
     /// `sh:class` — the value must be an instance of the class.
     Class(Iri<String>),
     /// `sh:datatype` — the value must have the given datatype.
@@ -23,9 +27,9 @@ pub enum Component<Value = DefaultValue> {
     /// `sh:nodeKind` — the value must have the given RDF node kind.
     NodeKind(NodeKind),
     /// `sh:minCount`.
-    MinCount(u64),
+    MinCount(Count),
     /// `sh:maxCount`.
-    MaxCount(u64),
+    MaxCount(Count),
     /// `sh:minExclusive`.
     MinExclusive(Value),
     /// `sh:minInclusive`.
@@ -35,9 +39,9 @@ pub enum Component<Value = DefaultValue> {
     /// `sh:maxInclusive`.
     MaxInclusive(Value),
     /// `sh:minLength`.
-    MinLength(u64),
+    MinLength(Count),
     /// `sh:maxLength`.
-    MaxLength(u64),
+    MaxLength(Count),
     /// `sh:pattern` with optional `sh:flags`.
     Pattern {
         /// The regular expression pattern.
@@ -72,9 +76,9 @@ pub enum Component<Value = DefaultValue> {
         /// The shape to count conforming values against.
         shape: Iri<String>,
         /// Minimum number of conforming values.
-        min_count: Option<u64>,
+        min_count: Option<Count>,
         /// Maximum number of conforming values.
-        max_count: Option<u64>,
+        max_count: Option<Count>,
         /// Whether sibling qualified shapes use disjoint value sets.
         disjoint: bool,
     },
@@ -91,7 +95,7 @@ pub enum Component<Value = DefaultValue> {
     },
 }
 
-impl<Value> Component<Value> {
+impl<Value, Count> Component<Value, Count> {
     /// Return the SHACL constraint kind name.
     #[must_use]
     pub const fn kind_name(&self) -> &'static str {
@@ -127,7 +131,7 @@ impl<Value> Component<Value> {
     }
 }
 
-impl<Value: fmt::Debug> Component<Value> {
+impl<Value: fmt::Debug, Count: fmt::Debug> Component<Value, Count> {
     /// Return a human-readable display value for this component.
     #[must_use]
     pub fn display_value(&self) -> String {
@@ -139,7 +143,7 @@ impl<Value: fmt::Debug> Component<Value> {
             Self::MinCount(count)
             | Self::MaxCount(count)
             | Self::MinLength(count)
-            | Self::MaxLength(count) => count.to_string(),
+            | Self::MaxLength(count) => format!("{count:?}"),
             Self::MinExclusive(value)
             | Self::MinInclusive(value)
             | Self::MaxExclusive(value)
@@ -168,10 +172,10 @@ impl<Value: fmt::Debug> Component<Value> {
             } => {
                 let mut parts = vec![crate::local_name(shape)];
                 if let Some(min) = min_count {
-                    parts.push(format!("min={min}"));
+                    parts.push(format!("min={min:?}"));
                 }
                 if let Some(max) = max_count {
-                    parts.push(format!("max={max}"));
+                    parts.push(format!("max={max:?}"));
                 }
                 parts.join(", ")
             }

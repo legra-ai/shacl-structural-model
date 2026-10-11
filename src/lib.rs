@@ -32,10 +32,9 @@ mod tests {
 
     #[test]
     fn default_term_component_is_available() {
-        let component = Component::HasValue(DefaultTerm::literal(rdf_syntax::Literal::new(
-            "value",
-            rdf_syntax::XSD_STRING,
-        )));
+        let component: Component = Component::HasValue(DefaultTerm::literal(
+            rdf_syntax::Literal::new("value", rdf_syntax::XSD_STRING),
+        ));
         assert_eq!(component.kind_name(), "hasValue");
     }
 
@@ -53,7 +52,9 @@ mod tests {
     ///     "https://example.org/PersonShape".parse().expect("valid IRI"),
     /// )
     /// .with_target(Target::Class(person))
-    /// .with_component(Component::MinCount(1));
+    /// .with_component(Component::MinCount(DefaultTerm::literal(
+    ///     rdf_syntax::Literal::new("1", rdf_syntax::iri!("http://www.w3.org/2001/XMLSchema#integer")),
+    /// ))));
     ///
     /// assert_eq!(shape.components[0].kind_name(), "minCount");
     /// assert_eq!(ShaclPath::Predicate("https://example.org/name".parse().unwrap()).to_string(), "name");

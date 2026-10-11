@@ -7,16 +7,16 @@ use crate::{Component, Severity, ShaclPath, ShaclRule};
 /// A SHACL property shape.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(bound(
-    serialize = "Value: serde::Serialize",
-    deserialize = "Value: serde::Deserialize<'de>"
+    serialize = "Value: serde::Serialize, Count: serde::Serialize",
+    deserialize = "Value: serde::Deserialize<'de>, Count: serde::Deserialize<'de>"
 ))]
-pub struct PropertyShape<Value = crate::DefaultTerm> {
+pub struct PropertyShape<Value = crate::DefaultTerm, Count = Value> {
     /// The IRI identifying this shape.
     pub id: Iri<String>,
     /// The property path.
     pub path: ShaclPath,
     /// Constraint components applied to value nodes.
-    pub components: Vec<Component<Value>>,
+    pub components: Vec<Component<Value, Count>>,
     /// IRIs of nested property shapes.
     pub property_shapes: Vec<Iri<String>>,
     /// Whether this shape is deactivated.
@@ -37,7 +37,7 @@ pub struct PropertyShape<Value = crate::DefaultTerm> {
     pub rules: Vec<ShaclRule>,
 }
 
-impl<Value> PropertyShape<Value> {
+impl<Value, Count> PropertyShape<Value, Count> {
     /// Create an empty property shape with the given IRI and path.
     #[must_use]
     pub fn new(id: Iri<String>, path: ShaclPath) -> Self {
@@ -59,7 +59,7 @@ impl<Value> PropertyShape<Value> {
 
     /// Add a constraint component.
     #[must_use]
-    pub fn with_component(mut self, component: Component<Value>) -> Self {
+    pub fn with_component(mut self, component: Component<Value, Count>) -> Self {
         self.components.push(component);
         self
     }
