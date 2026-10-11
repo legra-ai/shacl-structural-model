@@ -12,8 +12,10 @@
   and bounded compiled flags without implementing graph/payload logic here.
 - Pattern bodies remain strings; this change does not implement streamed regex
   compilation. No private payload implementation belongs in this public crate.
-- All three focused flag tests pass, including independent compiled flags on
-  node and property shapes. Normal commit hooks run at commit; no PR yet.
-  Registry publication is required before final private integration.
+- Commit `f3b7e30` passes all three focused flag regressions and normal hooks.
+  All 26 library/integration tests, three doctests, five maintenance-policy
+  tests and documentation generation pass. The packaged archive passes the
+  same 26 tests and three doctests. No PR yet; registry publication is required
+  before final private integration.
 - Existing CI remains the sole publisher. Do not claim full ADR 0105 settings
   adoption; required checks/title/review configuration remains unverified.
