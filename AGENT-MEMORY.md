@@ -15,7 +15,8 @@
 - Commit `f3b7e30` passes all three focused flag regressions and normal hooks.
   All 26 library/integration tests, three doctests, five maintenance-policy
   tests and documentation generation pass. The packaged archive passes the
-  same 26 tests and three doctests. No PR yet; registry publication is required
-  before final private integration.
+  same 26 tests and three doctests. PR #8 is ready for review:
+  https://github.com/legra-ai/shacl-structural-model/pull/8 . Merge watch active;
+  registry publication is required before final private integration.
 - Existing CI remains the sole publisher. Do not claim full ADR 0105 settings
   adoption; required checks/title/review configuration remains unverified.
