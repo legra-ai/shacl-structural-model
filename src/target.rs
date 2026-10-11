@@ -94,15 +94,15 @@ impl<Value> SparqlTarget<Value> {
 #[serde(
     deny_unknown_fields,
     bound(
-        serialize = "Value: serde::Serialize, Count: serde::Serialize",
-        deserialize = "Value: serde::Deserialize<'de>, Count: serde::Deserialize<'de>"
+        serialize = "Value: serde::Serialize, Count: serde::Serialize, Flags: serde::Serialize",
+        deserialize = "Value: serde::Deserialize<'de>, Count: serde::Deserialize<'de>, Flags: serde::Deserialize<'de>"
     )
 )]
-pub struct SparqlTargetType<Value = crate::DefaultTerm, Count = Value> {
+pub struct SparqlTargetType<Value = crate::DefaultTerm, Count = Value, Flags = Value> {
     /// The target type's IRI or blank-node term.
     pub id: Value,
     /// Parameter declarations in caller order.
-    pub parameters: Vec<Parameter<Value, Count>>,
+    pub parameters: Vec<Parameter<Value, Count, Flags>>,
     /// The SELECT query identifying focus nodes.
     pub select: SparqlQuery<Value>,
     /// Optional ASK query testing target membership.
@@ -111,7 +111,7 @@ pub struct SparqlTargetType<Value = crate::DefaultTerm, Count = Value> {
     pub label_templates: Vec<Value>,
 }
 
-impl<Value, Count> SparqlTargetType<Value, Count> {
+impl<Value, Count, Flags> SparqlTargetType<Value, Count, Flags> {
     /// Create a target type with no parameters, ASK query, or label templates.
     #[must_use]
     pub fn new(id: Value, select: SparqlQuery<Value>) -> Self {

@@ -14,15 +14,17 @@ pub type DefaultValue = rdf_syntax::Term;
 /// Integer count and length parameters use `Count`, which defaults to the
 /// caller's RDF value type. Consumers may instead supply a compiled comparison
 /// type without imposing a machine-integer limit on the structural model.
+/// Regex flags use an independent `Flags` type, also defaulting to `Value`.
+/// Consumers can retain an RDF reference beside a constant-size flag summary.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(
     deny_unknown_fields,
     bound(
-        serialize = "Value: serde::Serialize, Count: serde::Serialize",
-        deserialize = "Value: serde::Deserialize<'de>, Count: serde::Deserialize<'de>"
+        serialize = "Value: serde::Serialize, Count: serde::Serialize, Flags: serde::Serialize",
+        deserialize = "Value: serde::Deserialize<'de>, Count: serde::Deserialize<'de>, Flags: serde::Deserialize<'de>"
     )
 )]
-pub enum Component<Value = DefaultValue, Count = Value> {
+pub enum Component<Value = DefaultValue, Count = Value, Flags = Value> {
     /// `sh:class` — the value must be an instance of the class.
     Class(Iri<String>),
     /// `sh:datatype` — the value must have the given datatype.
@@ -49,8 +51,8 @@ pub enum Component<Value = DefaultValue, Count = Value> {
     Pattern {
         /// The regular expression pattern.
         pattern: String,
-        /// Optional regular expression flags.
-        flags: Option<String>,
+        /// Original RDF flags value, or a caller-defined compiled representation.
+        flags: Option<Flags>,
     },
     /// `sh:languageIn`.
     LanguageIn(Vec<String>),
@@ -104,7 +106,7 @@ pub enum Component<Value = DefaultValue, Count = Value> {
     Custom(CustomConstraint<Value>),
 }
 
-impl<Value, Count> Component<Value, Count> {
+impl<Value, Count, Flags> Component<Value, Count, Flags> {
     /// Return the SHACL constraint kind name.
     #[must_use]
     pub const fn kind_name(&self) -> &'static str {
@@ -143,7 +145,7 @@ impl<Value, Count> Component<Value, Count> {
     }
 }
 
-impl<Value: fmt::Debug, Count: fmt::Debug> Component<Value, Count> {
+impl<Value: fmt::Debug, Count: fmt::Debug, Flags: fmt::Debug> Component<Value, Count, Flags> {
     /// Return a human-readable display value for this component.
     #[must_use]
     pub fn display_value(&self) -> String {
@@ -162,7 +164,7 @@ impl<Value: fmt::Debug, Count: fmt::Debug> Component<Value, Count> {
             | Self::Not(value)
             | Self::Node(value) => format!("{value:?}"),
             Self::Pattern { pattern, flags } => match flags {
-                Some(flags) => format!("/{pattern}/{flags}"),
+                Some(flags) => format!("/{pattern}/{flags:?}"),
                 None => format!("/{pattern}/"),
             },
             Self::LanguageIn(languages) => languages.join(", "),
