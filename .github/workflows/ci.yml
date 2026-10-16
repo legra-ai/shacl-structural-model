@@ -64,6 +64,9 @@ jobs:
           components: clippy
           # Cargo 1.89 predates CARGO_BUILD_WARNINGS, which v2 uses by default.
           rustflags: -D warnings
+      - uses: dtolnay/rust-toolchain@nightly-2026-10-16
+        with:
+          components: rustfmt
       - run: ./scripts/fmt.sh --check
       - run: cargo test --locked --all-targets
       - run: cargo test --locked --doc
