@@ -47,8 +47,8 @@ class CommitPolicyTests(unittest.TestCase):
 
     def test_ci_and_hooks_share_pinned_toolchains(self):
         root = Path(__file__).resolve().parents[1]
-        self.assertRegex((root / "rustfmt-toolchain").read_text().strip(), r"^nightly-\d{4}-\d{2}-\d{2}$")
-        self.assertIn('channel = "1.89.0"', (root / "rust-toolchain.toml").read_text())
+        self.assertEqual((root / "rustfmt-toolchain").read_text().strip(), "1.99.1")
+        self.assertIn('channel = "1.99.1"', (root / "rust-toolchain.toml").read_text())
         workflow = (root / ".github/workflows/ci.yml").read_text()
         self.assertIn("./scripts/fmt.sh --check", workflow)
         self.assertNotIn("cargo +nightly", workflow)
