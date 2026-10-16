@@ -30,7 +30,7 @@ pub use node_shape::NodeShape;
 pub use parameter::{Parameter, ParameterValues};
 pub use path::ShaclPath;
 pub use property_shape::PropertyShape;
-pub use rdf_syntax::Term as DefaultTerm;
+pub use rdf_structural_model::Term as DefaultTerm;
 pub use rule::{RuleKind, ShaclRule, TripleRule};
 pub use severity::Severity;
 pub use sparql::{
@@ -46,7 +46,7 @@ mod tests {
     #[test]
     fn default_term_component_is_available() {
         let component: Component = Component::HasValue(DefaultTerm::literal(
-            rdf_syntax::Literal::new("value", rdf_syntax::XSD_STRING),
+            rdf_structural_model::Literal::string("value"),
         ));
         assert_eq!(component.kind_name(), "hasValue");
     }
