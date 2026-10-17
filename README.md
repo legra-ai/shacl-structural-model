@@ -13,7 +13,7 @@ SHACL Advanced Features functions, expressions and rules. It is intended for par
 editors, validators, serializers, and storage adapters that need typed shape
 values without taking a dependency on an RDF graph implementation.
 
-The default value type is [`rdf_syntax::Term`]. The structural types are also
+The default value type is [`rdf_structural_model::Term`]. The structural types are also
 generic over the value type, so an application can use its own RDF term model
 without copying or converting RDF-valued fields. Shape IDs and references
 retain blank nodes; target nodes can also be literals. Messages keep language
@@ -37,17 +37,18 @@ the current scope.
 
 ```rust
 use iri_rfc3987::Iri;
+use rdf_structural_model::{BlankNodeId, Literal};
 use shacl_structural_model::{Component, DefaultTerm, NodeShape, PropertyShape, ShaclPath, Target};
 
 let person: Iri<String> = "https://example.org/Person".parse().expect("valid IRI");
 let name: Iri<String> = "https://example.org/name".parse().expect("valid IRI");
 
 let name_shape = PropertyShape::<DefaultTerm>::new(
-    DefaultTerm::from(rdf_syntax::BlankIdBuf::new("_:nameShape".to_owned()).unwrap()),
+    DefaultTerm::BlankNode(BlankNodeId::try_new("urn:shapes:source".parse().unwrap(), "nameShape".to_owned()).unwrap()),
     ShaclPath::Predicate(name),
 )
 .with_component(Component::MinCount(DefaultTerm::literal(
-    rdf_syntax::Literal::new("1", rdf_syntax::iri!("http://www.w3.org/2001/XMLSchema#integer")),
+    Literal::typed("1", "http://www.w3.org/2001/XMLSchema#integer".parse().unwrap()).unwrap(),
 )));
 
 let person_shape = NodeShape::<DefaultTerm>::new(
@@ -62,7 +63,7 @@ assert_eq!(name_shape.components[0].kind_name(), "minCount");
 
 ## Value types
 
-RDF-valued fields default to `rdf_syntax::Term`. Applications can instead use
+RDF-valued fields default to `rdf_structural_model::Term`. Applications can instead use
 `oxrdf::Term`, references to their existing terms, or opaque term handles.
 Construction has no `Clone`, `Debug`, or Serde bounds; those traits are required
 only when calling the corresponding operations. IRIs in IRI-only roles, such
@@ -92,6 +93,20 @@ components, target types and functions. An engine can retain an opaque RDF
 reference beside its bounded compiled flags without materializing the original
 string. The model does not interpret flag syntax. Pattern bodies remain strings.
 
+## Serialization and RDF identity
+
+The default terms use the shared `rdf-structural-model` foundation. Their
+serialization supports JSON and non-self-describing binary formats such as
+Postcard, including nested shapes, numeric lexical forms and directional
+language messages. Blank nodes carry an explicit caller-assigned scope IRI;
+use the same scope for intentionally shared identities and distinct scopes for
+independent imports. This changes the default term API and serialized shape.
+
+Applications still supply their own `Value`, `Count` and `Flags` without a
+conversion layer. Their Serde support is conditional on those types. Model
+support for RDF 1.2 triple terms and typed extensions does not establish SHACL
+validator execution support for those features.
+
 ## SPARQL and Advanced Features
 
 | Declaration | Structural types |
@@ -114,11 +129,13 @@ RDF value type, preserving blank-node identity as well as named resources.
 ```rust
 use shacl_structural_model::{Component, DefaultTerm, NodeShape, SparqlConstraint, SparqlQuery};
 
-let blank = |label: &str| DefaultTerm::from(
-    rdf_syntax::BlankIdBuf::new(format!("_:{label}")).unwrap()
+use rdf_structural_model::{BlankNodeId, Literal};
+
+let blank = |label: &str| DefaultTerm::BlankNode(
+    BlankNodeId::try_new("urn:shapes:source".parse().unwrap(), label.to_owned()).unwrap()
 );
-let query = SparqlQuery::new(DefaultTerm::literal(rdf_syntax::Literal::new(
-    "SELECT $this WHERE { $this ex:status ex:Invalid }", rdf_syntax::XSD_STRING,
+let query = SparqlQuery::new(DefaultTerm::literal(Literal::string(
+    "SELECT $this WHERE { $this ex:status ex:Invalid }",
 )))
 .with_prefixes(blank("prefixes"));
 let shape = NodeShape::<DefaultTerm>::new(blank("shape"))

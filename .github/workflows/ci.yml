@@ -54,15 +54,20 @@ jobs:
         run: |
           IFS= read -r formatter_toolchain < rustfmt-toolchain || exit 1
           printf 'toolchain=%s\n' "$formatter_toolchain" >> "$GITHUB_OUTPUT"
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@1.99.1
         with:
           toolchain: ${{ steps.formatter.outputs.toolchain }}
           components: rustfmt
       - uses: actions-rust-lang/setup-rust-toolchain@v2
         with:
+          toolchain: 1.99.1
           components: clippy
           # Cargo 1.89 predates CARGO_BUILD_WARNINGS, which v2 uses by default.
           rustflags: -D warnings
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          toolchain: nightly-2026-10-16
+          components: rustfmt
       - run: ./scripts/fmt.sh --check
       - run: cargo test --locked --all-targets
       - run: cargo test --locked --doc
@@ -84,6 +89,7 @@ jobs:
           ref: ${{ needs.prepare.outputs.revision }}
       - uses: actions-rust-lang/setup-rust-toolchain@v2
         with:
+          toolchain: 1.99.1
           rustflags: -D warnings
       - uses: legra-ai/github-actions/.github/actions/tag-tested-release@main
         with:

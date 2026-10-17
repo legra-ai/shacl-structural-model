@@ -1,5 +1,7 @@
 //! Use actual RDF term implementations at the model/engine boundary.
 
+use rdf_structural_model::{BlankNodeId, LanguageTag};
+
 use oxrdf::{BlankNode, Literal, NamedNode, Term};
 use shacl_structural_model::{
     Component, DefaultTerm, NodeShape, PropertyShape, ShaclPath, SparqlConstraint, SparqlQuery,
@@ -62,10 +64,12 @@ fn borrowed_engine_terms_need_no_owned_conversion() {
 
 #[test]
 fn default_rdf_terms_round_trip_blank_ids_and_language_messages() {
-    let id = DefaultTerm::from(rdf_syntax::BlankIdBuf::new("_:shape".to_owned()).unwrap());
-    let message = DefaultTerm::literal(rdf_syntax::Literal::new(
+    let id = DefaultTerm::BlankNode(
+        BlankNodeId::try_new("urn:source".parse().unwrap(), "shape".to_owned()).unwrap(),
+    );
+    let message = DefaultTerm::literal(rdf_structural_model::Literal::language_tagged(
         "Verplicht",
-        rdf_syntax::LiteralType::LangString("nl".parse().unwrap()),
+        LanguageTag::try_new("nl".to_owned()).unwrap(),
     ));
     let shape = NodeShape::<DefaultTerm>::new(id)
         .with_message(message.clone())

@@ -7,7 +7,7 @@ use iri_rfc3987::Iri;
 use crate::{CustomConstraint, ExpressionConstraint, NodeKind, ShaclPath, SparqlConstraint};
 
 /// The default value type used by [`Component`].
-pub type DefaultValue = rdf_syntax::Term;
+pub type DefaultValue = crate::DefaultTerm;
 
 /// A Core, SPARQL, or AF constraint declaration applied to a shape.
 ///
