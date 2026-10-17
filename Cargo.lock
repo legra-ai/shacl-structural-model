@@ -298,7 +298,7 @@ dependencies = [
 
 [[package]]
 name = "shacl-structural-model"
-version = "4.0.3"
+version = "5.0.0"
 dependencies = [
  "iri-rfc3987",
  "oxrdf",
