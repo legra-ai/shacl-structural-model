@@ -14,17 +14,18 @@ pub type DefaultValue = crate::DefaultTerm;
 /// Integer count and length parameters use `Count`, which defaults to the
 /// caller's RDF value type. Consumers may instead supply a compiled comparison
 /// type without imposing a machine-integer limit on the structural model.
-/// Regex flags use an independent `Flags` type, also defaulting to `Value`.
-/// Consumers can retain an RDF reference beside a constant-size flag summary.
+/// Regex flags and patterns use independent `Flags` and `Pattern` types,
+/// also defaulting to `Value`. Consumers may retain an RDF reference beside
+/// a compiled representation without requiring an owned lexical string.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(
     deny_unknown_fields,
     bound(
-        serialize = "Value: serde::Serialize, Count: serde::Serialize, Flags: serde::Serialize",
-        deserialize = "Value: serde::Deserialize<'de>, Count: serde::Deserialize<'de>, Flags: serde::Deserialize<'de>"
+        serialize = "Value: serde::Serialize, Count: serde::Serialize, Flags: serde::Serialize, Pattern: serde::Serialize",
+        deserialize = "Value: serde::Deserialize<'de>, Count: serde::Deserialize<'de>, Flags: serde::Deserialize<'de>, Pattern: serde::Deserialize<'de>"
     )
 )]
-pub enum Component<Value = DefaultValue, Count = Value, Flags = Value> {
+pub enum Component<Value = DefaultValue, Count = Value, Flags = Value, Pattern = Value> {
     /// `sh:class` — the value must be an instance of the class.
     Class(Iri<String>),
     /// `sh:datatype` — the value must have the given datatype.
@@ -49,8 +50,8 @@ pub enum Component<Value = DefaultValue, Count = Value, Flags = Value> {
     MaxLength(Count),
     /// `sh:pattern` with optional `sh:flags`.
     Pattern {
-        /// The regular expression pattern.
-        pattern: String,
+        /// Original RDF pattern value, or a caller-defined compiled representation.
+        pattern: Pattern,
         /// Original RDF flags value, or a caller-defined compiled representation.
         flags: Option<Flags>,
     },
@@ -106,7 +107,7 @@ pub enum Component<Value = DefaultValue, Count = Value, Flags = Value> {
     Custom(CustomConstraint<Value>),
 }
 
-impl<Value, Count, Flags> Component<Value, Count, Flags> {
+impl<Value, Count, Flags, Pattern> Component<Value, Count, Flags, Pattern> {
     /// Return the SHACL constraint kind name.
     #[must_use]
     pub const fn kind_name(&self) -> &'static str {
@@ -145,7 +146,9 @@ impl<Value, Count, Flags> Component<Value, Count, Flags> {
     }
 }
 
-impl<Value: fmt::Debug, Count: fmt::Debug, Flags: fmt::Debug> Component<Value, Count, Flags> {
+impl<Value: fmt::Debug, Count: fmt::Debug, Flags: fmt::Debug, Pattern: fmt::Debug>
+    Component<Value, Count, Flags, Pattern>
+{
     /// Return a human-readable display value for this component.
     #[must_use]
     pub fn display_value(&self) -> String {
@@ -164,8 +167,8 @@ impl<Value: fmt::Debug, Count: fmt::Debug, Flags: fmt::Debug> Component<Value, C
             | Self::Not(value)
             | Self::Node(value) => format!("{value:?}"),
             Self::Pattern { pattern, flags } => match flags {
-                Some(flags) => format!("/{pattern}/{flags:?}"),
-                None => format!("/{pattern}/"),
+                Some(flags) => format!("/{pattern:?}/{flags:?}"),
+                None => format!("/{pattern:?}/"),
             },
             Self::LanguageIn(languages) => languages.join(", "),
             Self::UniqueLang(value) => value.to_string(),
