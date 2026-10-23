@@ -59,6 +59,19 @@ class CommitPolicyTests(unittest.TestCase):
         self.assertNotIn("cargo +nightly ", workflow)
         self.assertIn("./scripts/fmt.sh --check", (root / ".githooks/pre-commit").read_text())
 
+    def test_formatter_setup_uses_a_pinned_input_capable_action(self):
+        root = Path(__file__).resolve().parents[1]
+        workflow = (root / ".github/workflows/ci.yml").read_text()
+        steps = re.split(r"^      - ", workflow, flags=re.MULTILINE)
+        setups = [
+            step for step in steps
+            if "toolchain: ${{ steps.formatter.outputs.toolchain }}" in step
+        ]
+        self.assertEqual(len(setups), 1)
+        action = setups[0].splitlines()[0]
+        self.assertRegex(action, r"^uses: dtolnay/rust-toolchain@[0-9a-f]{40}$")
+        self.assertIn("          components: rustfmt\n", setups[0])
+
     def test_commit_header_contract(self):
         hook = Path(__file__).resolve().parents[1] / ".githooks/commit-msg"
         cases = [
