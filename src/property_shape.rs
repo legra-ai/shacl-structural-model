@@ -1,5 +1,7 @@
 //! SHACL property shapes.
 
+use iri_rfc3987::Iri;
+
 use crate::{Component, Severity, ShaclPath, ShaclRule, Target};
 
 /// A SHACL property shape.
@@ -7,22 +9,27 @@ use crate::{Component, Severity, ShaclPath, ShaclRule, Target};
 #[serde(
     deny_unknown_fields,
     bound(
-        serialize = "Value: serde::Serialize, Count: serde::Serialize, Flags: serde::Serialize, Pattern: serde::Serialize",
-        deserialize = "Value: serde::Deserialize<'de>, Count: serde::Deserialize<'de>, Flags: serde::Deserialize<'de>, Pattern: serde::Deserialize<'de>"
+        serialize = "Value: serde::Serialize, Count: serde::Serialize, Flags: serde::Serialize, Pattern: serde::Serialize, Named: serde::Serialize",
+        deserialize = "Value: serde::Deserialize<'de>, Count: serde::Deserialize<'de>, Flags: serde::Deserialize<'de>, Pattern: serde::Deserialize<'de>, Named: serde::Deserialize<'de>"
     )
 )]
-pub struct PropertyShape<Value = crate::DefaultTerm, Count = Value, Flags = Value, Pattern = Value>
-{
+pub struct PropertyShape<
+    Value = crate::DefaultTerm,
+    Count = Value,
+    Flags = Value,
+    Pattern = Value,
+    Named = Iri<String>,
+> {
     /// The IRI or blank node identifying this shape.
     pub id: Value,
     /// The property path.
-    pub path: ShaclPath,
+    pub path: ShaclPath<Named>,
     /// The original path node, when retained for source/result identity.
     pub path_node: Option<Value>,
     /// Target declarations, which may also occur on property shapes.
-    pub targets: Vec<Target<Value>>,
+    pub targets: Vec<Target<Value, Named>>,
     /// Constraint components applied to value nodes.
-    pub components: Vec<Component<Value, Count, Flags, Pattern>>,
+    pub components: Vec<Component<Value, Count, Flags, Pattern, Named>>,
     /// IRI or blank-node references to nested property shapes.
     pub property_shapes: Vec<Value>,
     /// Whether this shape is deactivated.
@@ -40,13 +47,13 @@ pub struct PropertyShape<Value = crate::DefaultTerm, Count = Value, Flags = Valu
     /// RDF `sh:message` literals, including any language tags.
     pub messages: Vec<Value>,
     /// SHACL-AF rules attached to this shape.
-    pub rules: Vec<ShaclRule<Value>>,
+    pub rules: Vec<ShaclRule<Value, Named>>,
 }
 
-impl<Value, Count, Flags, Pattern> PropertyShape<Value, Count, Flags, Pattern> {
+impl<Value, Count, Flags, Pattern, Named> PropertyShape<Value, Count, Flags, Pattern, Named> {
     /// Create an empty property shape with an IRI or blank-node term and path.
     #[must_use]
-    pub fn new(id: Value, path: ShaclPath) -> Self {
+    pub fn new(id: Value, path: ShaclPath<Named>) -> Self {
         Self {
             id,
             path,
@@ -67,7 +74,10 @@ impl<Value, Count, Flags, Pattern> PropertyShape<Value, Count, Flags, Pattern> {
 
     /// Add a constraint component.
     #[must_use]
-    pub fn with_component(mut self, component: Component<Value, Count, Flags, Pattern>) -> Self {
+    pub fn with_component(
+        mut self,
+        component: Component<Value, Count, Flags, Pattern, Named>,
+    ) -> Self {
         self.components.push(component);
         self
     }
@@ -130,21 +140,24 @@ impl<Value, Count, Flags, Pattern> PropertyShape<Value, Count, Flags, Pattern> {
 
     /// Add a target declaration.
     #[must_use]
-    pub fn with_target(mut self, target: Target<Value>) -> Self {
+    pub fn with_target(mut self, target: Target<Value, Named>) -> Self {
         self.targets.push(target);
         self
     }
 
     /// Attach a rule declaration.
     #[must_use]
-    pub fn with_rule(mut self, rule: ShaclRule<Value>) -> Self {
+    pub fn with_rule(mut self, rule: ShaclRule<Value, Named>) -> Self {
         self.rules.push(rule);
         self
     }
 
     /// Return a display string for the property path.
     #[must_use]
-    pub fn path_display(&self) -> String {
+    pub fn path_display(&self) -> String
+    where
+        Named: AsRef<str>,
+    {
         self.path.to_string()
     }
 }

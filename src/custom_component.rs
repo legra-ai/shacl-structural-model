@@ -12,8 +12,8 @@ use crate::{Parameter, ParameterValues, SparqlValidator};
 #[serde(
     deny_unknown_fields,
     bound(
-        serialize = "Value: serde::Serialize, Count: serde::Serialize, Flags: serde::Serialize, Pattern: serde::Serialize",
-        deserialize = "Value: serde::Deserialize<'de>, Count: serde::Deserialize<'de>, Flags: serde::Deserialize<'de>, Pattern: serde::Deserialize<'de>"
+        serialize = "Value: serde::Serialize, Count: serde::Serialize, Flags: serde::Serialize, Pattern: serde::Serialize, Named: serde::Serialize",
+        deserialize = "Value: serde::Deserialize<'de>, Count: serde::Deserialize<'de>, Flags: serde::Deserialize<'de>, Pattern: serde::Deserialize<'de>, Named: serde::Deserialize<'de>"
     )
 )]
 pub struct CustomConstraintComponent<
@@ -21,11 +21,12 @@ pub struct CustomConstraintComponent<
     Count = Value,
     Flags = Value,
     Pattern = Value,
+    Named = Iri<String>,
 > {
     /// The component IRI.
-    pub id: Iri<String>,
+    pub id: Named,
     /// Parameter declarations in caller order; no ordering is evaluated here.
-    pub parameters: Vec<Parameter<Value, Count, Flags, Pattern>>,
+    pub parameters: Vec<Parameter<Value, Count, Flags, Pattern, Named>>,
     /// Generic `sh:validator` declarations.
     pub validators: Vec<SparqlValidator<Value>>,
     /// `sh:nodeValidator` declarations.
@@ -36,10 +37,12 @@ pub struct CustomConstraintComponent<
     pub label_templates: Vec<Value>,
 }
 
-impl<Value, Count, Flags, Pattern> CustomConstraintComponent<Value, Count, Flags, Pattern> {
+impl<Value, Count, Flags, Pattern, Named>
+    CustomConstraintComponent<Value, Count, Flags, Pattern, Named>
+{
     /// Create a component whose declarations can be populated by the caller.
     #[must_use]
-    pub fn new(id: Iri<String>) -> Self {
+    pub fn new(id: Named) -> Self {
         Self {
             id,
             parameters: Vec::new(),
@@ -54,9 +57,9 @@ impl<Value, Count, Flags, Pattern> CustomConstraintComponent<Value, Count, Flags
 /// An application of a custom component to a shape.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct CustomConstraint<Value = crate::DefaultTerm> {
+pub struct CustomConstraint<Value = crate::DefaultTerm, Named = Iri<String>> {
     /// The IRI of a separately supplied component declaration.
-    pub component: Iri<String>,
+    pub component: Named,
     /// All supplied parameter values, before constructing execution bindings.
-    pub parameters: Vec<ParameterValues<Value>>,
+    pub parameters: Vec<ParameterValues<Value, Named>>,
 }

@@ -21,15 +21,21 @@ pub type DefaultValue = crate::DefaultTerm;
 #[serde(
     deny_unknown_fields,
     bound(
-        serialize = "Value: serde::Serialize, Count: serde::Serialize, Flags: serde::Serialize, Pattern: serde::Serialize",
-        deserialize = "Value: serde::Deserialize<'de>, Count: serde::Deserialize<'de>, Flags: serde::Deserialize<'de>, Pattern: serde::Deserialize<'de>"
+        serialize = "Value: serde::Serialize, Count: serde::Serialize, Flags: serde::Serialize, Pattern: serde::Serialize, Named: serde::Serialize",
+        deserialize = "Value: serde::Deserialize<'de>, Count: serde::Deserialize<'de>, Flags: serde::Deserialize<'de>, Pattern: serde::Deserialize<'de>, Named: serde::Deserialize<'de>"
     )
 )]
-pub enum Component<Value = DefaultValue, Count = Value, Flags = Value, Pattern = Value> {
+pub enum Component<
+    Value = DefaultValue,
+    Count = Value,
+    Flags = Value,
+    Pattern = Value,
+    Named = Iri<String>,
+> {
     /// `sh:class` — the value must be an instance of the class.
-    Class(Iri<String>),
+    Class(Named),
     /// `sh:datatype` — the value must have the given datatype.
-    Datatype(Iri<String>),
+    Datatype(Named),
     /// `sh:nodeKind` — the value must have the given RDF node kind.
     NodeKind(NodeKind),
     /// `sh:minCount`.
@@ -60,13 +66,13 @@ pub enum Component<Value = DefaultValue, Count = Value, Flags = Value, Pattern =
     /// `sh:uniqueLang`.
     UniqueLang(bool),
     /// `sh:equals`.
-    Equals(ShaclPath),
+    Equals(ShaclPath<Named>),
     /// `sh:disjoint`.
-    Disjoint(ShaclPath),
+    Disjoint(ShaclPath<Named>),
     /// `sh:lessThan`.
-    LessThan(ShaclPath),
+    LessThan(ShaclPath<Named>),
     /// `sh:lessThanOrEquals`.
-    LessThanOrEquals(ShaclPath),
+    LessThanOrEquals(ShaclPath<Named>),
     /// `sh:and`.
     And(Vec<Value>),
     /// `sh:or`.
@@ -97,14 +103,14 @@ pub enum Component<Value = DefaultValue, Count = Value, Flags = Value, Pattern =
         /// Whether the shape is closed.
         is_closed: bool,
         /// Properties exempt from the closure check.
-        ignored_properties: Vec<Iri<String>>,
+        ignored_properties: Vec<Named>,
     },
     /// A `sh:sparql` constraint declaration.
     Sparql(Box<SparqlConstraint<Value>>),
     /// A `sh:expression` constraint declaration.
-    Expression(Box<ExpressionConstraint<Value>>),
+    Expression(Box<ExpressionConstraint<Value, Named>>),
     /// A use of a separately declared custom component.
-    Custom(CustomConstraint<Value>),
+    Custom(CustomConstraint<Value, Named>),
     /// `sh:singleLine` from the SHACL 1.2 Core 2026-10-14 Working Draft.
     ///
     /// When true, literal values must not contain U+000A through U+000D.
@@ -113,7 +119,7 @@ pub enum Component<Value = DefaultValue, Count = Value, Flags = Value, Pattern =
     SingleLine(bool),
 }
 
-impl<Value, Count, Flags, Pattern> Component<Value, Count, Flags, Pattern> {
+impl<Value, Count, Flags, Pattern, Named> Component<Value, Count, Flags, Pattern, Named> {
     /// Return the SHACL constraint kind name.
     #[must_use]
     pub const fn kind_name(&self) -> &'static str {
@@ -153,8 +159,13 @@ impl<Value, Count, Flags, Pattern> Component<Value, Count, Flags, Pattern> {
     }
 }
 
-impl<Value: fmt::Debug, Count: fmt::Debug, Flags: fmt::Debug, Pattern: fmt::Debug>
-    Component<Value, Count, Flags, Pattern>
+impl<
+    Value: fmt::Debug,
+    Count: fmt::Debug,
+    Flags: fmt::Debug,
+    Pattern: fmt::Debug,
+    Named: AsRef<str>,
+> Component<Value, Count, Flags, Pattern, Named>
 {
     /// Return a human-readable display value for this component.
     #[must_use]
