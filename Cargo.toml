@@ -26,8 +26,8 @@ include = [
 doctest = true
 
 [dependencies]
-iri-rfc3987 = "=0.1.6"
-rdf-structural-model = "=0.1.0"
+iri-rfc3987 = "=0.1.7"
+rdf-structural-model = "=0.2.2"
 serde = { version = "1", features = ["derive"] }
 thiserror = "2"
 
