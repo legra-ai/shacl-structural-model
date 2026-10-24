@@ -7,24 +7,24 @@ use crate::{Parameter, ParameterValues, SparqlQuery, local_name};
 /// A target declaration on a node or property shape.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
-pub enum Target<Value = crate::DefaultTerm> {
+pub enum Target<Value = crate::DefaultTerm, Named = Iri<String>> {
     /// `sh:targetNode` — the given node is a focus node.
     Node(Value),
     /// `sh:targetClass` — instances of the class are focus nodes.
-    Class(Iri<String>),
+    Class(Named),
     /// `sh:targetSubjectsOf` — subjects of the predicate are focus nodes.
-    SubjectsOf(Iri<String>),
+    SubjectsOf(Named),
     /// `sh:targetObjectsOf` — objects of the predicate are focus nodes.
-    ObjectsOf(Iri<String>),
+    ObjectsOf(Named),
     /// An implicit class target, retaining an IRI or blank-node class term.
     ImplicitClass(Value),
     /// A direct SHACL-AF SPARQL target.
     Sparql(Box<SparqlTarget<Value>>),
     /// An application of a separately declared target type.
-    Custom(CustomTarget<Value>),
+    Custom(CustomTarget<Value, Named>),
 }
 
-impl<Value> Target<Value> {
+impl<Value, Named> Target<Value, Named> {
     /// Return the SHACL target kind name.
     #[must_use]
     pub const fn kind_name(&self) -> &'static str {
@@ -44,7 +44,7 @@ impl<Value> Target<Value> {
     /// Node and implicit-class targets use the caller's term representation,
     /// even for IRI nodes; this helper does not inspect those opaque values.
     #[must_use]
-    pub fn iri(&self) -> Option<&Iri<String>> {
+    pub fn iri(&self) -> Option<&Named> {
         match self {
             Self::Class(iri) | Self::SubjectsOf(iri) | Self::ObjectsOf(iri) => Some(iri),
             Self::Node(_) | Self::ImplicitClass(_) | Self::Sparql(_) | Self::Custom(_) => None,
@@ -52,7 +52,7 @@ impl<Value> Target<Value> {
     }
 }
 
-impl<Value: std::fmt::Debug> Target<Value> {
+impl<Value: std::fmt::Debug, Named: AsRef<str>> Target<Value, Named> {
     /// Return a human-readable label, not an RDF serialization.
     #[must_use]
     pub fn display(&self) -> String {
@@ -94,8 +94,8 @@ impl<Value> SparqlTarget<Value> {
 #[serde(
     deny_unknown_fields,
     bound(
-        serialize = "Value: serde::Serialize, Count: serde::Serialize, Flags: serde::Serialize, Pattern: serde::Serialize",
-        deserialize = "Value: serde::Deserialize<'de>, Count: serde::Deserialize<'de>, Flags: serde::Deserialize<'de>, Pattern: serde::Deserialize<'de>"
+        serialize = "Value: serde::Serialize, Count: serde::Serialize, Flags: serde::Serialize, Pattern: serde::Serialize, Named: serde::Serialize",
+        deserialize = "Value: serde::Deserialize<'de>, Count: serde::Deserialize<'de>, Flags: serde::Deserialize<'de>, Pattern: serde::Deserialize<'de>, Named: serde::Deserialize<'de>"
     )
 )]
 pub struct SparqlTargetType<
@@ -103,11 +103,12 @@ pub struct SparqlTargetType<
     Count = Value,
     Flags = Value,
     Pattern = Value,
+    Named = Iri<String>,
 > {
     /// The target type's IRI or blank-node term.
     pub id: Value,
     /// Parameter declarations in caller order.
-    pub parameters: Vec<Parameter<Value, Count, Flags, Pattern>>,
+    pub parameters: Vec<Parameter<Value, Count, Flags, Pattern, Named>>,
     /// The SELECT query identifying focus nodes.
     pub select: SparqlQuery<Value>,
     /// Optional ASK query testing target membership.
@@ -116,7 +117,7 @@ pub struct SparqlTargetType<
     pub label_templates: Vec<Value>,
 }
 
-impl<Value, Count, Flags, Pattern> SparqlTargetType<Value, Count, Flags, Pattern> {
+impl<Value, Count, Flags, Pattern, Named> SparqlTargetType<Value, Count, Flags, Pattern, Named> {
     /// Create a target type with no parameters, ASK query, or label templates.
     #[must_use]
     pub fn new(id: Value, select: SparqlQuery<Value>) -> Self {
@@ -133,11 +134,11 @@ impl<Value, Count, Flags, Pattern> SparqlTargetType<Value, Count, Flags, Pattern
 /// One use of a custom target type, with its supplied RDF parameter values.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct CustomTarget<Value = crate::DefaultTerm> {
+pub struct CustomTarget<Value = crate::DefaultTerm, Named = Iri<String>> {
     /// The target instance's IRI or blank node.
     pub id: Value,
     /// An IRI or blank-node reference to a separately supplied target type.
     pub target_type: Value,
     /// Supplied values; consumers check target parameter cardinality.
-    pub parameters: Vec<ParameterValues<Value>>,
+    pub parameters: Vec<ParameterValues<Value, Named>>,
 }

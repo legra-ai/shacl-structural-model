@@ -18,7 +18,11 @@ the model. Additional API tests required absent SPARQL/AF declaration types.
 Use the existing `Value` generic for shape identities and references, RDF
 messages, annotations, query literals, parameters and numeric order. Keep the
 independent `Count` generic introduced for arbitrary-size integer parameters.
-IRI-only roles retain the checked IRI type. Constructors require no traits on
+IRI-only roles default to the checked IRI type. The independent `Named`
+parameter represents caller-owned named-node domains separately from `Value`;
+programmatic RDF values can retain lexical identities outside RFC IRI syntax.
+The caller owns that named type's validation and checked Serde contract. The
+default remains strict, and this adds no parser or unchecked IRI constructor. Constructors require no traits on
 opaque values; serialization and cloning require their traits only when used.
 
 Expose individual SPARQL constraints, validators, custom component definitions
@@ -56,3 +60,16 @@ compile this model into their own indexes, regexes, queries and rule programs.
 - [SHACL Advanced Features](https://www.w3.org/TR/shacl-af/): targets, functions,
   expression constraints, nested path inputs, annotations and rules.
 - `tests/rdf_identity.rs`, `tests/advanced_features.rs`, `tests/engine_terms.rs`.
+
+## Caller-owned named roles
+
+Programmatic RDF adapters can retain empty, relative and space-containing
+named-node lexical values while still rejecting literal or blank values in a
+named-only role. A strict absolute `Iri<String>` cannot represent that domain.
+Propagate `Named` through predicate paths, class/datatype constraints, explicit
+targets, parameter predicates, functions and custom components, including
+nested expressions and rules. Keep existing `Value`, `Count`, `Flags` and
+`Pattern` parameters independent. Default IRI loading remains checked, and
+caller-specific named loading is checked by its selected type. Severity remains
+an independent checked IRI type. There is no RDF-store runtime dependency,
+normalization, alternate compiler, sentinel IRI or graph side table.

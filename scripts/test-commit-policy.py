@@ -54,10 +54,30 @@ class CommitPolicyTests(unittest.TestCase):
             r'channel = "([^"]+)"',
             (root / "rust-toolchain.toml").read_text(),
         ).group(1)
-        self.assertIn(f"uses: dtolnay/rust-toolchain@{compiler}\n", workflow)
+        steps = re.split(r"^      - ", workflow, flags=re.MULTILINE)
+        compiler_setups = [
+            step for step in steps
+            if step.startswith("uses: actions-rust-lang/setup-rust-toolchain@")
+        ]
+        self.assertEqual(len(compiler_setups), 2)
+        for step in compiler_setups:
+            self.assertIn(f"          toolchain: {compiler}\n", step)
         self.assertIn("./scripts/fmt.sh --check", workflow)
         self.assertNotIn("cargo +nightly ", workflow)
         self.assertIn("./scripts/fmt.sh --check", (root / ".githooks/pre-commit").read_text())
+
+    def test_formatter_setup_uses_a_pinned_input_capable_action(self):
+        root = Path(__file__).resolve().parents[1]
+        workflow = (root / ".github/workflows/ci.yml").read_text()
+        steps = re.split(r"^      - ", workflow, flags=re.MULTILINE)
+        setups = [
+            step for step in steps
+            if "toolchain: ${{ steps.formatter.outputs.toolchain }}" in step
+        ]
+        self.assertEqual(len(setups), 1)
+        action = setups[0].splitlines()[0]
+        self.assertRegex(action, r"^uses: dtolnay/rust-toolchain@[0-9a-f]{40}$")
+        self.assertIn("          components: rustfmt\n", setups[0])
 
     def test_commit_header_contract(self):
         hook = Path(__file__).resolve().parents[1] / ".githooks/commit-msg"

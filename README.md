@@ -71,7 +71,10 @@ RDF-valued fields default to `rdf_structural_model::Term`. Applications can inst
 `oxrdf::Term`, references to their existing terms, or opaque term handles.
 Construction has no `Clone`, `Debug`, or Serde bounds; those traits are required
 only when calling the corresponding operations. IRIs in IRI-only roles, such
-as predicates and datatypes, continue to use `iri_rfc3987::Iri<String>`.
+as predicates and datatypes, default to `iri_rfc3987::Iri<String>`. The independent
+`Named` parameter accepts a caller-owned named-node type when programmatic RDF
+terms preserve relative or otherwise non-RFC lexical values. This does not
+relax the default IRI parser or accept arbitrary RDF values in named roles.
 
 ```rust
 use shacl_structural_model::Component;
@@ -101,6 +104,15 @@ fourth generic `Pattern` for compiled representations. For example,
 representations propagate through all declarations containing constraints.
 The model does not parse regex syntax, compile patterns, or read payloads.
 Consumers own compilation, resource accounting, and validation of RDF metadata.
+
+Named roles use the fifth generic on components, shapes, parameters, custom
+components, target types and functions. Paths use `ShaclPath<Named>`, and targets,
+expressions, rules and parameter values propagate the same named type separately
+from `Value`. Construction does not require conversion, cloning, display or
+Serde traits. Display alone requires `Named: AsRef<str>`. Serialization and
+checked loading use the selected named type's Serde contract; the strict
+`Iri<String>` default continues to reject relative and invalid IRI strings.
+Severity retains its independent checked IRI contract.
 
 ## Serialization and RDF identity
 

@@ -9,26 +9,31 @@ use crate::{Parameter, SparqlSelectOrAsk};
 #[serde(
     deny_unknown_fields,
     bound(
-        serialize = "Value: serde::Serialize, Count: serde::Serialize, Flags: serde::Serialize, Pattern: serde::Serialize",
-        deserialize = "Value: serde::Deserialize<'de>, Count: serde::Deserialize<'de>, Flags: serde::Deserialize<'de>, Pattern: serde::Deserialize<'de>"
+        serialize = "Value: serde::Serialize, Count: serde::Serialize, Flags: serde::Serialize, Pattern: serde::Serialize, Named: serde::Serialize",
+        deserialize = "Value: serde::Deserialize<'de>, Count: serde::Deserialize<'de>, Flags: serde::Deserialize<'de>, Pattern: serde::Deserialize<'de>, Named: serde::Deserialize<'de>"
     )
 )]
-pub struct ShaclFunction<Value = crate::DefaultTerm, Count = Value, Flags = Value, Pattern = Value>
-{
+pub struct ShaclFunction<
+    Value = crate::DefaultTerm,
+    Count = Value,
+    Flags = Value,
+    Pattern = Value,
+    Named = Iri<String>,
+> {
     /// The function IRI.
-    pub id: Iri<String>,
+    pub id: Named,
     /// Parameters in caller order; consumers apply SHACL's ordering rules.
-    pub parameters: Vec<Parameter<Value, Count, Flags, Pattern>>,
+    pub parameters: Vec<Parameter<Value, Count, Flags, Pattern, Named>>,
     /// Optional `sh:returnType` IRI.
-    pub return_type: Option<Iri<String>>,
+    pub return_type: Option<Named>,
     /// The function's ASK or SELECT query declaration.
     pub query: SparqlSelectOrAsk<Value>,
 }
 
-impl<Value, Count, Flags, Pattern> ShaclFunction<Value, Count, Flags, Pattern> {
+impl<Value, Count, Flags, Pattern, Named> ShaclFunction<Value, Count, Flags, Pattern, Named> {
     /// Create a function with no parameters or declared return type.
     #[must_use]
-    pub fn new(id: Iri<String>, query: SparqlSelectOrAsk<Value>) -> Self {
+    pub fn new(id: Named, query: SparqlSelectOrAsk<Value>) -> Self {
         Self {
             id,
             parameters: Vec::new(),

@@ -54,7 +54,7 @@ jobs:
         run: |
           IFS= read -r formatter_toolchain < rustfmt-toolchain || exit 1
           printf 'toolchain=%s\n' "$formatter_toolchain" >> "$GITHUB_OUTPUT"
-      - uses: dtolnay/rust-toolchain@1.99.1
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8
         with:
           toolchain: ${{ steps.formatter.outputs.toolchain }}
           components: rustfmt

@@ -8,24 +8,24 @@ use crate::local_name;
 
 /// A SHACL property path represented as an AST.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
-pub enum ShaclPath {
+pub enum ShaclPath<Named = Iri<String>> {
     /// A single predicate IRI.
-    Predicate(Iri<String>),
+    Predicate(Named),
     /// A sequence of paths (`p1 / p2 / ...`).
-    Sequence(Vec<ShaclPath>),
+    Sequence(Vec<ShaclPath<Named>>),
     /// An alternative of paths (`p1 | p2 | ...`).
-    Alternative(Vec<ShaclPath>),
+    Alternative(Vec<ShaclPath<Named>>),
     /// The inverse of a path (`^p`).
-    Inverse(Box<ShaclPath>),
+    Inverse(Box<ShaclPath<Named>>),
     /// Zero or more repetitions (`p*`).
-    ZeroOrMore(Box<ShaclPath>),
+    ZeroOrMore(Box<ShaclPath<Named>>),
     /// One or more repetitions (`p+`).
-    OneOrMore(Box<ShaclPath>),
+    OneOrMore(Box<ShaclPath<Named>>),
     /// Zero or one occurrence (`p?`).
-    ZeroOrOne(Box<ShaclPath>),
+    ZeroOrOne(Box<ShaclPath<Named>>),
 }
 
-impl fmt::Display for ShaclPath {
+impl<Named: AsRef<str>> fmt::Display for ShaclPath<Named> {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Predicate(iri) => write!(formatter, "{}", local_name(iri)),
@@ -39,9 +39,9 @@ impl fmt::Display for ShaclPath {
     }
 }
 
-fn write_paths(
+fn write_paths<Named: AsRef<str>>(
     formatter: &mut fmt::Formatter<'_>,
-    paths: &[ShaclPath],
+    paths: &[ShaclPath<Named>],
     separator: &str,
 ) -> fmt::Result {
     for (index, path) in paths.iter().enumerate() {
