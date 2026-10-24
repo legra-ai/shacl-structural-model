@@ -99,5 +99,25 @@ class CommitPolicyTests(unittest.TestCase):
                 self.assertEqual(result.returncode == 0, valid, result.stdout + result.stderr)
 
 
+
+class MajorReleasePolicyTests(unittest.TestCase):
+    def test_major_plan_is_reviewed_before_release_writer_runs(self):
+        workflow = (Path(__file__).resolve().parents[1] / ".github/workflows/ci.yml").read_text()
+        plan = workflow.split("\n  plan:\n", 1)[1].split("\n  approve-major:\n", 1)[0]
+        self.assertIn("plan-only: 'true'", plan)
+        self.assertIn("token: ${{ github.token }}", plan)
+        self.assertNotIn("RELEASE_WRITER", plan)
+        approval = workflow.split("\n  approve-major:\n", 1)[1].split("\n  prepare:\n", 1)[0]
+        self.assertIn("environment: major-release", approval)
+        self.assertIn("needs.plan.outputs.major == 'true'", approval)
+        self.assertIn("Approve major release", plan)
+        self.assertIn("WORKFLOW_SOURCE", plan)
+        prepare = workflow.split("\n  prepare:\n", 1)[1].split("\n  test:\n", 1)[0]
+        self.assertIn("needs: [plan, approve-major]", prepare)
+        self.assertIn("needs['approve-major'].result == 'success'", prepare)
+        self.assertIn("needs['approve-major'].result == 'skipped'", prepare)
+        self.assertIn("actions: read", workflow)
+        self.assertNotIn("pending_deployments", workflow)
+
 if __name__ == "__main__":
     unittest.main()

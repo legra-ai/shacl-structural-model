@@ -14,9 +14,55 @@ concurrency:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.release.outputs.version }}
+      major: ${{ steps.release.outputs.major-approval-required }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: legra-ai/github-actions/.github/actions/prepare-cargo-release@3c6cb39dae1b86443ac54cdb061e0b4bcae7608e
+        id: release
+        with:
+          token: ${{ github.token }}
+          plan-only: 'true'
+      - name: Show release proposal
+        env:
+          PROPOSED_VERSION: ${{ steps.release.outputs.version }}
+          MAJOR_REQUIRED: ${{ steps.release.outputs.major-approval-required }}
+          WORKFLOW_SOURCE: ${{ github.sha }}
+        run: |
+          python3 - <<'SUMMARY'
+          import os
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
+              summary.write(f"Proposed version: {os.environ['PROPOSED_VERSION']}\n\n")
+              if os.environ['MAJOR_REQUIRED'] == 'true':
+                  summary.write("Major release requires your explicit environment review. "
+                                "Use this exact approval comment:\n\n")
+                  summary.write(f"Approve major release {os.environ['PROPOSED_VERSION']} "
+                                f"from {os.environ['WORKFLOW_SOURCE']}\n")
+          SUMMARY
+
+  approve-major:
+    name: Approve major release ${{ needs.plan.outputs.version }}
+    needs: plan
+    if: needs.plan.outputs.major == 'true'
+    runs-on: ubuntu-latest
+    environment: major-release
+    steps:
+      - name: Continue after the explicit environment review
+        run: python3 -c 'print("Environment review completed; preparation will verify the exact approval.")'
+
   prepare:
+    needs: [plan, approve-major]
+    if: >-
+      always() && !cancelled() && needs.plan.result == 'success' &&
+      (needs['approve-major'].result == 'success' || needs['approve-major'].result == 'skipped')
     runs-on: ubuntu-latest
     outputs:
       revision: ${{ steps.release.outputs.revision }}
@@ -36,7 +82,7 @@ jobs:
           private-key: ${{ secrets.RELEASE_WRITER_APP_KEY }}
           owner: ${{ github.repository_owner }}
           repositories: ${{ github.event.repository.name }}
-      - uses: legra-ai/github-actions/.github/actions/prepare-cargo-release@main
+      - uses: legra-ai/github-actions/.github/actions/prepare-cargo-release@3c6cb39dae1b86443ac54cdb061e0b4bcae7608e
         id: release
         with:
           # Non-main preparation is read-only. A missing writer token on main
