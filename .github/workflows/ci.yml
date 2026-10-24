@@ -26,9 +26,10 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: legra-ai/github-actions/.github/actions/prepare-cargo-release@a72d88a150abcedb00390ab4846103ae48db5843
+      - uses: legra-ai/github-actions/.github/actions/prepare-cargo-release@0b5ecf0098241eb2b9932810edcadc0582ed1a88
         id: release
         with:
+          breaking-change-bump: minor
           token: ${{ github.token }}
           plan-only: 'true'
       - name: Show release proposal
@@ -82,9 +83,10 @@ jobs:
           private-key: ${{ secrets.RELEASE_WRITER_APP_KEY }}
           owner: ${{ github.repository_owner }}
           repositories: ${{ github.event.repository.name }}
-      - uses: legra-ai/github-actions/.github/actions/prepare-cargo-release@a72d88a150abcedb00390ab4846103ae48db5843
+      - uses: legra-ai/github-actions/.github/actions/prepare-cargo-release@0b5ecf0098241eb2b9932810edcadc0582ed1a88
         id: release
         with:
+          breaking-change-bump: minor
           # Non-main preparation is read-only. A missing writer token on main
           # must remain an error, so select the non-main token first.
           token: ${{ github.ref != 'refs/heads/main' && github.token || steps.writer.outputs.token }}
