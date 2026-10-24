@@ -54,7 +54,14 @@ class CommitPolicyTests(unittest.TestCase):
             r'channel = "([^"]+)"',
             (root / "rust-toolchain.toml").read_text(),
         ).group(1)
-        self.assertIn(f"uses: dtolnay/rust-toolchain@{compiler}\n", workflow)
+        steps = re.split(r"^      - ", workflow, flags=re.MULTILINE)
+        compiler_setups = [
+            step for step in steps
+            if step.startswith("uses: actions-rust-lang/setup-rust-toolchain@")
+        ]
+        self.assertEqual(len(compiler_setups), 2)
+        for step in compiler_setups:
+            self.assertIn(f"          toolchain: {compiler}\n", step)
         self.assertIn("./scripts/fmt.sh --check", workflow)
         self.assertNotIn("cargo +nightly ", workflow)
         self.assertIn("./scripts/fmt.sh --check", (root / ".githooks/pre-commit").read_text())
