@@ -125,5 +125,17 @@ class MajorReleasePolicyTests(unittest.TestCase):
         self.assertIn("needs.test.result == 'success'", publish)
         self.assertIn("needs.prepare.result == 'success'", publish)
 
+
+class PreproductionVersionPolicyTests(unittest.TestCase):
+    def test_both_planning_and_preparation_select_minor_for_breaking_changes(self):
+        workflow = (Path(__file__).resolve().parents[1] / ".github/workflows/ci.yml").read_text()
+        steps = re.split(r"^      - ", workflow, flags=re.MULTILINE)
+        preparers = [step for step in steps if step.startswith(
+            "uses: legra-ai/github-actions/.github/actions/prepare-cargo-release@")]
+        self.assertEqual(len(preparers), 2)
+        for step in preparers:
+            with self.subTest(step=step):
+                self.assertIn("          breaking-change-bump: minor\n", step)
+
 if __name__ == "__main__":
     unittest.main()
