@@ -118,6 +118,12 @@ class MajorReleasePolicyTests(unittest.TestCase):
         self.assertIn("needs['approve-major'].result == 'skipped'", prepare)
         self.assertIn("actions: read", workflow)
         self.assertNotIn("pending_deployments", workflow)
+        test = workflow.split("\n  test:\n", 1)[1].split("\n  publish:\n", 1)[0]
+        self.assertIn("always() && !cancelled() && needs.prepare.result == 'success'", test)
+        publish = workflow.split("\n  publish:\n", 1)[1]
+        self.assertIn("always() && !cancelled()", publish)
+        self.assertIn("needs.test.result == 'success'", publish)
+        self.assertIn("needs.prepare.result == 'success'", publish)
 
 if __name__ == "__main__":
     unittest.main()

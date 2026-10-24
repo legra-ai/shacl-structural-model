@@ -91,6 +91,7 @@ jobs:
 
   test:
     needs: prepare
+    if: always() && !cancelled() && needs.prepare.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -123,7 +124,9 @@ jobs:
       - run: cargo doc --no-deps --all-features
 
   publish:
-    if: needs.prepare.outputs.release == 'true'
+    if: >-
+      always() && !cancelled() && needs.prepare.outputs.release == 'true' &&
+      needs.prepare.result == 'success' && needs.test.result == 'success'
     needs: [prepare, test]
     runs-on: ubuntu-latest
     permissions:
