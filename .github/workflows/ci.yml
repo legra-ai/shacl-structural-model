@@ -26,7 +26,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: legra-ai/github-actions/.github/actions/prepare-cargo-release@3c6cb39dae1b86443ac54cdb061e0b4bcae7608e
+      - uses: legra-ai/github-actions/.github/actions/prepare-cargo-release@3aea9f5e1f79d8910b82b0f4ef746f953a71c029
         id: release
         with:
           token: ${{ github.token }}
@@ -82,7 +82,7 @@ jobs:
           private-key: ${{ secrets.RELEASE_WRITER_APP_KEY }}
           owner: ${{ github.repository_owner }}
           repositories: ${{ github.event.repository.name }}
-      - uses: legra-ai/github-actions/.github/actions/prepare-cargo-release@3c6cb39dae1b86443ac54cdb061e0b4bcae7608e
+      - uses: legra-ai/github-actions/.github/actions/prepare-cargo-release@3aea9f5e1f79d8910b82b0f4ef746f953a71c029
         id: release
         with:
           # Non-main preparation is read-only. A missing writer token on main
