@@ -54,7 +54,7 @@ fn default_shapes_preserve_scopes_directional_messages_and_numeric_lexicals() {
             .with_message(label.clone())
             .with_component(Component::MinCount(count))
             .with_component(Component::Pattern {
-                pattern: "^a".to_owned(),
+                pattern: text("^a"),
                 flags: Some(text("i")),
             })
             .with_rule(shacl_structural_model::ShaclRule::new(
@@ -105,4 +105,31 @@ fn default_shape_terms_support_borrowed_binary_decoding() {
     assert_eq!(message.lexical(), "borrowed message");
     assert!(message.lexical().as_ptr() >= bytes.as_ptr());
     assert!(message.lexical().as_ptr() < bytes.as_ptr().wrapping_add(bytes.len()));
+}
+
+#[test]
+fn shared_rdf_upgrade_preserves_constraint_literal_identity() {
+    let value = |text: &str, tag: &str, direction| -> Component {
+        Component::HasValue(DefaultTerm::literal(
+            rdf_structural_model::Literal::directional(
+                text,
+                rdf_structural_model::LanguageTag::try_new(tag.to_owned()).unwrap(),
+                direction,
+            ),
+        ))
+    };
+    let original = value("005", "EN-us", rdf_structural_model::BaseDirection::Rtl);
+    assert_eq!(
+        original,
+        value("005", "en-US", rdf_structural_model::BaseDirection::Rtl)
+    );
+    assert_ne!(
+        original,
+        value("5", "en-us", rdf_structural_model::BaseDirection::Rtl)
+    );
+    assert_ne!(
+        original,
+        value("005", "en-us", rdf_structural_model::BaseDirection::Ltr)
+    );
+    round_trip(&original);
 }
