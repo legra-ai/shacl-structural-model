@@ -30,8 +30,12 @@ The stable baseline is the [SHACL Recommendation](https://www.w3.org/TR/shacl/).
 SPARQL and AF declarations follow that recommendation and
 [SHACL Advanced Features](https://www.w3.org/TR/shacl-af/).
 Representing these declarations does not establish validator conformance or
-pySHACL compatibility. SHACL-JS and complete SHACL 1.2 draft coverage are outside
-the current scope.
+pySHACL compatibility. The `Component::SingleLine(bool)` declaration follows
+[SHACL 1.2 Core, Working Draft 14 October 2026, section 7.4.4](https://www.w3.org/TR/2026/WD-shacl12-core-20261014/#SingleLineConstraintComponent).
+It preserves both `true` and explicit `false` through nested JSON and binary
+serialization. The draft marks this constraint at risk; this crate represents
+the declaration without executing it. SHACL-JS and complete SHACL 1.2 draft
+coverage remain outside the implemented scope.
 
 ## Example
 

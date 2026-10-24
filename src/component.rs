@@ -105,6 +105,12 @@ pub enum Component<Value = DefaultValue, Count = Value, Flags = Value, Pattern =
     Expression(Box<ExpressionConstraint<Value>>),
     /// A use of a separately declared custom component.
     Custom(CustomConstraint<Value>),
+    /// `sh:singleLine` from the SHACL 1.2 Core 2026-10-14 Working Draft.
+    ///
+    /// When true, literal values must not contain U+000A through U+000D.
+    /// False explicitly permits multiline values. This declaration is at risk
+    /// in the draft; representing it does not implement constraint evaluation.
+    SingleLine(bool),
 }
 
 impl<Value, Count, Flags, Pattern> Component<Value, Count, Flags, Pattern> {
@@ -142,6 +148,7 @@ impl<Value, Count, Flags, Pattern> Component<Value, Count, Flags, Pattern> {
             Self::Sparql(_) => "sparql",
             Self::Expression(_) => "expression",
             Self::Custom(_) => "custom",
+            Self::SingleLine(_) => "singleLine",
         }
     }
 }
@@ -171,7 +178,7 @@ impl<Value: fmt::Debug, Count: fmt::Debug, Flags: fmt::Debug, Pattern: fmt::Debu
                 None => format!("/{pattern:?}/"),
             },
             Self::LanguageIn(languages) => languages.join(", "),
-            Self::UniqueLang(value) => value.to_string(),
+            Self::UniqueLang(value) | Self::SingleLine(value) => value.to_string(),
             Self::Equals(path)
             | Self::Disjoint(path)
             | Self::LessThan(path)
