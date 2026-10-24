@@ -117,6 +117,24 @@ pub enum Component<
     /// False explicitly permits multiline values. This declaration is at risk
     /// in the draft; representing it does not implement constraint evaluation.
     SingleLine(bool),
+    /// `sh:memberShape` from the SHACL 1.2 Core 2026-10-14 Working Draft.
+    ///
+    /// Each value must be a well-formed SHACL list whose members conform to
+    /// this caller-owned shape reference. The consumer checks and evaluates it.
+    MemberShape(Value),
+    /// Draft `sh:minListLength`, using the independent caller-owned count type.
+    ///
+    /// The consumer checks the non-negative integer parameter and list structure.
+    MinListLength(Count),
+    /// Draft `sh:maxListLength`, using the independent caller-owned count type.
+    ///
+    /// The consumer checks the non-negative integer parameter and list structure.
+    MaxListLength(Count),
+    /// Draft `sh:uniqueMembers` — require distinct members when true.
+    ///
+    /// Both true and false require a well-formed SHACL list. False relaxes only
+    /// the uniqueness check, not list well-formedness. Evaluation is consumer-owned.
+    UniqueMembers(bool),
 }
 
 impl<Value, Count, Flags, Pattern, Named> Component<Value, Count, Flags, Pattern, Named> {
@@ -155,6 +173,10 @@ impl<Value, Count, Flags, Pattern, Named> Component<Value, Count, Flags, Pattern
             Self::Expression(_) => "expression",
             Self::Custom(_) => "custom",
             Self::SingleLine(_) => "singleLine",
+            Self::MemberShape(_) => "memberShape",
+            Self::MinListLength(_) => "minListLength",
+            Self::MaxListLength(_) => "maxListLength",
+            Self::UniqueMembers(_) => "uniqueMembers",
         }
     }
 }
@@ -176,20 +198,25 @@ impl<
             Self::MinCount(count)
             | Self::MaxCount(count)
             | Self::MinLength(count)
-            | Self::MaxLength(count) => format!("{count:?}"),
+            | Self::MaxLength(count)
+            | Self::MinListLength(count)
+            | Self::MaxListLength(count) => format!("{count:?}"),
             Self::MinExclusive(value)
             | Self::MinInclusive(value)
             | Self::MaxExclusive(value)
             | Self::MaxInclusive(value)
             | Self::HasValue(value)
             | Self::Not(value)
-            | Self::Node(value) => format!("{value:?}"),
+            | Self::Node(value)
+            | Self::MemberShape(value) => format!("{value:?}"),
             Self::Pattern { pattern, flags } => match flags {
                 Some(flags) => format!("/{pattern:?}/{flags:?}"),
                 None => format!("/{pattern:?}/"),
             },
             Self::LanguageIn(languages) => languages.join(", "),
-            Self::UniqueLang(value) | Self::SingleLine(value) => value.to_string(),
+            Self::UniqueLang(value) | Self::SingleLine(value) | Self::UniqueMembers(value) => {
+                value.to_string()
+            }
             Self::Equals(path)
             | Self::Disjoint(path)
             | Self::LessThan(path)

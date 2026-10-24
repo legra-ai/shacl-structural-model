@@ -37,6 +37,15 @@ serialization. The draft marks this constraint at risk; this crate represents
 the declaration without executing it. SHACL-JS and complete SHACL 1.2 draft
 coverage remain outside the implemented scope.
 
+The same draft's [list constraint declarations (section 7.5)](https://www.w3.org/TR/2026/WD-shacl12-core-20261014/)
+are represented by `MemberShape(Value)`, `MinListLength(Count)`,
+`MaxListLength(Count)` and `UniqueMembers(bool)`. Member-shape references retain
+caller-owned RDF identity; length bounds retain exact RDF values or independent
+compiled counts without a machine-integer limit. Explicit `UniqueMembers(false)`
+relaxes uniqueness while still requiring a valid SHACL list in the draft.
+Consumers own integer validation, list traversal, member validation, equality
+and report construction. These declarations do not traverse or collect lists.
+
 ## Example
 
 ```rust
