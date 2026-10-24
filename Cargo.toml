@@ -1,6 +1,6 @@
 [package]
 name = "shacl-structural-model"
-version = "6.0.2"
+version = "6.1.0"
 description = "Typed SHACL structural values for Rust"
 authors = ["Jacobus Geluk <jacobus.geluk@dataroad.com>"]
 edition = "2024"
