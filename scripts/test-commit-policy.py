@@ -50,6 +50,11 @@ class CommitPolicyTests(unittest.TestCase):
         self.assertEqual((root / "rustfmt-toolchain").read_text().strip(), "nightly-2026-10-16")
         self.assertIn('channel = "1.99.1"', (root / "rust-toolchain.toml").read_text())
         workflow = (root / ".github/workflows/ci.yml").read_text()
+        compiler = re.search(
+            r'channel = "([^"]+)"',
+            (root / "rust-toolchain.toml").read_text(),
+        ).group(1)
+        self.assertIn(f"uses: dtolnay/rust-toolchain@{compiler}\n", workflow)
         self.assertIn("./scripts/fmt.sh --check", workflow)
         self.assertNotIn("cargo +nightly ", workflow)
         self.assertIn("./scripts/fmt.sh --check", (root / ".githooks/pre-commit").read_text())
