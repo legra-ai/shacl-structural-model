@@ -118,9 +118,9 @@ dependencies = [
 
 [[package]]
 name = "iri-rfc3987"
-version = "0.1.7"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d58e84286e9d1e9ca8f172f0195624439191118d2b7d82ec8f944cbfa17f59c2"
+checksum = "2f4716432ead06b2cb9a9ff923556439bff4428a286f7745f49531ed236a4c88"
 dependencies = [
  "borrow-or-share",
  "ref-cast",
@@ -313,9 +313,9 @@ dependencies = [
 
 [[package]]
 name = "rdf-structural-model"
-version = "0.2.2"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "be2f3bb20dab890cce27c997c7f3c85df615853a992fd7bbd5c8d5c70c8cc8d2"
+checksum = "c53643bcdb9c42bda5b2d9379216e8cd20b28324e38c5b428a8c32af8592b180"
 dependencies = [
  "borrow-or-share",
  "iri-rfc3987",
