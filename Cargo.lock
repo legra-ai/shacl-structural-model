@@ -118,9 +118,9 @@ dependencies = [
 
 [[package]]
 name = "iri-rfc3987"
-version = "0.2.0"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2f4716432ead06b2cb9a9ff923556439bff4428a286f7745f49531ed236a4c88"
+checksum = "e467ba2bfc3a338ed993a51d9d1fc6caaf03b9e424846060ee961fbcbe52a0f4"
 dependencies = [
  "borrow-or-share",
  "ref-cast",
@@ -192,7 +192,7 @@ dependencies = [
  "oxilangtag",
  "oxiri",
  "rand",
- "thiserror 1.0.69",
+ "thiserror 2.0.21",
 ]
 
 [[package]]
@@ -307,9 +307,9 @@ dependencies = [
 
 [[package]]
 name = "rdf-structural-model"
-version = "0.3.0"
+version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c53643bcdb9c42bda5b2d9379216e8cd20b28324e38c5b428a8c32af8592b180"
+checksum = "6e9127382c6cf5fc1baf04cdf7b8dede9b79177d61b21fa603d6c3972ef5bc3c"
 dependencies = [
  "borrow-or-share",
  "iri-rfc3987",
@@ -341,9 +341,9 @@ dependencies = [
 
 [[package]]
 name = "rhusky"
-version = "2.0.3"
+version = "2.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "55d5567ed9d191f2254a7ce32832b02e0fe617a295369a768da4085fb2569dec"
+checksum = "d1ee25e0e4f157fd2a6e25674bf9665d2e5c9f9911de17a2a5a8697d1b074f99"
 dependencies = [
  "async-fs-io",
  "tokio",
