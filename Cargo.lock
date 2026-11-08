@@ -402,6 +402,7 @@ dependencies = [
 name = "shacl-structural-model"
 version = "6.3.3"
 dependencies = [
+ "borrow-or-share",
  "iri-rfc3987",
  "oxrdf",
  "postcard",

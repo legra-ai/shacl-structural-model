@@ -8,6 +8,7 @@ mod custom_component;
 mod error;
 mod expression;
 mod function;
+pub mod inference;
 mod local_name;
 mod node_kind;
 mod node_shape;
