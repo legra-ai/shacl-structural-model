@@ -137,6 +137,48 @@ conversion layer. Their Serde support is conditional on those types. Model
 support for RDF 1.2 triple terms and typed extensions does not establish SHACL
 validator execution support for those features.
 
+## Restricted SHACL 1.2 inference declarations
+
+The `inference` module describes a model-only subset pinned to the
+[28 October 2026 Inference Rules draft](https://www.w3.org/TR/2026/WD-shacl12-inference-rules-20261028/)
+and [Node Expressions draft](https://www.w3.org/TR/2026/WD-shacl12-node-expr-20261028/).
+It is distinct from the AF declarations below. It does not execute rules or
+certify inference-engine support.
+
+| API | Representation |
+| --- | --- |
+| `RuleSet`, `RuleSetMembership`, `RuleSetInclusion` | Independent checked IRI declaration and edge records, suitable for streaming |
+| `ResourceRef`, `ShapeRuleLink` | Shared RDF `Subject<Text>` identities, including scoped blank nodes |
+| `RuleNumber`, `RuleSchedule` | Checked exact integer/decimal metadata; absent layer/order/runOnce retained |
+| `TripleRuleDeclaration` | Independent rule identity, schedule, and three optional expression slots |
+| `DirectExpression` | Checked direct IRI/literal/triple-term constants or `shnex:pathValues` with shared paths |
+
+The new types accept shared RDF owned or borrowed text. Numeric `Eq`/hash retain
+literal identity; `cmp_value` compares arbitrary-width exact values without
+floating-point conversion, digit-buffer allocation or a general datatype engine.
+Constructors and nested JSON/Postcard decoding apply the same semantic checks.
+
+Rule-set includes remain edges; the consumer resolves references, cycles and
+membership without hydrating the relation. A rule's global status requires the
+relevant shapes graph's associations, not merely the selected rule set.
+
+Bare blank nodes are rejected as direct constants. Explicit `shnex:focusNode`
+expressions are rejected in this subset, including during decoding. Paths retain
+ordered structure and require at least two sequence/alternative members.
+Expression construction caps structural depth at 64 and term/path nodes at 4096;
+already allocated caller inputs remain the caller's responsibility. Default
+expression decoding additionally caps wire depth at 128, deserializer calls at
+32768 and total visited text at 1 MiB. `deserialize_with_limits` accepts tighter
+caller budgets. Cap source bytes as well: a format decoder may allocate text
+before delivering a Serde visitor. Bounds apply per expression, not per dataset.
+
+Other 1.2 expression forms, explicit focus expressions, rule-type catalogs,
+conditions, deactivation, expected-derived predicates, processors, entailment
+selection, SPARQL/template declarations and temporary/provenance triple policies
+are outside this new subset. Existing AF declarations retain their own contract.
+Reference resolution, default application, scheduling, target/condition
+validation, graph traversal, SPARQL execution and inference remain consumer-owned.
+
 ## SPARQL and Advanced Features
 
 | Declaration | Structural types |
