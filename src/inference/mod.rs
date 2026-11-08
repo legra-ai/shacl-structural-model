@@ -4,7 +4,13 @@
 //! scheduler, graph resolver, validation or execution. Membership/include/link
 //! records can be streamed individually; no graph-sized aggregate is required.
 
+mod decode;
+mod expression;
 mod number;
+mod triple;
+pub use decode::DecodeLimits;
+pub use expression::DirectExpression;
+pub use triple::TripleRuleDeclaration;
 mod records;
 
 pub use number::RuleNumber;
@@ -23,4 +29,16 @@ pub enum InferenceModelError {
     /// Layer/order was not a valid exact integer or decimal literal.
     #[error("rule layer/order requires a valid xsd:integer or xsd:decimal literal")]
     InvalidRuleNumber,
+    /// A bare blank node was supplied as a direct constant.
+    #[error("a blank node denotes an expression, not a direct constant")]
+    BlankConstant,
+    /// Explicit focus expressions are not covered by this restricted slice.
+    #[error("unsupported explicit shnex:focusNode expression")]
+    UnsupportedFocusExpression,
+    /// A sequence or alternative path had fewer than two members.
+    #[error("sequence and alternative paths require at least two members")]
+    InvalidPathArity,
+    /// A structural expression exceeded the bounded model's depth or node limit.
+    #[error("inference expression structural budget exceeded")]
+    ExpressionBudgetExceeded,
 }
