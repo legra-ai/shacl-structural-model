@@ -7,16 +7,19 @@ permissions:
   contents: read
 jobs:
   merge:
-    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
     steps:
-      # The authorized writer merges, which starts the main pipeline itself.
-      - uses: actions/create-github-app-token@v3
-        id: writer
+      # Trusted completed-CI handler; never checks out pull-request code.
+      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3
+        id: merger
         with:
-          app-id: ${{ secrets.RELEASE_WRITER_APP_ID }}
-          private-key: ${{ secrets.RELEASE_WRITER_APP_KEY }}
+          app-id: ${{ secrets.RELEASE_MERGER_APP_ID }}
+          private-key: ${{ secrets.RELEASE_MERGER_APP_KEY }}
           owner: ${{ github.repository_owner }}
           repositories: ${{ github.event.repository.name }}
-      - uses: legra-ai/github-actions/.github/actions/merge-tested-dependabot@main
+      - uses: legra-ai/github-actions/.github/actions/merge-tested-dependabot@50b7c9ece16002e2cc0c900e7c80ad74d500be5b
         with:
-          token: ${{ steps.writer.outputs.token }}
+          token: ${{ steps.merger.outputs.token }}
+          app-id: ${{ secrets.RELEASE_MERGER_APP_ID }}
