@@ -307,9 +307,9 @@ dependencies = [
 
 [[package]]
 name = "rdf-structural-model"
-version = "0.3.2"
+version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6e9127382c6cf5fc1baf04cdf7b8dede9b79177d61b21fa603d6c3972ef5bc3c"
+checksum = "9dfab7d03683a5f3a10c190bb376ac86965d043e99ffa1fa197cde677f1ca925"
 dependencies = [
  "borrow-or-share",
  "iri-rfc3987",
@@ -341,9 +341,9 @@ dependencies = [
 
 [[package]]
 name = "rhusky"
-version = "2.0.5"
+version = "2.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "84cd1f1667fea8b462120848fe1fe8ffad31da0b9ea9cecaa09a4f971cc2219d"
+checksum = "95d59d1c608e52fe9f164a09cdd2b22c34307295b5a34da206fc2fed3d2784df"
 dependencies = [
  "async-fs-io",
  "tokio",
