@@ -129,6 +129,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "iri-rfc3987"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "44ab0f22169b04b5be1eb69a01e955c158d63ccce416650653ab4dae1cfc8907"
+dependencies = [
+ "borrow-or-share",
+ "ref-cast",
+ "rhusky",
+ "serde",
+]
+
+[[package]]
 name = "itoa"
 version = "1.0.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -312,7 +324,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9dfab7d03683a5f3a10c190bb376ac86965d043e99ffa1fa197cde677f1ca925"
 dependencies = [
  "borrow-or-share",
- "iri-rfc3987",
+ "iri-rfc3987 0.2.1",
  "langtag",
  "rhusky",
  "serde",
@@ -403,7 +415,7 @@ name = "shacl-structural-model"
 version = "6.4.4"
 dependencies = [
  "borrow-or-share",
- "iri-rfc3987",
+ "iri-rfc3987 0.3.0",
  "oxrdf",
  "postcard",
  "rdf-structural-model",
