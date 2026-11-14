@@ -53,12 +53,25 @@ triples, graph names and interpreted boolean/string fields require separately
 retained source data when an application needs them. Validation engines still
 compile this model into their own indexes, regexes, queries and rule programs.
 
+## SHACL 1.2 target
+
+SHACL 1.2 (Core, Node Expressions and Inference Rules) is the target
+specification. Each draft feature is added as a model-only declaration under
+the same boundary: no parser, graph, validator or reasoner. A declaration
+follows a pinned, dated draft and records the section it follows. Coverage is
+incremental; a feature that is not yet modelled is missing, not excluded.
+SHACL-JS is outside the scope.
+
 ## References
 
 - [SHACL](https://www.w3.org/TR/shacl/): shapes, messages, severity, SPARQL
   constraints, parameters, validators and prefix declarations.
 - [SHACL Advanced Features](https://www.w3.org/TR/shacl-af/): targets, functions,
   expression constraints, nested path inputs, annotations and rules.
+- [SHACL 1.2 Core](https://www.w3.org/TR/shacl12-core/),
+  [Node Expressions](https://www.w3.org/TR/shacl12-node-expr/) and
+  [Inference Rules](https://www.w3.org/TR/shacl12-inference-rules/): the target
+  specification for new declarations.
 - `tests/rdf_identity.rs`, `tests/advanced_features.rs`, `tests/engine_terms.rs`.
 
 ## Caller-owned named roles
