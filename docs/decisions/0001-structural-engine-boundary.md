@@ -56,9 +56,12 @@ compile this model into their own indexes, regexes, queries and rule programs.
 ## SHACL 1.2 target
 
 SHACL 1.2 (Core, Node Expressions and Inference Rules) is the target
-specification. Each draft feature is added as a model-only declaration under
-the same boundary: no parser, graph, validator or reasoner. A declaration
-follows a pinned, dated draft and records the section it follows. Coverage is
+specification, and the model tracks its bleeding edge: the newest published
+W3C drafts, including features the drafts mark at risk. Each draft feature is
+added as a model-only declaration under the same boundary: no parser, graph,
+validator or reasoner. A declaration records the dated draft and section it
+follows; when a newer draft changes a feature, the model moves to it in a
+breaking release, without retaining the superseded form. Coverage is
 incremental; a feature that is not yet modelled is missing, not excluded.
 SHACL-JS is outside the scope.
 

@@ -34,8 +34,8 @@ pySHACL compatibility. The `Component::SingleLine(bool)` declaration follows
 [SHACL 1.2 Core, Working Draft 14 October 2026, section 7.4.4](https://www.w3.org/TR/2026/WD-shacl12-core-20261014/#SingleLineConstraintComponent).
 It preserves both `true` and explicit `false` through nested JSON and binary
 serialization. The draft marks this constraint at risk; this crate represents
-the declaration without executing it. SHACL 1.2 is the target specification:
-each draft feature is added as a model-only declaration as it is modelled, and
+the declaration without executing it. SHACL 1.2 is the target specification,
+tracked at its newest drafts: each draft feature is added as a model-only declaration as it is modelled, and
 the declarations listed in this README are the ones modelled so far.
 SHACL-JS is outside the scope.
 
