@@ -1,0 +1,77 @@
+[
+  {
+    "And": [
+      {
+        "BlankNode": {
+          "scope": "urn:shapes:source",
+          "label": "condition"
+        }
+      }
+    ]
+  },
+  {
+    "Or": [
+      {
+        "BlankNode": {
+          "scope": "urn:shapes:source",
+          "label": "condition"
+        }
+      }
+    ]
+  },
+  {
+    "Xone": [
+      {
+        "BlankNode": {
+          "scope": "urn:shapes:source",
+          "label": "condition"
+        }
+      }
+    ]
+  },
+  {
+    "Not": {
+      "BlankNode": {
+        "scope": "urn:shapes:source",
+        "label": "condition"
+      }
+    }
+  },
+  {
+    "Node": {
+      "BlankNode": {
+        "scope": "urn:shapes:source",
+        "label": "condition"
+      }
+    }
+  },
+  {
+    "QualifiedValueShape": {
+      "shape": {
+        "BlankNode": {
+          "scope": "urn:shapes:source",
+          "label": "condition"
+        }
+      },
+      "min_count": {
+        "Literal": {
+          "lexical": "-1",
+          "metadata": {
+            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+            "facets": "None"
+          }
+        }
+      },
+      "max_count": {
+        "Literal": {
+          "lexical": "18446744073709551616",
+          "metadata": {
+            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+            "facets": "None"
+          }
+        }
+      },
+      "disjoint": true
+    }
+  }
+]

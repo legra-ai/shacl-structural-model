@@ -125,6 +125,46 @@ checked loading use the selected named type's Serde contract; the strict
 `Iri<String>` default continues to reject relative and invalid IRI strings.
 Severity retains its independent checked IRI contract.
 
+## Checked values, errors and ordering
+
+`sh:languageIn` members are `LanguageTag` values. `LanguageTag::try_new`
+checks BCP 47 well-formedness (without consulting the IANA registry), and Serde
+decoding applies the same check, so a malformed tag cannot be loaded from JSON
+or Postcard. Spelling is preserved; equality, hashing and ordering ignore ASCII
+case.
+
+```rust
+use shacl_structural_model::{Component, LanguageTag, LexicalRole, StructuralModelError};
+
+let languages = ["en", "nl-BE"].map(|tag| LanguageTag::try_new(tag).unwrap());
+let constraint: Component<String> = Component::LanguageIn(languages.to_vec());
+assert_eq!(constraint.display_value(), "en, nl-BE");
+assert_eq!(
+    LanguageTag::try_new("en_US"),
+    Err(StructuralModelError::InvalidSyntax {
+        lexical: "en_US".to_owned(),
+        expected: LexicalRole::LanguageTag,
+    })
+);
+```
+
+`StructuralModelError` reports the offending lexical value with the
+`LexicalRole` it was supplied for: `UnknownTerm` for a well-formed value outside
+a closed vocabulary (an unknown `sh:nodeKind` IRI) and `InvalidSyntax` for a
+malformed value (a severity that is not an absolute IRI, a malformed tag).
+
+The structural value types implement `PartialOrd` and `Ord` whenever their
+generic parameters do, so consumers can sort shapes, components, paths,
+targets, expressions and rules canonically. The default
+`rdf_structural_model::Term` has no order, so canonical sorting needs an
+ordered caller term type. `Severity` orders from most to least severe:
+`Violation < Warning < Info`, followed by application-defined severities in IRI
+order. The `inference` declarations retain RDF literals and subjects, which are
+unordered, and so remain unordered.
+
+Every `sh:` IRI the model decodes or encodes is a documented constant in the
+`vocabulary` module, such as `vocabulary::VIOLATION` and `vocabulary::IRI`.
+
 ## Serialization and RDF identity
 
 The default terms use the shared `rdf-structural-model` foundation. Their
@@ -231,7 +271,7 @@ input document.
 
 This is a parsed structural model, not an RDF graph archive. Paths retain
 their structure but not all RDF-list cell identities. Boolean parameters and
-Core language strings are interpreted fields. Regex patterns and flags retain
+`sh:languageIn` members are checked language tags. Regex patterns and flags retain
 their RDF values or caller-defined compiled representations. Callers that need
 exact source triples or graph context must retain those separately. `path_node`
 can retain a path's source root for result reporting. Display helpers are
@@ -241,6 +281,20 @@ The parser/consumer checks RDF node kinds, cardinality, query syntax, shape
 references and expression cycles. This crate does not inspect opaque `Value`
 payloads or certify a declaration as well-formed. Serde rejects unrecognized
 fields on shapes and the new declarations, rather than discarding them.
+
+## Migrating from 6.4
+
+This is a breaking API and Serde-validation change:
+
+- `Component::LanguageIn` holds `Vec<LanguageTag>` instead of `Vec<String>`.
+  Construct members with `LanguageTag::try_new`. The JSON and Postcard
+  encodings are unchanged, but stored malformed tags no longer decode.
+- `StructuralModelError::UnknownNodeKind { value }` becomes
+  `UnknownTerm { lexical, expected: LexicalRole::NodeKindIri }`, and
+  `InvalidSeverityIri { value }` becomes
+  `InvalidSyntax { lexical, expected: LexicalRole::SeverityIri }`.
+- `Component`, the shapes and the declarations that contain them now also
+  implement `Eq` and `Hash` when their generic parameters do.
 
 ## Migrating from 2.x
 
@@ -264,7 +318,7 @@ This is a breaking API and Serde format change:
 - `ShaclRule::Sparql` becomes `ShaclRule::new(id, RuleKind::Sparql(query))`.
   Query text is an RDF literal in `SparqlQuery`, with explicit prefix references.
 - `Severity` supports custom IRIs and is no longer `Copy`. Its accessors borrow
-  the value. Invalid text returns `InvalidSeverityIri`.
+  the value. Invalid text returns an error.
 - Shape `local_name()` methods are removed because IDs need not be IRIs.
   Inspect the caller's term type and use `local_name` for actual IRIs.
   `Target::iri()` now returns `Option` for Core class/predicate targets.

@@ -1,0 +1,23 @@
+{
+  "id": {
+    "BlankNode": {
+      "scope": "urn:shapes:source",
+      "label": "shape"
+    }
+  },
+  "targets": [],
+  "components": [],
+  "property_shapes": [
+    {
+      "BlankNode": {
+        "scope": "urn:shapes:source",
+        "label": "property"
+      }
+    }
+  ],
+  "deactivated": false,
+  "severity": "Violation",
+  "messages": [],
+  "rules": [],
+  "order": null
+}

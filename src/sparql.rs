@@ -6,7 +6,9 @@ use iri_rfc3987::Iri;
 ///
 /// Consumers resolve prefix resources and parse the original literal in their
 /// own engine. Its lexical form and datatype are not inspected here.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, serde::Serialize, serde::Deserialize,
+)]
 #[serde(deny_unknown_fields)]
 pub struct SparqlQuery<Value = crate::DefaultTerm> {
     /// The original `sh:select`, `sh:ask`, or `sh:construct` literal.
@@ -34,7 +36,9 @@ impl<Value> SparqlQuery<Value> {
 }
 
 /// The query forms supported by SPARQL validators and functions.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, serde::Serialize, serde::Deserialize,
+)]
 #[serde(deny_unknown_fields)]
 pub enum SparqlSelectOrAsk<Value = crate::DefaultTerm> {
     /// A `sh:select` declaration.
@@ -44,7 +48,9 @@ pub enum SparqlSelectOrAsk<Value = crate::DefaultTerm> {
 }
 
 /// One `sh:declare` resource, retaining the original RDF literals.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, serde::Serialize, serde::Deserialize,
+)]
 #[serde(deny_unknown_fields)]
 pub struct PrefixDeclaration<Value = crate::DefaultTerm> {
     /// The declaration's IRI or blank node.
@@ -59,7 +65,9 @@ pub struct PrefixDeclaration<Value = crate::DefaultTerm> {
 ///
 /// Retaining edges lets callers detect conflicts and cycles without this model
 /// loading or traversing a graph. This is not a resolved prefix map.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, serde::Serialize, serde::Deserialize,
+)]
 #[serde(deny_unknown_fields)]
 pub struct PrefixDeclarations<Value = crate::DefaultTerm> {
     /// The resource containing `sh:declare` and/or `owl:imports` triples.
@@ -71,7 +79,9 @@ pub struct PrefixDeclarations<Value = crate::DefaultTerm> {
 }
 
 /// An AF `sh:resultAnnotation` declaration on a constraint or validator.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, serde::Serialize, serde::Deserialize,
+)]
 #[serde(deny_unknown_fields)]
 pub struct ResultAnnotation<Value = crate::DefaultTerm> {
     /// The annotation resource's IRI or blank node.
@@ -85,7 +95,9 @@ pub struct ResultAnnotation<Value = crate::DefaultTerm> {
 }
 
 /// A `sh:sparql` constraint, including its source identity and messages.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, serde::Serialize, serde::Deserialize,
+)]
 #[serde(deny_unknown_fields)]
 pub struct SparqlConstraint<Value = crate::DefaultTerm> {
     /// The constraint's IRI or blank node (the result's source constraint).
@@ -115,7 +127,9 @@ impl<Value> SparqlConstraint<Value> {
 }
 
 /// A SPARQL validator attached to a custom constraint component.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, serde::Serialize, serde::Deserialize,
+)]
 #[serde(deny_unknown_fields)]
 pub struct SparqlValidator<Value = crate::DefaultTerm> {
     /// The validator's IRI or blank node.

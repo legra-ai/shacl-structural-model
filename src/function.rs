@@ -5,7 +5,9 @@ use iri_rfc3987::Iri;
 use crate::{Parameter, SparqlSelectOrAsk};
 
 /// A `sh:SPARQLFunction` declaration without registration or execution.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, serde::Serialize, serde::Deserialize,
+)]
 #[serde(
     deny_unknown_fields,
     bound(

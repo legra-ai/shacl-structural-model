@@ -4,7 +4,9 @@ use std::fmt;
 
 use iri_rfc3987::Iri;
 
-use crate::{CustomConstraint, ExpressionConstraint, NodeKind, ShaclPath, SparqlConstraint};
+use crate::{
+    CustomConstraint, ExpressionConstraint, LanguageTag, NodeKind, ShaclPath, SparqlConstraint,
+};
 
 /// The default value type used by [`Component`].
 pub type DefaultValue = crate::DefaultTerm;
@@ -17,7 +19,9 @@ pub type DefaultValue = crate::DefaultTerm;
 /// Regex flags and patterns use independent `Flags` and `Pattern` types,
 /// also defaulting to `Value`. Consumers may retain an RDF reference beside
 /// a compiled representation without requiring an owned lexical string.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, serde::Serialize, serde::Deserialize,
+)]
 #[serde(
     deny_unknown_fields,
     bound(
@@ -61,8 +65,8 @@ pub enum Component<
         /// Original RDF flags value, or a caller-defined compiled representation.
         flags: Option<Flags>,
     },
-    /// `sh:languageIn`.
-    LanguageIn(Vec<String>),
+    /// `sh:languageIn`, with each member checked as a BCP 47 language tag.
+    LanguageIn(Vec<LanguageTag>),
     /// `sh:uniqueLang`.
     UniqueLang(bool),
     /// `sh:equals`.
@@ -213,7 +217,11 @@ impl<
                 Some(flags) => format!("/{pattern:?}/{flags:?}"),
                 None => format!("/{pattern:?}/"),
             },
-            Self::LanguageIn(languages) => languages.join(", "),
+            Self::LanguageIn(languages) => languages
+                .iter()
+                .map(LanguageTag::as_str)
+                .collect::<Vec<_>>()
+                .join(", "),
             Self::UniqueLang(value) | Self::SingleLine(value) | Self::UniqueMembers(value) => {
                 value.to_string()
             }

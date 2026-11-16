@@ -1,0 +1,35 @@
+{
+  "id": {
+    "Iri": "urn:shape"
+  },
+  "targets": [
+    {
+      "Node": {
+        "BlankNode": {
+          "scope": "urn:shapes:source",
+          "label": "focus"
+        }
+      }
+    },
+    {
+      "Node": {
+        "Literal": {
+          "lexical": "bonjour",
+          "metadata": {
+            "datatype": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
+            "facets": {
+              "Language": "fr"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "components": [],
+  "property_shapes": [],
+  "deactivated": false,
+  "severity": "Violation",
+  "messages": [],
+  "rules": [],
+  "order": null
+}

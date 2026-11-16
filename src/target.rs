@@ -5,7 +5,9 @@ use iri_rfc3987::Iri;
 use crate::{Parameter, ParameterValues, SparqlQuery, local_name};
 
 /// A target declaration on a node or property shape.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, serde::Serialize, serde::Deserialize,
+)]
 #[serde(deny_unknown_fields)]
 pub enum Target<Value = crate::DefaultTerm, Named = Iri<String>> {
     /// `sh:targetNode` — the given node is a focus node.
@@ -66,7 +68,9 @@ impl<Value: std::fmt::Debug, Named: AsRef<str>> Target<Value, Named> {
 }
 
 /// A direct `sh:SPARQLTarget` declaration.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, serde::Serialize, serde::Deserialize,
+)]
 #[serde(deny_unknown_fields)]
 pub struct SparqlTarget<Value = crate::DefaultTerm> {
     /// The target's IRI or blank node.
@@ -90,7 +94,9 @@ impl<Value> SparqlTarget<Value> {
 }
 
 /// A reusable, parameterized `sh:SPARQLTargetType` declaration.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, serde::Serialize, serde::Deserialize,
+)]
 #[serde(
     deny_unknown_fields,
     bound(
@@ -132,7 +138,9 @@ impl<Value, Count, Flags, Pattern, Named> SparqlTargetType<Value, Count, Flags, 
 }
 
 /// One use of a custom target type, with its supplied RDF parameter values.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, serde::Serialize, serde::Deserialize,
+)]
 #[serde(deny_unknown_fields)]
 pub struct CustomTarget<Value = crate::DefaultTerm, Named = Iri<String>> {
     /// The target instance's IRI or blank node.

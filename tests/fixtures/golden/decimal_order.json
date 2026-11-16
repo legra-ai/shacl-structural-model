@@ -1,0 +1,21 @@
+{
+  "id": {
+    "Iri": "urn:shape"
+  },
+  "targets": [],
+  "components": [],
+  "property_shapes": [],
+  "deactivated": false,
+  "severity": "Violation",
+  "messages": [],
+  "rules": [],
+  "order": {
+    "Literal": {
+      "lexical": "+0009007199254740993.000000000000000001",
+      "metadata": {
+        "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+        "facets": "None"
+      }
+    }
+  }
+}
