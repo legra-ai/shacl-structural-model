@@ -7,6 +7,16 @@ use shacl_structural_model::{
     inference::{DecodeLimits, DirectExpression, InferenceModelError, TripleRuleDeclaration},
 };
 
+/// The wire shape of [`DirectExpression`] without its constructor checks.
+#[derive(Serialize)]
+enum UncheckedExpression {
+    Constant(Term),
+    PathValues {
+        path: ShaclPath,
+        focus_node: Option<Term>,
+    },
+}
+
 fn iri(text: &str) -> Iri<String> {
     text.parse().unwrap()
 }
@@ -51,8 +61,12 @@ fn direct_constants_preserve_exact_terms_and_exclude_bare_blanks() {
         DirectExpression::try_constant(Term::BlankNode(blank("urn:scope"))),
         Err(InferenceModelError::BlankConstant)
     ));
-    let invalid = serde_json::json!({"Constant": Term::<String>::BlankNode(blank("urn:scope"))});
-    assert!(serde_json::from_value::<DirectExpression>(invalid).is_err());
+    let valid = UncheckedExpression::Constant(Term::Iri(iri("urn:constant")));
+    let encoded = serde_json::to_string(&valid).unwrap();
+    assert!(serde_json::from_str::<DirectExpression>(&encoded).is_ok());
+    let invalid = UncheckedExpression::Constant(Term::BlankNode(blank("urn:scope")));
+    let encoded = serde_json::to_string(&invalid).unwrap();
+    assert!(serde_json::from_str::<DirectExpression>(&encoded).is_err());
 }
 #[test]
 fn path_values_preserve_structure_and_reject_unsupported_focus() {
@@ -67,8 +81,12 @@ fn path_values_preserve_structure_and_reject_unsupported_focus() {
         DirectExpression::try_path_values(path.clone(), Some(&Term::Iri(iri("urn:focus")))),
         Err(InferenceModelError::UnsupportedFocusExpression)
     ));
-    let invalid = serde_json::json!({"PathValues": {"path":path,"focus_node":Term::<String>::Iri(iri("urn:focus"))}});
-    assert!(serde_json::from_value::<DirectExpression>(invalid).is_err());
+    let invalid = UncheckedExpression::PathValues {
+        path,
+        focus_node: Some(Term::Iri(iri("urn:focus"))),
+    };
+    let encoded = serde_json::to_string(&invalid).unwrap();
+    assert!(serde_json::from_str::<DirectExpression>(&encoded).is_err());
     for bad in [
         ShaclPath::<Iri<String>>::Sequence(vec![]),
         ShaclPath::Alternative(vec![ShaclPath::Predicate(iri("urn:p"))]),

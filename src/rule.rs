@@ -5,7 +5,9 @@ use iri_rfc3987::Iri;
 use crate::{NodeExpression, SparqlQuery};
 
 /// A SHACL-AF rule with its identity, execution metadata, and declared bodies.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, serde::Serialize, serde::Deserialize,
+)]
 #[serde(deny_unknown_fields)]
 pub struct ShaclRule<Value = crate::DefaultTerm, Named = Iri<String>> {
     /// The rule's IRI or blank node.
@@ -35,7 +37,9 @@ impl<Value, Named> ShaclRule<Value, Named> {
 }
 
 /// A declarative rule body; no query or node expression is executed here.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, serde::Serialize, serde::Deserialize,
+)]
 #[serde(deny_unknown_fields)]
 pub enum RuleKind<Value = crate::DefaultTerm, Named = Iri<String>> {
     /// A `sh:SPARQLRule` with its CONSTRUCT query declaration.
@@ -45,7 +49,9 @@ pub enum RuleKind<Value = crate::DefaultTerm, Named = Iri<String>> {
 }
 
 /// The three expressions of a `sh:TripleRule`.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, serde::Serialize, serde::Deserialize,
+)]
 #[serde(deny_unknown_fields)]
 pub struct TripleRule<Value = crate::DefaultTerm, Named = Iri<String>> {
     /// The `sh:subject` expression.

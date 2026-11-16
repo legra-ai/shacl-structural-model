@@ -1,0 +1,54 @@
+{
+  "id": {
+    "Iri": "urn:shape"
+  },
+  "targets": [],
+  "components": [],
+  "property_shapes": [],
+  "deactivated": false,
+  "severity": "Violation",
+  "messages": [
+    {
+      "Literal": {
+        "lexical": "Required",
+        "metadata": {
+          "datatype": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
+          "facets": {
+            "Language": "en"
+          }
+        }
+      }
+    },
+    {
+      "Literal": {
+        "lexical": "Verplicht",
+        "metadata": {
+          "datatype": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
+          "facets": {
+            "Language": "nl"
+          }
+        }
+      }
+    },
+    {
+      "Literal": {
+        "lexical": "Required",
+        "metadata": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#string",
+          "facets": "None"
+        }
+      }
+    },
+    {
+      "Literal": {
+        "lexical": "Required",
+        "metadata": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#string",
+          "facets": "None"
+        }
+      }
+    }
+  ],
+  "rules": [],
+  "order": null
+}

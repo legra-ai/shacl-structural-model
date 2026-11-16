@@ -7,7 +7,9 @@ use iri_rfc3987::Iri;
 use crate::local_name;
 
 /// A SHACL property path represented as an AST.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, serde::Serialize, serde::Deserialize,
+)]
 pub enum ShaclPath<Named = Iri<String>> {
     /// A single predicate IRI.
     Predicate(Named),

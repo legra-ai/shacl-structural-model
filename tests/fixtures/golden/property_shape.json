@@ -1,0 +1,95 @@
+{
+  "id": {
+    "BlankNode": {
+      "scope": "urn:shapes:source",
+      "label": "property"
+    }
+  },
+  "path": {
+    "Inverse": {
+      "Predicate": "urn:parent"
+    }
+  },
+  "path_node": {
+    "BlankNode": {
+      "scope": "urn:shapes:source",
+      "label": "inversePath"
+    }
+  },
+  "targets": [
+    {
+      "Node": {
+        "Literal": {
+          "lexical": "focus",
+          "metadata": {
+            "datatype": "http://www.w3.org/2001/XMLSchema#string",
+            "facets": "None"
+          }
+        }
+      }
+    }
+  ],
+  "components": [],
+  "property_shapes": [],
+  "deactivated": false,
+  "severity": "Violation",
+  "names": [
+    {
+      "Literal": {
+        "lexical": "Name",
+        "metadata": {
+          "datatype": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
+          "facets": {
+            "Language": "en"
+          }
+        }
+      }
+    },
+    {
+      "Literal": {
+        "lexical": "Naam",
+        "metadata": {
+          "datatype": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
+          "facets": {
+            "Language": "nl"
+          }
+        }
+      }
+    }
+  ],
+  "descriptions": [
+    {
+      "Literal": {
+        "lexical": "Description",
+        "metadata": {
+          "datatype": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
+          "facets": {
+            "Language": "en"
+          }
+        }
+      }
+    }
+  ],
+  "order": {
+    "Literal": {
+      "lexical": "1.0000000000000000000000001",
+      "metadata": {
+        "datatype": "http://www.w3.org/2001/XMLSchema#decimal",
+        "facets": "None"
+      }
+    }
+  },
+  "default_value": {
+    "Literal": {
+      "lexical": "default",
+      "metadata": {
+        "datatype": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
+        "facets": {
+          "Language": "en"
+        }
+      }
+    }
+  },
+  "messages": [],
+  "rules": []
+}

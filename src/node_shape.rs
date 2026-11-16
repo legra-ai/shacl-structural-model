@@ -5,7 +5,9 @@ use iri_rfc3987::Iri;
 use crate::{Component, Severity, ShaclRule, Target};
 
 /// A SHACL node shape.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, serde::Serialize, serde::Deserialize,
+)]
 #[serde(
     deny_unknown_fields,
     bound(

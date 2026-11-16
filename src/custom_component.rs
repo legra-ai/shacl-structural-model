@@ -8,7 +8,9 @@ use crate::{Parameter, ParameterValues, SparqlValidator};
 ///
 /// Validator roles are kept separately so consumers can select the applicable
 /// node/property validator without losing the generic ASK validators.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, serde::Serialize, serde::Deserialize,
+)]
 #[serde(
     deny_unknown_fields,
     bound(
@@ -55,7 +57,9 @@ impl<Value, Count, Flags, Pattern, Named>
 }
 
 /// An application of a custom component to a shape.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, serde::Serialize, serde::Deserialize,
+)]
 #[serde(deny_unknown_fields)]
 pub struct CustomConstraint<Value = crate::DefaultTerm, Named = Iri<String>> {
     /// The IRI of a separately supplied component declaration.

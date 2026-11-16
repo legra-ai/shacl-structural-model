@@ -10,6 +10,21 @@ use shacl_structural_model::inference::{
     ShapeRuleLink,
 };
 
+/// The wire shape of [`RuleSchedule`] without its checked number type.
+#[derive(Serialize)]
+struct UncheckedSchedule {
+    layer: Option<Literal>,
+    order: Option<Literal>,
+    run_once: Option<bool>,
+}
+
+/// The wire shape of [`ShapeRuleLink`] with an unrestricted shape term.
+#[derive(Serialize)]
+struct UncheckedLink {
+    shape: Term,
+    rule: Subject,
+}
+
 fn iri(value: &str) -> Iri<String> {
     value.parse().unwrap()
 }
@@ -88,9 +103,13 @@ fn numeric_checks_apply_to_construction_and_nested_decoding() {
         ));
         let bytes = postcard::to_allocvec(&literal).unwrap();
         assert!(postcard::from_bytes::<RuleNumber>(&bytes).is_err());
-        let invalid = serde_json::to_value(literal).unwrap();
-        let schedule = serde_json::json!({"layer": invalid, "order": null, "run_once": null});
-        assert!(serde_json::from_value::<RuleSchedule>(schedule).is_err());
+        let schedule = UncheckedSchedule {
+            layer: Some(literal),
+            order: None,
+            run_once: None,
+        };
+        let encoded = serde_json::to_string(&schedule).unwrap();
+        assert!(serde_json::from_str::<RuleSchedule>(&encoded).is_err());
     }
     assert!(
         serde_json::from_str::<RuleSchedule>(
@@ -121,7 +140,16 @@ fn references_are_independent_streamable_records_and_keep_blank_scope() {
         Subject::Iri(rule_iri.borrow()),
     );
     assert_eq!(borrowed.shape(), &Subject::Iri(shape_iri.borrow()));
-    let invalid = serde_json::json!({"shape": serde_json::to_value(Term::<String>::literal(Literal::string("invalid"))).unwrap(),
-                                    "rule": serde_json::to_value(blank).unwrap()});
-    assert!(serde_json::from_value::<ShapeRuleLink>(invalid).is_err());
+    let valid = UncheckedLink {
+        shape: Term::Iri(iri("urn:shape")),
+        rule: blank.clone(),
+    };
+    let encoded = serde_json::to_string(&valid).unwrap();
+    assert!(serde_json::from_str::<ShapeRuleLink>(&encoded).is_ok());
+    let invalid = UncheckedLink {
+        shape: Term::literal(Literal::string("invalid")),
+        rule: blank,
+    };
+    let encoded = serde_json::to_string(&invalid).unwrap();
+    assert!(serde_json::from_str::<ShapeRuleLink>(&encoded).is_err());
 }

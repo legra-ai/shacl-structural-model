@@ -5,7 +5,9 @@ use iri_rfc3987::Iri;
 use crate::Component;
 
 /// One `sh:parameter` declaration, retaining constraints and RDF annotations.
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, serde::Serialize, serde::Deserialize,
+)]
 #[serde(
     deny_unknown_fields,
     bound(
@@ -56,7 +58,9 @@ impl<Value, Count, Flags, Pattern, Named> Parameter<Value, Count, Flags, Pattern
 ///
 /// Values are not reduced to a single binding. The consumer checks cardinality
 /// and, for custom constraints, forms the required binding combinations.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, serde::Serialize, serde::Deserialize,
+)]
 #[serde(deny_unknown_fields)]
 pub struct ParameterValues<Value = crate::DefaultTerm, Named = Iri<String>> {
     /// The parameter predicate.

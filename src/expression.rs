@@ -5,7 +5,9 @@ use iri_rfc3987::Iri;
 use crate::ShaclPath;
 
 /// A node expression paired with its original RDF node.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, serde::Serialize, serde::Deserialize,
+)]
 #[serde(deny_unknown_fields)]
 pub struct NodeExpression<Value = crate::DefaultTerm, Named = Iri<String>> {
     /// The source node: `sh:this`, a constant term, or an expression blank node.
@@ -23,7 +25,9 @@ impl<Value, Named> NodeExpression<Value, Named> {
 }
 
 /// The seven node expression forms defined by SHACL-AF.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, serde::Serialize, serde::Deserialize,
+)]
 #[serde(deny_unknown_fields)]
 pub enum ExpressionKind<Value = crate::DefaultTerm, Named = Iri<String>> {
     /// The focus node (`sh:this`).
@@ -60,7 +64,9 @@ pub enum ExpressionKind<Value = crate::DefaultTerm, Named = Iri<String>> {
 }
 
 /// A `sh:expression` constraint with expression-specific messages.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, serde::Serialize, serde::Deserialize,
+)]
 #[serde(deny_unknown_fields)]
 pub struct ExpressionConstraint<Value = crate::DefaultTerm, Named = Iri<String>> {
     /// The expression, including its source node for result reporting.
