@@ -644,7 +644,7 @@ dependencies = [
 
 [[package]]
 name = "shacl-structural-model"
-version = "6.4.6"
+version = "6.4.7"
 dependencies = [
  "borrow-or-share",
  "iri-rfc3987",
