@@ -34,8 +34,10 @@ pySHACL compatibility. The `Component::SingleLine(bool)` declaration follows
 [SHACL 1.2 Core, Working Draft 14 October 2026, section 7.4.4](https://www.w3.org/TR/2026/WD-shacl12-core-20261014/#SingleLineConstraintComponent).
 It preserves both `true` and explicit `false` through nested JSON and binary
 serialization. The draft marks this constraint at risk; this crate represents
-the declaration without executing it. SHACL-JS and complete SHACL 1.2 draft
-coverage remain outside the implemented scope.
+the declaration without executing it. SHACL 1.2 is the target specification,
+tracked at its newest drafts: each draft feature is added as a model-only declaration as it is modelled, and
+the declarations listed in this README are the ones modelled so far.
+SHACL-JS is outside the scope.
 
 The same draft's [list constraint declarations (section 7.5)](https://www.w3.org/TR/2026/WD-shacl12-core-20261014/)
 are represented by `MemberShape(Value)`, `MinListLength(Count)`,
@@ -175,7 +177,8 @@ before delivering a Serde visitor. Bounds apply per expression, not per dataset.
 Other 1.2 expression forms, explicit focus expressions, rule-type catalogs,
 conditions, deactivation, expected-derived predicates, processors, entailment
 selection, SPARQL/template declarations and temporary/provenance triple policies
-are outside this new subset. Existing AF declarations retain their own contract.
+are not yet modelled; they belong to the SHACL 1.2 target and are added as
+model-only declarations. Existing AF declarations retain their own contract.
 Reference resolution, default application, scheduling, target/condition
 validation, graph traversal, SPARQL execution and inference remain consumer-owned.
 
