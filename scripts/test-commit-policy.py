@@ -100,23 +100,25 @@ class CommitPolicyTests(unittest.TestCase):
 
 
 
-class MajorReleasePolicyTests(unittest.TestCase):
-    def test_major_plan_is_reviewed_before_release_writer_runs(self):
+class ReleaseApprovalPolicyTests(unittest.TestCase):
+    def test_minor_and_major_plans_are_reviewed_before_release_writer_runs(self):
         workflow = (Path(__file__).resolve().parents[1] / ".github/workflows/ci.yml").read_text()
-        plan = workflow.split("\n  plan:\n", 1)[1].split("\n  approve-major:\n", 1)[0]
+        plan = workflow.split("\n  plan:\n", 1)[1].split("\n  approve-release:\n", 1)[0]
         self.assertIn("plan-only: 'true'", plan)
         self.assertIn("token: ${{ github.token }}", plan)
         self.assertNotIn("RELEASE_WRITER", plan)
-        approval = workflow.split("\n  approve-major:\n", 1)[1].split("\n  prepare:\n", 1)[0]
-        self.assertIn("environment: major-release", approval)
-        self.assertIn("needs.plan.outputs.major == 'true'", approval)
-        self.assertIn("Approve major release", plan)
+        self.assertIn("approval-required: ${{ steps.release.outputs.approval-required }}", plan)
+        self.assertIn("bump-level: ${{ steps.release.outputs.bump-level }}", plan)
+        self.assertIn('f"Approve {level} release {version} "', plan)
         self.assertIn("WORKFLOW_SOURCE", plan)
-        prepare = workflow.split("\n  prepare:\n", 1)[1].split("\n  test:\n", 1)[0]
-        self.assertIn("needs: [plan, approve-major]", prepare)
-        self.assertIn("needs['approve-major'].result == 'success'", prepare)
-        self.assertIn("needs['approve-major'].result == 'skipped'", prepare)
-        self.assertIn("actions: read", workflow)
+        approval = workflow.split("\n  approve-release:\n", 1)[1].split("\n  prepare:\n", 1)[0]
+        self.assertIn("environment: ${{ needs.plan.outputs.approval-required == 'true' "
+                      "&& 'release-approval' || '' }}", approval)
+        self.assertNotIn("\n    if:", approval, "a skipped approval job would skip its descendants")
+        self.assertIn("\n  prepare:\n    needs: [plan, approve-release]\n", workflow)
+        self.assertIn("\n  actions: read\n", workflow)
+        self.assertNotIn("major-release", workflow)
+        self.assertNotIn("major-approval-required", workflow)
         self.assertNotIn("pending_deployments", workflow)
         test = workflow.split("\n  test:\n", 1)[1].split("\n  publish:\n", 1)[0]
         self.assertIn("always() && !cancelled() && needs.prepare.result == 'success'", test)
