@@ -1,0 +1,87 @@
+[
+  {
+    "id": {
+      "Iri": "http://example.com/ns#Rectangle-computeSmall"
+    },
+    "metadata": {
+      "schedule": {
+        "layer": {
+          "lexical": "1",
+          "metadata": {
+            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+            "facets": "None"
+          }
+        },
+        "order": null,
+        "run_once": true
+      },
+      "conditions": [
+        {
+          "Iri": "http://example.com/ns#RectangleShape"
+        }
+      ],
+      "deactivated": false,
+      "expected_predicates": [
+        "http://example.com/ns#area"
+      ],
+      "processors": [
+        {
+          "Literal": "SRL 1.2"
+        },
+        {
+          "Iri": "http://example.com/ns#Datalog"
+        }
+      ]
+    },
+    "query": {
+      "construct": {
+        "lexical": "CONSTRUCT { $this ex:isSmall true . } WHERE { $this ex:area ?area }",
+        "metadata": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#string",
+          "facets": "None"
+        }
+      },
+      "prefixes": [
+        {
+          "Iri": "http://example.com/ns#"
+        }
+      ]
+    }
+  },
+  {
+    "id": "http://example.com/ns#RuleSet1",
+    "processors": [
+      {
+        "Iri": "http://example.com/ns#Datalog"
+      }
+    ]
+  },
+  {
+    "id": {
+      "Iri": "http://example.com/ns#childCount"
+    },
+    "metadata": {
+      "schedule": {
+        "layer": null,
+        "order": null,
+        "run_once": null
+      },
+      "conditions": [],
+      "deactivated": null,
+      "expected_predicates": [
+        "http://example.com/ns#child"
+      ],
+      "processors": []
+    },
+    "subject": null,
+    "predicate": {
+      "source": null,
+      "form": {
+        "Constant": {
+          "Iri": "http://example.com/ns#childCount"
+        }
+      }
+    },
+    "object": null
+  }
+]

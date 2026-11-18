@@ -9,7 +9,8 @@ Typed structural values for SHACL shapes in Rust.
 
 `shacl-structural-model` represents SHACL shapes, property paths, targets,
 constraint components, severities, RDF messages, SPARQL declarations, SHACL 1.2
-node expressions, and SHACL Advanced Features functions and rules. It is intended for parsers,
+node expressions, SHACL 1.2 shape annotations, graph and entailment declarations,
+SHACL 1.2 inference rules, and SHACL Advanced Features functions and rules. It is intended for parsers,
 editors, validators, serializers, and storage adapters that need typed shape
 values without taking a dependency on an RDF graph implementation.
 
@@ -59,6 +60,20 @@ represents each declaration; it does not evaluate it.
 | `sh:targetWhere` | `Target::Where(Value)` | [3.1.3.6](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#targetWhere) |
 | `sh:shape` explicit shape targets | `ExplicitShapeTarget { node, shape }` (a data-graph record) | [3.1.3.7](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#x3-1-3-7-explicit-shape-targets-sh-shape) |
 | `sh:values`, `sh:defaultValue` | `PropertyShape::values`, `PropertyShape::default_value` (`Option<NodeExpression>`) | [5](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#x5-node-expressions), [6.9.4.2](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#x6-9-4-2-value-nodes-of-property-shapes) |
+| `sh:deactivated` node expressions | `NodeShape`/`PropertyShape::deactivated` (`Option<NodeExpression>`) | [3.1.6](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#deactivated) |
+| `sh:deactivated` reifiers on constraint triples | `ConstraintDeactivation { shape, parameter, value, deactivated }` | [3.1.6](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#deactivated) |
+| `sh:deactivated` on SPARQL-based constraints | `SparqlConstraint::deactivated` (`Option<NodeExpression>`) | SPARQL [3.2](https://www.w3.org/TR/2026/WD-shacl12-sparql-20261022/#sparql-constraints-syntax) |
+| `sh:TripleTerm` node kind | `NodeKind::TripleTerm` | [6.10.1.3](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#NodeKindConstraintComponent) |
+| `sh:intent`, `sh:formalized` | `ShapeAnnotations::intents` (`Intent { statement, formalized }`) | [6.11.2](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#intent) |
+| `sh:agentInstruction` | `ShapeAnnotations::agent_instructions` | [6.11.3](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#agentInstruction) |
+| `sh:codeIdentifier` | `ShapeAnnotations::code_identifier` (`CodeIdentifier`) | [6.11.4](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#codeIdentifier) |
+| `sh:codeType` | `ShapeAnnotations::code_type` | [6.11.5](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#codeType) |
+| `sh:unit` | `ShapeAnnotations::units` | [6.11.6](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#unit) |
+| `sh:group`, `sh:PropertyGroup` | `PropertyShape::group`, `PropertyGroup { id, order }` | [6.11.8](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#group) |
+| `sh:Graph`, `sh:DataGraph`, `sh:ShapesGraph` | `graph::GraphTypeDeclaration { graph, role: GraphRole }` | [6.1](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#shapes-graph), [6.2](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#data-graph) |
+| `sh:shapesGraph`, `sh:dataGraph`, `sh:suggestedShapesGraph` | `graph::GraphLink { from, kind: GraphLinkKind, to }` | [6.5](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#sh-shapes-graph), [6.6](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#sh-data-graph) |
+| `sh:entailment` | `graph::EntailmentDeclaration { shapes_graph, entailment: Entailment }` | [1.4](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#shacl-rdfs) |
+| `sh:incomplete`, `sh:incompleteURIStart` | `graph::IncompleteNode`, `graph::IncompleteUriStart` (data-graph records) | [6.9.3.1](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#incomplete-data) |
 
 `SingleLine` preserves both `true` and explicit `false`. Member-shape
 references retain caller-owned RDF identity; list length bounds retain exact
@@ -75,6 +90,19 @@ declarations do not traverse or collect lists or graphs. A Core `sh:targetNode`
 or `sh:defaultValue` constant is `NodeExpression::constant(term)`. `sh:shape`
 triples live in the data graph, so `ExplicitShapeTarget` is a separate record
 that a consumer streams beside its shapes.
+
+`deactivated` is `None` when absent; a Core `sh:deactivated true` is
+`NodeExpression::constant` of the boolean literal, and the consumer evaluates
+the expression and checks that `true` or `false` is its only output node.
+`ShapeAnnotations` sits on node and property shapes. Its literals keep their
+language tags and directions, `sh:unit` may also be an IRI, and an absent
+`sh:formalized` reifier is `None`, distinct from explicit `false`.
+`CodeIdentifier` checks `^[a-zA-Z_][a-zA-Z0-9_]*$` on construction and
+decoding. `PropertyGroup`, the `graph` records and `ConstraintDeactivation` are
+separate triple-sized records a consumer streams beside its shapes; the model
+resolves no graph link, import, entailment regime or incompleteness value.
+Validation reports and results (Core 6.9) are values a validator produces,
+so they belong to a separate report model rather than this shapes crate.
 
 ### SHACL 1.2 node expressions
 
@@ -268,37 +296,47 @@ conversion layer. Their Serde support is conditional on those types. Model
 support for RDF 1.2 triple terms and typed extensions does not establish SHACL
 validator execution support for those features.
 
-## Restricted SHACL 1.2 inference declarations
+## SHACL 1.2 inference declarations
 
-The `inference` module describes a model-only subset pinned to the
-[28 October 2026 Inference Rules draft](https://www.w3.org/TR/2026/WD-shacl12-inference-rules-20261028/).
+The `inference` module describes the
+[10 November 2026 Inference Rules draft](https://www.w3.org/TR/2026/WD-shacl12-inference-rules-20261110/).
 Its triple rules hold the full SHACL 1.2 node expressions above. It is
 distinct from the AF declarations below. It does not execute rules or certify
 inference-engine support.
 
-| API | Representation |
-| --- | --- |
-| `RuleSet`, `RuleSetMembership`, `RuleSetInclusion` | Independent checked IRI declaration and edge records, suitable for streaming |
-| `ResourceRef`, `ShapeRuleLink` | Shared RDF `Subject<Text>` identities, including scoped blank nodes |
-| `RuleNumber`, `RuleSchedule` | Checked exact integer/decimal metadata; absent layer/order/runOnce retained |
-| `TripleRuleDeclaration` | Independent rule identity, schedule, and three optional `RuleExpression` slots |
-| `RuleExpression` | `NodeExpression<Term<Text>, Iri<Text>>`, over shared owned or borrowed RDF text |
+| Declaration | Model | Draft section |
+| --- | --- | --- |
+| Rule types, `sh:SPARQLRule`, `sh:TripleRule` | `RuleType`, `RuleTyping { rule, rule_type }` | [3.1](https://www.w3.org/TR/2026/WD-shacl12-inference-rules-20261110/#rule-types) |
+| `sh:rule` | `ShapeRuleLink` | [3.2](https://www.w3.org/TR/2026/WD-shacl12-inference-rules-20261110/#global-rules) |
+| `sh:condition`, `sh:deactivated` | `RuleMetadata::conditions`, `RuleMetadata::deactivated` (`Option<bool>`) | [3.3](https://www.w3.org/TR/2026/WD-shacl12-inference-rules-20261110/#condition), [3.4](https://www.w3.org/TR/2026/WD-shacl12-inference-rules-20261110/#deactivated-rules) |
+| `sh:layer`, `sh:order`, `sh:runOnce` | `RuleSchedule`, `RuleNumber` | [3.5](https://www.w3.org/TR/2026/WD-shacl12-inference-rules-20261110/#rule-layers), [3.6](https://www.w3.org/TR/2026/WD-shacl12-inference-rules-20261110/#rule-order), [3.7](https://www.w3.org/TR/2026/WD-shacl12-inference-rules-20261110/#run-once) |
+| `sh:expectedPredicate` | `RuleMetadata::expected_predicates` | [3.8](https://www.w3.org/TR/2026/WD-shacl12-inference-rules-20261110/#expectedPredicate) |
+| `sh:RuleSet`, `sh:hasRule`, `sh:includesRuleSet` | `RuleSet`, `RuleSetMembership`, `RuleSetInclusion` | [4](https://www.w3.org/TR/2026/WD-shacl12-inference-rules-20261110/#ruleSet) |
+| `sh:RulesGraph` | `graph::GraphRole::RulesGraph` | [5](https://www.w3.org/TR/2026/WD-shacl12-inference-rules-20261110/#rules-graph) |
+| `sh:RulesEntailment`, rule-set entailment | `graph::Entailment::Rules`, `graph::Entailment::Regime` | [6.1](https://www.w3.org/TR/2026/WD-shacl12-inference-rules-20261110/#RulesEntailment), [6.2](https://www.w3.org/TR/2026/WD-shacl12-inference-rules-20261110/#RuleSetEntailment) |
+| `sh:tempTriple` | `InferredTripleReifier` with `InferenceAnnotation::TempTriple` | [7](https://www.w3.org/TR/2026/WD-shacl12-inference-rules-20261110/#tempTriple) |
+| `sh:sourceRule` | `InferredTripleReifier` with `InferenceAnnotation::SourceRule` | [9](https://www.w3.org/TR/2026/WD-shacl12-inference-rules-20261110/#sourceRule) |
+| `sh:ruleProcessor` | `RuleProcessor` on `RuleMetadata` and `RuleSet` | [10](https://www.w3.org/TR/2026/WD-shacl12-inference-rules-20261110/#ruleProcessor) |
+| SPARQL rules: `sh:construct`, `sh:prefixes` | `SparqlRuleDeclaration`, `ConstructQuery` | [11.1](https://www.w3.org/TR/2026/WD-shacl12-inference-rules-20261110/#SPARQLRule) |
+| Triple rules: `sh:subject`, `sh:predicate`, `sh:object` | `TripleRuleDeclaration`, `RuleExpression` | [11.2](https://www.w3.org/TR/2026/WD-shacl12-inference-rules-20261110/#TripleRule) |
+| `sh:SPARQLRuleTemplate` and its instances | `SparqlRuleTemplate`, `TemplateParameter`, `TemplateRuleDeclaration` | [12](https://www.w3.org/TR/2026/WD-shacl12-inference-rules-20261110/#SPARQLRuleTemplate) |
 
+Every rule declaration carries a `RuleMetadata` that retains absence: an
+absent `sh:deactivated` or `sh:runOnce` is `None`, distinct from explicit
+`false`. `ResourceRef` (`Subject<Text>`) identities include scoped blank nodes.
 The new types accept shared RDF owned or borrowed text. Numeric `Eq`/hash retain
 literal identity; `cmp_value` compares arbitrary-width exact values without
 floating-point conversion, digit-buffer allocation or a general datatype engine.
-Constructors and nested JSON/Postcard decoding apply the same semantic checks.
+`ConstructQuery` requires an `xsd:string` literal and does not parse it.
+Constructors and nested JSON/Postcard decoding apply the same checks.
 
-Rule-set includes remain edges; the consumer resolves references, cycles and
-membership without hydrating the relation. A rule's global status requires the
-relevant shapes graph's associations, not merely the selected rule set.
-
-Rule-type catalogs, conditions, deactivation, expected-derived predicates, processors, entailment
-selection, SPARQL/template declarations and temporary/provenance triple policies
-are not yet modelled; they belong to the SHACL 1.2 target and are added as
-model-only declarations. Existing AF declarations retain their own contract.
-Reference resolution, default application, scheduling, target/condition
-validation, graph traversal, SPARQL execution and inference remain consumer-owned.
+Rule-set includes, rule typings and reifier annotations remain individual
+records; the consumer resolves references, cycles, membership, template
+parameters and processor support without hydrating the relation. A rule's
+global status requires the relevant shapes graph's associations, not merely
+the selected rule set. Default application, scheduling, condition validation,
+derived-triple computation, graph traversal, SPARQL execution and inference
+remain consumer-owned. Existing AF declarations retain their own contract.
 
 ## SPARQL and Advanced Features
 
@@ -391,6 +429,18 @@ This is a breaking API and Serde format change:
   becomes `Target::ImplicitClass { class, declaration }`; `Target` gains `Where`.
 - `PropertyShape::default_value` holds a `NodeExpression`, and `PropertyShape`
   gains `values`. `Parameter` gains `key_parameter`.
+- `NodeShape::deactivated`, `PropertyShape::deactivated` and
+  `SparqlConstraint::deactivated` become `Option<NodeExpression>`: map `false`
+  to `None` or an explicit constant, and `true` to
+  `NodeExpression::constant` of `"true"^^xsd:boolean`. `with_deactivated`
+  takes the expression. `SparqlConstraint` gains the `Named` generic.
+- Node and property shapes gain `annotations: ShapeAnnotations`, and
+  `PropertyShape` gains `group`. `NodeKind` gains `TripleTerm` as its last
+  variant, so existing Postcard indexes are unchanged.
+- `inference::TripleRuleDeclaration::with_schedule`/`schedule` become
+  `with_metadata`/`metadata` over `RuleMetadata`, which holds the schedule.
+  `RuleSet` gains `processors`. `INFERENCE_DRAFT` moves to the 10 November
+  2026 draft, and `InferenceModelError` gains `InvalidConstructQuery`.
 
 ## Migrating from 6.4
 

@@ -37,7 +37,7 @@ fn sparql_constraints_keep_source_identity_messages_prefixes_and_annotations() {
         "_:constraint".to_owned(),
         query("SELECT $this ?value WHERE { $this ex:p ?value }"),
     );
-    constraint.deactivated = true;
+    constraint = constraint.with_deactivated(NodeExpression::constant("true".to_owned()));
     constraint.messages = vec!["\"Required\"@en".to_owned(), "\"Verplicht\"@nl".to_owned()];
     constraint.annotations.push(ResultAnnotation {
         id: "_:annotation".to_owned(),

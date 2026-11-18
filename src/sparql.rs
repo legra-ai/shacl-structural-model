@@ -2,6 +2,8 @@
 
 use iri_rfc3987::Iri;
 
+use crate::NodeExpression;
+
 /// A query literal and its `sh:prefixes` references.
 ///
 /// Consumers resolve prefix resources and parse the original literal in their
@@ -98,31 +100,45 @@ pub struct ResultAnnotation<Value = crate::DefaultTerm> {
 #[derive(
     Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, serde::Serialize, serde::Deserialize,
 )]
-#[serde(deny_unknown_fields)]
-pub struct SparqlConstraint<Value = crate::DefaultTerm> {
+#[serde(
+    deny_unknown_fields,
+    bound(
+        serialize = "Value: serde::Serialize, Named: serde::Serialize",
+        deserialize = "Value: serde::Deserialize<'de>, Named: serde::Deserialize<'de>"
+    )
+)]
+pub struct SparqlConstraint<Value = crate::DefaultTerm, Named = Iri<String>> {
     /// The constraint's IRI or blank node (the result's source constraint).
     pub id: Value,
     /// The SELECT query declaration.
     pub select: SparqlQuery<Value>,
-    /// Whether this constraint is deactivated.
-    pub deactivated: bool,
+    /// The `sh:deactivated` node expression (SHACL 1.2 SPARQL-Related
+    /// Features, Working Draft 22 October 2026, section 3.2), as for shapes.
+    pub deactivated: Option<NodeExpression<Value, Named>>,
     /// RDF `sh:message` literals, including any language tags.
     pub messages: Vec<Value>,
     /// Result annotation declarations.
     pub annotations: Vec<ResultAnnotation<Value>>,
 }
 
-impl<Value> SparqlConstraint<Value> {
-    /// Create an active constraint with no messages or annotations.
+impl<Value, Named> SparqlConstraint<Value, Named> {
+    /// Create a constraint without `sh:deactivated`, messages or annotations.
     #[must_use]
     pub fn new(id: Value, select: SparqlQuery<Value>) -> Self {
         Self {
             id,
             select,
-            deactivated: false,
+            deactivated: None,
             messages: Vec::new(),
             annotations: Vec::new(),
         }
+    }
+
+    /// Set the `sh:deactivated` node expression.
+    #[must_use]
+    pub fn with_deactivated(mut self, deactivated: NodeExpression<Value, Named>) -> Self {
+        self.deactivated = Some(deactivated);
+        self
     }
 }
 

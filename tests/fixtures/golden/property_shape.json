@@ -36,7 +36,7 @@
   ],
   "components": [],
   "property_shapes": [],
-  "deactivated": false,
+  "deactivated": null,
   "severity": "Violation",
   "names": [
     {
@@ -102,5 +102,13 @@
     }
   },
   "messages": [],
-  "rules": []
+  "annotations": {
+    "intents": [],
+    "agent_instructions": [],
+    "code_identifier": null,
+    "code_type": null,
+    "units": []
+  },
+  "rules": [],
+  "group": null
 }

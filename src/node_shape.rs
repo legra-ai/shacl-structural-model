@@ -2,7 +2,10 @@
 
 use iri_rfc3987::Iri;
 
-use crate::{Component, Severity, ShaclRule, Target};
+use crate::{Component, NodeExpression, Severity, ShaclRule, ShapeAnnotations, Target};
+
+/// The SHACL 1.2 Core draft whose shape declarations this crate follows.
+pub const CORE_DRAFT: &str = "https://www.w3.org/TR/2026/WD-shacl12-core-20261116/";
 
 /// A SHACL node shape.
 #[derive(
@@ -30,12 +33,16 @@ pub struct NodeShape<
     pub components: Vec<Component<Value, Count, Flags, Pattern, Named>>,
     /// IRI or blank-node references to attached property shapes.
     pub property_shapes: Vec<Value>,
-    /// Whether this shape is deactivated.
-    pub deactivated: bool,
+    /// The `sh:deactivated` node expression (SHACL 1.2 Core, Working Draft 16
+    /// November 2026, section 3.1.6). `None` when absent; the consumer
+    /// evaluates the expression, whose only output node must be `true` or `false`.
+    pub deactivated: Option<NodeExpression<Value, Named>>,
     /// The severity for results from this shape.
     pub severity: Severity,
     /// RDF `sh:message` literals, including any language tags.
     pub messages: Vec<Value>,
+    /// Non-validating characteristics (Core section 6.11).
+    pub annotations: ShapeAnnotations<Value, Named>,
     /// SHACL-AF rules attached to this shape.
     pub rules: Vec<ShaclRule<Value, Named>>,
     /// The original numeric `sh:order` literal for AF rule execution.
@@ -51,9 +58,10 @@ impl<Value, Count, Flags, Pattern, Named> NodeShape<Value, Count, Flags, Pattern
             targets: Vec::new(),
             components: Vec::new(),
             property_shapes: Vec::new(),
-            deactivated: false,
+            deactivated: None,
             severity: Severity::default(),
             messages: Vec::new(),
+            annotations: ShapeAnnotations::new(),
             rules: Vec::new(),
             order: None,
         }
@@ -83,10 +91,18 @@ impl<Value, Count, Flags, Pattern, Named> NodeShape<Value, Count, Flags, Pattern
         self
     }
 
-    /// Set whether this shape is deactivated.
+    /// Set the `sh:deactivated` node expression. A Core constant is
+    /// `NodeExpression::constant` of a boolean literal.
     #[must_use]
-    pub fn with_deactivated(mut self, deactivated: bool) -> Self {
-        self.deactivated = deactivated;
+    pub fn with_deactivated(mut self, deactivated: NodeExpression<Value, Named>) -> Self {
+        self.deactivated = Some(deactivated);
+        self
+    }
+
+    /// Set the non-validating characteristics (Core section 6.11).
+    #[must_use]
+    pub fn with_annotations(mut self, annotations: ShapeAnnotations<Value, Named>) -> Self {
+        self.annotations = annotations;
         self
     }
 

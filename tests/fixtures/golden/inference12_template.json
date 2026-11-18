@@ -1,0 +1,56 @@
+[
+  {
+    "id": "http://example.com/ns#SymmetricPropertyRule",
+    "parameters": [
+      {
+        "id": {
+          "Iri": "http://example.com/ns#property-parameter"
+        },
+        "path": "http://example.com/ns#property",
+        "optional": false,
+        "key_parameter": false,
+        "order": null,
+        "names": [],
+        "descriptions": [],
+        "components": []
+      }
+    ],
+    "query": {
+      "construct": {
+        "lexical": "CONSTRUCT { ?o $property ?s . } WHERE { ?s $property ?o . }",
+        "metadata": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#string",
+          "facets": "None"
+        }
+      },
+      "prefixes": []
+    }
+  },
+  {
+    "id": {
+      "Iri": "http://example.com/ns#MarriedToRule"
+    },
+    "template": "http://example.com/ns#SymmetricPropertyRule",
+    "metadata": {
+      "schedule": {
+        "layer": null,
+        "order": null,
+        "run_once": null
+      },
+      "conditions": [],
+      "deactivated": null,
+      "expected_predicates": [],
+      "processors": []
+    },
+    "arguments": [
+      {
+        "path": "http://example.com/ns#property",
+        "values": [
+          {
+            "Iri": "http://example.com/ns#marriedTo"
+          }
+        ]
+      }
+    ]
+  }
+]

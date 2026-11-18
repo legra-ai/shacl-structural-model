@@ -15,9 +15,16 @@
       }
     }
   ],
-  "deactivated": false,
+  "deactivated": null,
   "severity": "Violation",
   "messages": [],
+  "annotations": {
+    "intents": [],
+    "agent_instructions": [],
+    "code_identifier": null,
+    "code_type": null,
+    "units": []
+  },
   "rules": [],
   "order": null
 }

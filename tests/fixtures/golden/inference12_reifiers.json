@@ -1,0 +1,38 @@
+[
+  {
+    "reifier": {
+      "Iri": "http://example.com/ns#r1"
+    },
+    "triple": {
+      "subject": {
+        "Iri": "http://example.com/ns#Alice"
+      },
+      "predicate": "http://example.com/ns#friend",
+      "object": {
+        "Iri": "http://example.com/ns#Bob"
+      }
+    },
+    "annotation": {
+      "TempTriple": true
+    }
+  },
+  {
+    "reifier": {
+      "Iri": "http://example.com/ns#r2"
+    },
+    "triple": {
+      "subject": {
+        "Iri": "http://example.com/ns#Alice"
+      },
+      "predicate": "http://example.com/ns#friend",
+      "object": {
+        "Iri": "http://example.com/ns#Bob"
+      }
+    },
+    "annotation": {
+      "SourceRule": {
+        "Iri": "http://example.com/ns#SymmetricPropertyRule"
+      }
+    }
+  }
+]

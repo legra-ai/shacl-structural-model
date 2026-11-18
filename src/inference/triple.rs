@@ -3,13 +3,13 @@ use borrow_or_share::Bos;
 use iri_rfc3987::Iri;
 use rdf_structural_model::{Subject, Term};
 
-use super::RuleSchedule;
+use super::RuleMetadata;
 use crate::NodeExpression;
 
 /// A SHACL 1.2 node expression over the shared RDF term model.
 pub type RuleExpression<Text = String> = NodeExpression<Term<Text>, Iri<Text>>;
 
-/// A restricted draft triple-rule declaration, not an executable rule.
+/// A `sh:TripleRule` declaration (section 11.2), not an executable rule.
 ///
 /// Omitted slots remain omitted. No global/shape status is guessed here; the
 /// consumer examines independent shape links across its relevant shapes graph.
@@ -23,7 +23,7 @@ pub type RuleExpression<Text = String> = NodeExpression<Term<Text>, Iri<Text>>;
 )]
 pub struct TripleRuleDeclaration<Text: Bos<str> + AsRef<str> = String> {
     id: Subject<Text>,
-    schedule: RuleSchedule<Text>,
+    metadata: RuleMetadata<Text>,
     subject: Option<RuleExpression<Text>>,
     predicate: Option<RuleExpression<Text>>,
     object: Option<RuleExpression<Text>>,
@@ -34,16 +34,16 @@ impl<Text: Bos<str> + AsRef<str>> TripleRuleDeclaration<Text> {
     pub const fn new(id: Subject<Text>) -> Self {
         Self {
             id,
-            schedule: RuleSchedule::new(),
+            metadata: RuleMetadata::new(),
             subject: None,
             predicate: None,
             object: None,
         }
     }
-    /// Set explicit scheduling metadata without applying execution defaults.
+    /// Set the common rule declarations without applying execution defaults.
     #[must_use]
-    pub fn with_schedule(mut self, schedule: RuleSchedule<Text>) -> Self {
-        self.schedule = schedule;
+    pub fn with_metadata(mut self, metadata: RuleMetadata<Text>) -> Self {
+        self.metadata = metadata;
         self
     }
     /// Set the subject expression.
@@ -69,10 +69,10 @@ impl<Text: Bos<str> + AsRef<str>> TripleRuleDeclaration<Text> {
     pub const fn id(&self) -> &Subject<Text> {
         &self.id
     }
-    /// Explicit scheduling metadata.
+    /// The common rule declarations, including scheduling.
     #[must_use]
-    pub const fn schedule(&self) -> &RuleSchedule<Text> {
-        &self.schedule
+    pub const fn metadata(&self) -> &RuleMetadata<Text> {
+        &self.metadata
     }
     /// The optional subject expression.
     #[must_use]

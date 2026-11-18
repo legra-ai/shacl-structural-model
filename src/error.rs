@@ -5,12 +5,14 @@ use std::fmt;
 /// The role a rejected lexical value was supplied for.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum LexicalRole {
-    /// A `sh:nodeKind` value, one of the six SHACL node-kind IRIs.
+    /// A `sh:nodeKind` value, one of the seven SHACL node-kind IRIs.
     NodeKindIri,
     /// A `sh:severity` value, a standard or application-defined absolute IRI.
     SeverityIri,
     /// A `sh:languageIn` member, a well-formed BCP 47 language tag.
     LanguageTag,
+    /// A `sh:codeIdentifier` value, matching `^[a-zA-Z_][a-zA-Z0-9_]*$`.
+    CodeIdentifier,
 }
 
 impl fmt::Display for LexicalRole {
@@ -19,6 +21,7 @@ impl fmt::Display for LexicalRole {
             Self::NodeKindIri => "SHACL node kind IRI",
             Self::SeverityIri => "SHACL severity IRI",
             Self::LanguageTag => "BCP 47 language tag",
+            Self::CodeIdentifier => "SHACL code identifier",
         })
     }
 }

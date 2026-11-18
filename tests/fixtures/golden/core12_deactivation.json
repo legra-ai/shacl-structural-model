@@ -1,0 +1,142 @@
+[
+  {
+    "id": {
+      "Iri": "https://example.org/PersonShape"
+    },
+    "targets": [],
+    "components": [],
+    "property_shapes": [],
+    "deactivated": {
+      "source": null,
+      "form": {
+        "Constant": {
+          "Literal": {
+            "lexical": "true",
+            "metadata": {
+              "datatype": "http://www.w3.org/2001/XMLSchema#boolean",
+              "facets": "None"
+            }
+          }
+        }
+      }
+    },
+    "severity": "Violation",
+    "messages": [],
+    "annotations": {
+      "intents": [],
+      "agent_instructions": [],
+      "code_identifier": null,
+      "code_type": null,
+      "units": []
+    },
+    "rules": [],
+    "order": null
+  },
+  {
+    "id": {
+      "Iri": "https://example.org/PersonShape-name"
+    },
+    "path": {
+      "Predicate": "https://example.org/name"
+    },
+    "path_node": null,
+    "targets": [],
+    "components": [],
+    "property_shapes": [],
+    "deactivated": {
+      "source": null,
+      "form": {
+        "Exists": {
+          "source": null,
+          "form": {
+            "PathValues": {
+              "path": {
+                "Predicate": "https://example.org/retired"
+              },
+              "path_node": null,
+              "focus_node": null
+            }
+          }
+        }
+      }
+    },
+    "severity": "Violation",
+    "names": [],
+    "descriptions": [],
+    "order": null,
+    "values": null,
+    "default_value": null,
+    "messages": [],
+    "annotations": {
+      "intents": [],
+      "agent_instructions": [],
+      "code_identifier": null,
+      "code_type": null,
+      "units": []
+    },
+    "rules": [],
+    "group": null
+  },
+  {
+    "id": {
+      "Iri": "https://example.org/constraint"
+    },
+    "select": {
+      "text": {
+        "Literal": {
+          "lexical": "SELECT $this {}",
+          "metadata": {
+            "datatype": "http://www.w3.org/2001/XMLSchema#string",
+            "facets": "None"
+          }
+        }
+      },
+      "prefixes": []
+    },
+    "deactivated": {
+      "source": null,
+      "form": {
+        "Constant": {
+          "Literal": {
+            "lexical": "false",
+            "metadata": {
+              "datatype": "http://www.w3.org/2001/XMLSchema#boolean",
+              "facets": "None"
+            }
+          }
+        }
+      }
+    },
+    "messages": [],
+    "annotations": []
+  },
+  {
+    "shape": {
+      "Iri": "https://example.org/PersonShape-name"
+    },
+    "parameter": "http://www.w3.org/ns/shacl#minCount",
+    "value": {
+      "Literal": {
+        "lexical": "1",
+        "metadata": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#string",
+          "facets": "None"
+        }
+      }
+    },
+    "deactivated": {
+      "source": null,
+      "form": {
+        "Constant": {
+          "Literal": {
+            "lexical": "true",
+            "metadata": {
+              "datatype": "http://www.w3.org/2001/XMLSchema#boolean",
+              "facets": "None"
+            }
+          }
+        }
+      }
+    }
+  }
+]

@@ -1,0 +1,128 @@
+[
+  {
+    "id": {
+      "Iri": "https://example.org/Person-birthDate"
+    },
+    "path": {
+      "Predicate": "https://example.org/birthDate"
+    },
+    "path_node": null,
+    "targets": [],
+    "components": [],
+    "property_shapes": [],
+    "deactivated": null,
+    "severity": "Violation",
+    "names": [],
+    "descriptions": [],
+    "order": {
+      "Literal": {
+        "lexical": "0",
+        "metadata": {
+          "datatype": "http://www.w3.org/2001/XMLSchema#string",
+          "facets": "None"
+        }
+      }
+    },
+    "values": null,
+    "default_value": null,
+    "messages": [],
+    "annotations": {
+      "intents": [
+        {
+          "statement": {
+            "Literal": {
+              "lexical": "Each person has at most one birth date.",
+              "metadata": {
+                "datatype": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
+                "facets": {
+                  "Language": "en"
+                }
+              }
+            }
+          },
+          "formalized": true
+        },
+        {
+          "statement": {
+            "Literal": {
+              "lexical": "The birth date must not be in the future.",
+              "metadata": {
+                "datatype": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
+                "facets": {
+                  "Language": "en"
+                }
+              }
+            }
+          },
+          "formalized": null
+        }
+      ],
+      "agent_instructions": [
+        {
+          "Literal": {
+            "lexical": "Look up the legal date of birth.",
+            "metadata": {
+              "datatype": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
+              "facets": {
+                "Language": "en"
+              }
+            }
+          }
+        }
+      ],
+      "code_identifier": "birth_date",
+      "code_type": "http://www.w3.org/2001/XMLSchema#string",
+      "units": [
+        {
+          "Literal": {
+            "lexical": "d",
+            "metadata": {
+              "datatype": "http://www.w3.org/2001/XMLSchema#string",
+              "facets": "None"
+            }
+          }
+        }
+      ]
+    },
+    "rules": [],
+    "group": {
+      "Iri": "https://example.org/NameGroup"
+    }
+  },
+  {
+    "id": {
+      "Iri": "https://example.org/FootballPlayer"
+    },
+    "targets": [],
+    "components": [],
+    "property_shapes": [],
+    "deactivated": null,
+    "severity": "Violation",
+    "messages": [],
+    "annotations": {
+      "intents": [],
+      "agent_instructions": [
+        {
+          "Literal": {
+            "lexical": "This is about soccer.",
+            "metadata": {
+              "datatype": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
+              "facets": {
+                "Language": "en"
+              }
+            }
+          }
+        }
+      ],
+      "code_identifier": null,
+      "code_type": null,
+      "units": [
+        {
+          "Iri": "https://example.org/CentiM"
+        }
+      ]
+    },
+    "rules": [],
+    "order": null
+  }
+]

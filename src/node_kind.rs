@@ -19,6 +19,9 @@ pub enum NodeKind {
     BlankNodeOrLiteral,
     /// The value must be an IRI or literal (`sh:IRIOrLiteral`).
     IriOrLiteral,
+    /// The value must be a triple term (`sh:TripleTerm`, SHACL 1.2 Core,
+    /// Working Draft 16 November 2026, section 6.10.1.3).
+    TripleTerm,
 }
 
 impl NodeKind {
@@ -36,6 +39,7 @@ impl NodeKind {
             vocabulary::BLANK_NODE_OR_IRI => Ok(Self::BlankNodeOrIri),
             vocabulary::BLANK_NODE_OR_LITERAL => Ok(Self::BlankNodeOrLiteral),
             vocabulary::IRI_OR_LITERAL => Ok(Self::IriOrLiteral),
+            vocabulary::TRIPLE_TERM => Ok(Self::TripleTerm),
             _ => Err(StructuralModelError::UnknownTerm {
                 lexical: iri.to_owned(),
                 expected: LexicalRole::NodeKindIri,
@@ -53,6 +57,7 @@ impl NodeKind {
             Self::BlankNodeOrIri => vocabulary::BLANK_NODE_OR_IRI,
             Self::BlankNodeOrLiteral => vocabulary::BLANK_NODE_OR_LITERAL,
             Self::IriOrLiteral => vocabulary::IRI_OR_LITERAL,
+            Self::TripleTerm => vocabulary::TRIPLE_TERM,
         }
     }
 }
