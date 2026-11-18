@@ -1,0 +1,143 @@
+[
+  {
+    "id": {
+      "Iri": "https://example.org/Person-displayName"
+    },
+    "path": {
+      "Predicate": "https://example.org/displayName"
+    },
+    "path_node": null,
+    "targets": [],
+    "components": [],
+    "property_shapes": [],
+    "deactivated": false,
+    "severity": "Violation",
+    "names": [],
+    "descriptions": [],
+    "order": null,
+    "values": {
+      "source": {
+        "BlankNode": {
+          "scope": "urn:shapes",
+          "label": "coalesce"
+        }
+      },
+      "form": {
+        "Sparql": {
+          "function": "Coalesce",
+          "arguments": [
+            {
+              "source": {
+                "BlankNode": {
+                  "scope": "urn:shapes",
+                  "label": "full"
+                }
+              },
+              "form": {
+                "PathValues": {
+                  "path": {
+                    "Predicate": "https://example.org/fullName"
+                  },
+                  "path_node": null,
+                  "focus_node": null
+                }
+              }
+            },
+            {
+              "source": {
+                "BlankNode": {
+                  "scope": "urn:shapes",
+                  "label": "concat"
+                }
+              },
+              "form": {
+                "Sparql": {
+                  "function": "Concat",
+                  "arguments": [
+                    {
+                      "source": {
+                        "BlankNode": {
+                          "scope": "urn:shapes",
+                          "label": "first"
+                        }
+                      },
+                      "form": {
+                        "PathValues": {
+                          "path": {
+                            "Predicate": "https://example.org/firstName"
+                          },
+                          "path_node": null,
+                          "focus_node": null
+                        }
+                      }
+                    },
+                    {
+                      "source": null,
+                      "form": {
+                        "Constant": {
+                          "Literal": {
+                            "lexical": " ",
+                            "metadata": {
+                              "datatype": "http://www.w3.org/2001/XMLSchema#string",
+                              "facets": "None"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "source": {
+                        "BlankNode": {
+                          "scope": "urn:shapes",
+                          "label": "last"
+                        }
+                      },
+                      "form": {
+                        "PathValues": {
+                          "path": {
+                            "Predicate": "https://example.org/lastName"
+                          },
+                          "path_node": null,
+                          "focus_node": null
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "default_value": null,
+    "messages": [],
+    "rules": []
+  },
+  {
+    "id": {
+      "Iri": "https://example.org/Person-loves"
+    },
+    "path": {
+      "Predicate": "https://example.org/loves"
+    },
+    "path_node": null,
+    "targets": [],
+    "components": [],
+    "property_shapes": [],
+    "deactivated": false,
+    "severity": "Violation",
+    "names": [],
+    "descriptions": [],
+    "order": null,
+    "values": null,
+    "default_value": {
+      "source": null,
+      "form": {
+        "Var": "focusNode"
+      }
+    },
+    "messages": [],
+    "rules": []
+  }
+]

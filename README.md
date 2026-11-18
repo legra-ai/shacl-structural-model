@@ -8,8 +8,8 @@
 Typed structural values for SHACL shapes in Rust.
 
 `shacl-structural-model` represents SHACL shapes, property paths, targets,
-constraint components, severities, RDF messages, SPARQL declarations, and
-SHACL Advanced Features functions, expressions and rules. It is intended for parsers,
+constraint components, severities, RDF messages, SPARQL declarations, SHACL 1.2
+node expressions, and SHACL Advanced Features functions and rules. It is intended for parsers,
 editors, validators, serializers, and storage adapters that need typed shape
 values without taking a dependency on an RDF graph implementation.
 
@@ -54,6 +54,11 @@ represents each declaration; it does not evaluate it.
 | `sh:closed sh:ByTypes` | `Component::Closed { closedness: Closedness::ByTypes, .. }` | [6.10.9.1](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#ClosedConstraintComponent) |
 | `sh:rootClass` | `Component::RootClass(NamedOrList<Named>)` | [6.10.9.4](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#RootClassConstraintComponent) |
 | `sh:uniqueValuesFor` | `Component::UniqueValuesFor(NamedOrList<Named>)` | [6.10.9.5](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#UniqueValuesForConstraintComponent) |
+| `sh:targetNode` node expressions | `Target::Node(NodeExpression)` | [3.1.3.1](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#targetNode) |
+| `sh:ShapeClass` implicit class targets | `Target::ImplicitClass { class, declaration: ClassDeclaration }` | [3.1.3.3](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#ShapeClass) |
+| `sh:targetWhere` | `Target::Where(Value)` | [3.1.3.6](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#targetWhere) |
+| `sh:shape` explicit shape targets | `ExplicitShapeTarget { node, shape }` (a data-graph record) | [3.1.3.7](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#x3-1-3-7-explicit-shape-targets-sh-shape) |
+| `sh:values`, `sh:defaultValue` | `PropertyShape::values`, `PropertyShape::default_value` (`Option<NodeExpression>`) | [5](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#x5-node-expressions), [6.9.4.2](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#x6-9-4-2-value-nodes-of-property-shapes) |
 
 `SingleLine` preserves both `true` and explicit `false`. Member-shape
 references retain caller-owned RDF identity; list length bounds retain exact
@@ -66,7 +71,71 @@ violations (`Severity::is_violation` returns `Some(false)`). `Closedness` keeps
 An absent `sh:reificationRequired` is `None`, distinct from explicit `false`.
 Consumers own parameter checking, list traversal, reifier lookup, type-based
 property collection, target-node computation and report construction. These
-declarations do not traverse or collect lists or graphs.
+declarations do not traverse or collect lists or graphs. A Core `sh:targetNode`
+or `sh:defaultValue` constant is `NodeExpression::constant(term)`. `sh:shape`
+triples live in the data graph, so `ExplicitShapeTarget` is a separate record
+that a consumer streams beside its shapes.
+
+### SHACL 1.2 node expressions
+
+`NodeExpression` follows [SHACL 1.2 Node Expressions, Working Draft 16 November 2026](https://www.w3.org/TR/2026/WD-shacl12-node-expr-20261116/)
+and the SPARQL-based forms of [SHACL 1.2 SPARQL Extensions, Working Draft 22 October 2026](https://www.w3.org/TR/2026/WD-shacl12-sparql-20261022/).
+`ExpressionForm` has one variant per node-expression function, and each
+declaration cites its draft section:
+
+| Function | Model | Draft section |
+| --- | --- | --- |
+| IRI, literal and triple-term constants | `ExpressionForm::Constant(Value)` | [3.1](https://www.w3.org/TR/2026/WD-shacl12-node-expr-20261116/#x3-1-constant-node-expressions) |
+| `shnex:EmptyExpression` (`[]`) | `ExpressionForm::Empty` | [4.1.1](https://www.w3.org/TR/2026/WD-shacl12-node-expr-20261116/#EmptyExpression) |
+| `shnex:var` (`"focusNode"` replaces `sh:this`) | `ExpressionForm::Var(VariableName)` | [4.1.2](https://www.w3.org/TR/2026/WD-shacl12-node-expr-20261116/#x4-1-2-var-expressions) |
+| List expressions | `ExpressionForm::List(ConstantList)` | [4.1.3](https://www.w3.org/TR/2026/WD-shacl12-node-expr-20261116/#ListExpression) |
+| `shnex:pathValues`, `shnex:focusNode` | `ExpressionForm::PathValues { path, path_node, focus_node }` | [4.1.4](https://www.w3.org/TR/2026/WD-shacl12-node-expr-20261116/#x4-1-4-path-values-expressions) |
+| `shnex:exists` | `ExpressionForm::Exists` | [4.1.5](https://www.w3.org/TR/2026/WD-shacl12-node-expr-20261116/#ExistsExpression) |
+| `shnex:if`, `shnex:then`, `shnex:else` | `ExpressionForm::If { condition, branches: IfBranches }` | [4.1.6](https://www.w3.org/TR/2026/WD-shacl12-node-expr-20261116/#IfExpression) |
+| `shnex:distinct` | `ExpressionForm::Distinct` | [4.2.1](https://www.w3.org/TR/2026/WD-shacl12-node-expr-20261116/#DistinctExpression) |
+| `shnex:intersection` | `ExpressionForm::Intersection` | [4.2.2](https://www.w3.org/TR/2026/WD-shacl12-node-expr-20261116/#IntersectionExpression) |
+| `shnex:concat` (replaces `sh:union`) | `ExpressionForm::Concat` | [4.2.3](https://www.w3.org/TR/2026/WD-shacl12-node-expr-20261116/#ConcatExpression) |
+| `shnex:remove`, `shnex:nodes` (replaces `sh:minus`) | `ExpressionForm::Remove { remove, nodes }` | [4.2.4](https://www.w3.org/TR/2026/WD-shacl12-node-expr-20261116/#x4-2-4-remove-expressions) |
+| `shnex:filterShape` | `ExpressionForm::FilterShape { shape, nodes }` | [4.2.5](https://www.w3.org/TR/2026/WD-shacl12-node-expr-20261116/#FilterShapeExpression) |
+| `shnex:limit`, `shnex:offset` | `ExpressionForm::Limit`, `ExpressionForm::Offset` | [4.2.6](https://www.w3.org/TR/2026/WD-shacl12-node-expr-20261116/#LimitExpression), [4.2.7](https://www.w3.org/TR/2026/WD-shacl12-node-expr-20261116/#x4-2-7-offset-expressions) |
+| `shnex:orderBy`, `shnex:desc` | `ExpressionForm::OrderBy { order_by, nodes, descending }` | [4.2.8](https://www.w3.org/TR/2026/WD-shacl12-node-expr-20261116/#x4-2-8-orderby-expressions) |
+| `shnex:flatMap`, `shnex:findFirst`, `shnex:matchAll` | `ExpressionForm::FlatMap`, `FindFirst`, `MatchAll` (optional `nodes`) | [4.3](https://www.w3.org/TR/2026/WD-shacl12-node-expr-20261116/#x4-3-advanced-sequence-operations) |
+| `shnex:count`, `shnex:min`, `shnex:max`, `shnex:sum` | `ExpressionForm::Aggregate { aggregate: Aggregate, input }` | [4.4](https://www.w3.org/TR/2026/WD-shacl12-node-expr-20261116/#x4-4-aggregation-expressions) |
+| `shnex:instancesOf`, `shnex:nodesMatching` | `ExpressionForm::InstancesOf`, `ExpressionForm::NodesMatching` | [4.5.1](https://www.w3.org/TR/2026/WD-shacl12-node-expr-20261116/#InstancesOfExpression), [4.5.2](https://www.w3.org/TR/2026/WD-shacl12-node-expr-20261116/#x4-5-2-nodes-matching-expressions) |
+| `shnex:conformsToShape` | `ExpressionForm::ConformsToShape { node, shape }` | [4.5.3](https://www.w3.org/TR/2026/WD-shacl12-node-expr-20261116/#ConformsToShapeExpression) |
+| The 77 `sparql:<NAME>` functions | `ExpressionForm::Sparql { function: SparqlFunction, arguments }` | [5](https://www.w3.org/TR/2026/WD-shacl12-node-expr-20261116/#x5-sparql-functions) |
+| `sh:select`, `sh:sparqlExpr`, `sh:prefixes` | `ExpressionForm::Select`, `ExpressionForm::SparqlExpr` (`SparqlExpressionText`) | SPARQL [6.1](https://www.w3.org/TR/2026/WD-shacl12-sparql-20261022/#x6-1-select-expressions), [6.2](https://www.w3.org/TR/2026/WD-shacl12-sparql-20261022/#x6-2-sparql-expr-expressions) |
+| Custom named and list parameter expressions | `ExpressionForm::CustomNamed(Vec<NamedArgument>)`, `ExpressionForm::CustomList { function, arguments }` | [6.1](https://www.w3.org/TR/2026/WD-shacl12-node-expr-20261116/#x6-1-custom-named-parameter-functions), [6.2](https://www.w3.org/TR/2026/WD-shacl12-node-expr-20261116/#x6-2-custom-list-parameter-functions) |
+| `shnex:arg` | `ExpressionForm::Arg(ArgumentKey)` | [6.3](https://www.w3.org/TR/2026/WD-shacl12-node-expr-20261116/#ArgExpression) |
+| `sh:NamedParameterExpressionFunction`, `sh:ListParameterExpressionFunction`, `sh:bodyExpression`, `sh:keyParameter` | `ExpressionFunction { id, style: ParameterStyle, parameters, body }`, `Parameter::key_parameter` | [6](https://www.w3.org/TR/2026/WD-shacl12-node-expr-20261116/#x6-custom-node-expressions) |
+| `sh:expression` | `Component::Expression(ExpressionConstraint)` | [7.1](https://www.w3.org/TR/2026/WD-shacl12-node-expr-20261116/#ExpressionConstraintComponent) |
+| `sh:nodeByExpression` | `Component::NodeByExpression(NodeExpression)` | [7.2](https://www.w3.org/TR/2026/WD-shacl12-node-expr-20261116/#x7-2-sh-nodebyexpression) |
+
+Built-in named parameter functions keep their parameters as typed fields.
+List parameter functions (`sparql:` functions, `shnex:conformsToShape`, custom
+list functions) keep positional argument lists; custom named parameter
+expressions keep keyed `NamedArgument`s. A single list argument written without
+its list is the same call and is stored as a one-member list.
+`output_contract()` returns the `OutputContract` each draft section defines:
+exactly one or at most one node, an ordered sequence, a distinct sequence, a
+set in implementation-dependent order, or the contract of the selected branch,
+function body or argument expression. The drafts define no unordered
+multiset. `function_name()` returns the draft's function IRI.
+
+Nested expressions are checked when built: sequence and alternative paths have
+at least two members, `shnex:var` names are non-empty, a custom named parameter
+expression has an argument, and `If` cannot omit both branches. A tree is capped
+at depth 64 and at 4096 expression, path and list-member nodes; each node's
+footprint is computed once from its children's. Decoding uses an unchecked wire
+tree under `DecodeLimits` (by default wire depth 128, 32768 deserializer calls
+and 1 MiB of visited text) and then applies the same checks bottom-up.
+`NodeExpression::deserialize_with_limits` accepts tighter caller budgets. Cap
+source bytes too: a format decoder may allocate text before a visitor sees it.
+Bounds apply per expression, not per dataset. Constants and shape references
+are caller-owned terms: the consumer checks that a constant is not a blank
+node, that integers are valid, and that function arities match SPARQL.
+Evaluation, scope handling, failure propagation and shapes-graph resolution
+remain consumer-owned.
 
 ## Example
 
@@ -202,18 +271,18 @@ validator execution support for those features.
 ## Restricted SHACL 1.2 inference declarations
 
 The `inference` module describes a model-only subset pinned to the
-[28 October 2026 Inference Rules draft](https://www.w3.org/TR/2026/WD-shacl12-inference-rules-20261028/)
-and [Node Expressions draft](https://www.w3.org/TR/2026/WD-shacl12-node-expr-20261028/).
-It is distinct from the AF declarations below. It does not execute rules or
-certify inference-engine support.
+[28 October 2026 Inference Rules draft](https://www.w3.org/TR/2026/WD-shacl12-inference-rules-20261028/).
+Its triple rules hold the full SHACL 1.2 node expressions above. It is
+distinct from the AF declarations below. It does not execute rules or certify
+inference-engine support.
 
 | API | Representation |
 | --- | --- |
 | `RuleSet`, `RuleSetMembership`, `RuleSetInclusion` | Independent checked IRI declaration and edge records, suitable for streaming |
 | `ResourceRef`, `ShapeRuleLink` | Shared RDF `Subject<Text>` identities, including scoped blank nodes |
 | `RuleNumber`, `RuleSchedule` | Checked exact integer/decimal metadata; absent layer/order/runOnce retained |
-| `TripleRuleDeclaration` | Independent rule identity, schedule, and three optional expression slots |
-| `DirectExpression` | Checked direct IRI/literal/triple-term constants or `shnex:pathValues` with shared paths |
+| `TripleRuleDeclaration` | Independent rule identity, schedule, and three optional `RuleExpression` slots |
+| `RuleExpression` | `NodeExpression<Term<Text>, Iri<Text>>`, over shared owned or borrowed RDF text |
 
 The new types accept shared RDF owned or borrowed text. Numeric `Eq`/hash retain
 literal identity; `cmp_value` compares arbitrary-width exact values without
@@ -224,18 +293,7 @@ Rule-set includes remain edges; the consumer resolves references, cycles and
 membership without hydrating the relation. A rule's global status requires the
 relevant shapes graph's associations, not merely the selected rule set.
 
-Bare blank nodes are rejected as direct constants. Explicit `shnex:focusNode`
-expressions are rejected in this subset, including during decoding. Paths retain
-ordered structure and require at least two sequence/alternative members.
-Expression construction caps structural depth at 64 and term/path nodes at 4096;
-already allocated caller inputs remain the caller's responsibility. Default
-expression decoding additionally caps wire depth at 128, deserializer calls at
-32768 and total visited text at 1 MiB. `deserialize_with_limits` accepts tighter
-caller budgets. Cap source bytes as well: a format decoder may allocate text
-before delivering a Serde visitor. Bounds apply per expression, not per dataset.
-
-Other 1.2 expression forms, explicit focus expressions, rule-type catalogs,
-conditions, deactivation, expected-derived predicates, processors, entailment
+Rule-type catalogs, conditions, deactivation, expected-derived predicates, processors, entailment
 selection, SPARQL/template declarations and temporary/provenance triple policies
 are not yet modelled; they belong to the SHACL 1.2 target and are added as
 model-only declarations. Existing AF declarations retain their own contract.
@@ -251,7 +309,6 @@ validation, graph traversal, SPARQL execution and inference remain consumer-owne
 | Custom components and parameter values | `CustomConstraintComponent`, `CustomConstraint`, `Parameter`, `ParameterValues` |
 | Direct SPARQL targets and reusable target types | `SparqlTarget`, `SparqlTargetType`, `CustomTarget` |
 | ASK/SELECT functions | `ShaclFunction`, `SparqlSelectOrAsk` |
-| All seven AF node-expression forms, including nested path inputs | `NodeExpression`, `ExpressionKind`, `ExpressionConstraint` |
 | Triple and SPARQL rules, conditions, order and deactivation | `ShaclRule`, `RuleKind`, `TripleRule` |
 
 Declarations retain source nodes and RDF-valued messages. Parameter values
@@ -314,8 +371,26 @@ This is a breaking API and Serde format change:
   `sh:Trace` no longer decode as `Severity::Custom`, and the Postcard variant
   index of `Severity::Custom` changes, so stored Postcard severities must be
   re-encoded.
-- `Component` gains `SubsetOf`, `SomeValue`, `ReifierShape`, `RootClass` and
-  `UniqueValuesFor`; exhaustive matches need the new variants.
+- `Component` gains `SubsetOf`, `SomeValue`, `ReifierShape`, `RootClass`,
+  `UniqueValuesFor` and `NodeByExpression`; exhaustive matches need the new
+  variants.
+- The AF `NodeExpression { node, kind: ExpressionKind }` is replaced by the
+  SHACL 1.2 `NodeExpression`, built with `NodeExpression::try_new(ExpressionForm)`
+  and an optional `with_source`. The 1.2 vocabulary deprecates the AF terms:
+  `sh:this` becomes `NodeExpression::focus_node()`, `sh:path` becomes
+  `ExpressionForm::PathValues`, `sh:filterShape` becomes `FilterShape`,
+  `sh:union` becomes `Concat`, `sh:intersection` stays `Intersection`, and an AF
+  function call becomes `CustomList` or `Sparql`. `ExpressionConstraint`,
+  `TripleRule` and `Target::Node` hold the new type.
+- `inference::DirectExpression` is replaced by `inference::RuleExpression`;
+  `inference::DecodeLimits` moves to the crate root as `DecodeLimits`, and the
+  expression variants of `InferenceModelError` become `ExpressionError`.
+  Explicit `shnex:focusNode` inputs are now accepted. Blank-node constants are
+  the consumer's check, as for every other caller-owned term.
+- `Target::Node` holds a `NodeExpression`; `Target::ImplicitClass(Value)`
+  becomes `Target::ImplicitClass { class, declaration }`; `Target` gains `Where`.
+- `PropertyShape::default_value` holds a `NodeExpression`, and `PropertyShape`
+  gains `values`. `Parameter` gains `key_parameter`.
 
 ## Migrating from 6.4
 

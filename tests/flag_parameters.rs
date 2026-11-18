@@ -18,7 +18,7 @@ fn flags_preserve_opaque_rdf_values() {
 
 #[test]
 fn parameter_constraints_preserve_flag_values() {
-    let encoded = r#"{"id":{"Resource":"urn:parameter"},"path":"urn:value","optional":false,"order":null,"names":[],"descriptions":[],"components":[{"Pattern":{"pattern":{"LiteralReference":{"identity":"urn:pattern"}},"flags":{"LiteralReference":{"identity":"urn:flags"}}}}]}"#;
+    let encoded = r#"{"id":{"Resource":"urn:parameter"},"path":"urn:value","optional":false,"key_parameter":false,"order":null,"names":[],"descriptions":[],"components":[{"Pattern":{"pattern":{"LiteralReference":{"identity":"urn:pattern"}},"flags":{"LiteralReference":{"identity":"urn:flags"}}}}]}"#;
     let parameter: Parameter<Value> =
         serde_json::from_str(encoded).expect("parameter constraints must retain RDF flag values");
     assert_eq!(serde_json::to_string(&parameter).unwrap(), encoded);

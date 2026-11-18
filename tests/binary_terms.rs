@@ -1,6 +1,6 @@
 //! The default RDF term must work with non-self-describing formats.
 
-use shacl_structural_model::{Component, DefaultTerm};
+use shacl_structural_model::{Component, DefaultTerm, NodeExpression};
 
 #[test]
 fn default_literal_round_trips_in_binary() {
@@ -85,9 +85,9 @@ fn nested_triple_terms_survive_default_shape_targets() {
     );
     let shape =
         shacl_structural_model::NodeShape::<DefaultTerm>::new(blank("urn:document", "shape"))
-            .with_target(shacl_structural_model::Target::Node(DefaultTerm::triple(
-                triple,
-            )));
+            .with_target(shacl_structural_model::Target::Node(
+                NodeExpression::constant(DefaultTerm::triple(triple)),
+            ));
     round_trip(&shape);
 }
 

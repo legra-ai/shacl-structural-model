@@ -3,7 +3,7 @@
 use serde::{Deserialize, Serialize};
 use shacl_structural_model::{
     Closedness, Component, CustomConstraint, CustomConstraintComponent, ExpressionConstraint,
-    ExpressionKind, NamedOrList, NodeExpression, NodeShape, Parameter, ParameterValues,
+    ExpressionForm, NamedOrList, NodeExpression, NodeShape, Parameter, ParameterValues,
     PropertyShape, RuleKind, ShaclFunction, ShaclPath, ShaclRule, SparqlQuery, SparqlSelectOrAsk,
     SparqlTargetType, Target,
 };
@@ -48,20 +48,20 @@ fn lexical_named_roles_roundtrip_through_nested_shapes_rules_and_parameter_owner
         "not a standard IRI",
         "urn:absolute",
     ] {
-        let expression = NodeExpression::<String, LexicalName>::new(
-            "expression".to_owned(),
-            ExpressionKind::Function {
-                name: named(lexical),
-                args: vec![NodeExpression::new(
-                    "path-expression".to_owned(),
-                    ExpressionKind::Path {
-                        path: ShaclPath::Predicate(named(lexical)),
-                        path_node: None,
-                        nodes: None,
-                    },
-                )],
-            },
-        );
+        let path = NodeExpression::try_new(ExpressionForm::PathValues {
+            path: ShaclPath::Predicate(named(lexical)),
+            path_node: None,
+            focus_node: None,
+        })
+        .unwrap()
+        .with_source("path-expression".to_owned());
+        let expression =
+            NodeExpression::<String, LexicalName>::try_new(ExpressionForm::CustomList {
+                function: named(lexical),
+                arguments: vec![Box::new(path)],
+            })
+            .unwrap()
+            .with_source("expression".to_owned());
         let mut node = Node::new("shape".to_owned())
             .with_target(Target::Class(named(lexical)))
             .with_target(Target::SubjectsOf(named(lexical)))

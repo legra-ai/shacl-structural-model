@@ -1,7 +1,7 @@
 //! Census: every `sh:` term of the vendored W3C vocabularies is accounted for.
 //!
-//! Each term is either modelled, on the commented not-yet-modelled list, or a
-//! SHACL-JS term. A newly vendored vocabulary term fails this test until it is
+//! Each term is either modelled, on the commented not-yet-modelled list,
+//! superseded by its SHACL 1.2 replacement, or a SHACL-JS term. A newly vendored vocabulary term fails this test until it is
 //! classified, and a classification of a term the vocabularies no longer
 //! declare fails too.
 //!
@@ -19,7 +19,7 @@ use std::collections::BTreeSet;
 use std::path::PathBuf;
 
 use modelled::MODELLED;
-use not_yet_modelled::{NOT_YET_MODELLED, SHACL_JS};
+use not_yet_modelled::{NOT_YET_MODELLED, SHACL_JS, SUPERSEDED};
 
 const VOCABULARIES: [&str; 2] = ["shacl.ttl", "shacl12.ttl"];
 const COMPONENT_SUFFIX: &str = "ConstraintComponent";
@@ -63,6 +63,7 @@ fn classifications(term: &str) -> usize {
             .iter()
             .filter(|(name, _)| *name == term)
             .count()
+        + SUPERSEDED.iter().filter(|(name, _)| *name == term).count()
         + SHACL_JS.iter().filter(|name| **name == term).count()
 }
 
@@ -115,6 +116,7 @@ fn every_classification_names_a_declared_term() {
         .iter()
         .map(|(term, _)| *term)
         .chain(NOT_YET_MODELLED.iter().map(|(term, _)| *term))
+        .chain(SUPERSEDED.iter().map(|(term, _)| *term))
         .chain(SHACL_JS.iter().copied())
         .filter(|term| !terms.contains(*term))
         .collect();

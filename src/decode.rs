@@ -34,7 +34,7 @@ impl Default for DecodeLimits {
     }
 }
 
-pub(super) fn decode<'de, T: Deserialize<'de>, D: Deserializer<'de>>(
+pub(crate) fn decode<'de, T: Deserialize<'de>, D: Deserializer<'de>>(
     d: D,
     limits: DecodeLimits,
 ) -> Result<T, D::Error> {
@@ -54,7 +54,7 @@ struct Bounded<'a, D> {
 impl<D> Bounded<'_, D> {
     fn enter<E: de::Error>(&mut self) -> Result<(), E> {
         if self.depth >= self.limits.depth || self.limits.items == 0 {
-            return Err(E::custom("inference expression decode budget exceeded"));
+            return Err(E::custom("node expression decode budget exceeded"));
         }
         self.limits.items -= 1;
         Ok(())

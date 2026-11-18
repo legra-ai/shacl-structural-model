@@ -5,12 +5,13 @@
 
 mod component;
 mod custom_component;
+mod decode;
 mod error;
-mod expression;
 mod function;
 pub mod inference;
 mod language_tag;
 mod local_name;
+mod node_expression;
 mod node_kind;
 mod node_shape;
 mod parameter;
@@ -24,11 +25,17 @@ pub mod vocabulary;
 
 pub use component::{Closedness, Component, NamedOrList};
 pub use custom_component::{CustomConstraint, CustomConstraintComponent};
+pub use decode::DecodeLimits;
 pub use error::{LexicalRole, StructuralModelError};
-pub use expression::{ExpressionConstraint, ExpressionKind, NodeExpression};
 pub use function::ShaclFunction;
 pub use language_tag::LanguageTag;
 pub use local_name::local_name;
+pub use node_expression::{
+    Aggregate, ArgumentKey, ConstantList, DecodedChild, ExpressionConstraint, ExpressionError,
+    ExpressionForm, ExpressionFunction, FunctionName, IfBranches, NODE_EXPRESSIONS_DRAFT,
+    NamedArgument, NodeExpression, OutputContract, ParameterStyle, SPARQL_DRAFT,
+    SparqlExpressionText, SparqlFunction, VariableName,
+};
 pub use node_kind::NodeKind;
 pub use node_shape::NodeShape;
 pub use parameter::{Parameter, ParameterValues};
@@ -41,7 +48,9 @@ pub use sparql::{
     PrefixDeclaration, PrefixDeclarations, ResultAnnotation, SparqlConstraint, SparqlQuery,
     SparqlSelectOrAsk, SparqlValidator,
 };
-pub use target::{CustomTarget, SparqlTarget, SparqlTargetType, Target};
+pub use target::{
+    ClassDeclaration, CustomTarget, ExplicitShapeTarget, SparqlTarget, SparqlTargetType, Target,
+};
 
 #[cfg(test)]
 mod tests {

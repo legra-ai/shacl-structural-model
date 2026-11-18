@@ -36,6 +36,7 @@ impl<Value, Count, Flags, Pattern, Named> Component<Value, Count, Flags, Pattern
             Self::Closed { .. } => "closed",
             Self::Sparql(_) => "sparql",
             Self::Expression(_) => "expression",
+            Self::NodeByExpression(_) => "nodeByExpression",
             Self::Custom(_) => "custom",
             Self::SingleLine(_) => "singleLine",
             Self::MemberShape(_) => "memberShape",

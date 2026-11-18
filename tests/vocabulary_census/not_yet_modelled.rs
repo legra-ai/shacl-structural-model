@@ -8,7 +8,6 @@ const GRAPHS: &str = "graph-level and processor declarations have no structural 
 const GROUPS: &str = "property groups are not retained on property shapes yet";
 const UPDATE: &str = "SPARQL UPDATE/DESCRIBE executables are not modelled yet";
 const CORE12: &str = "SHACL 1.2 Core draft declaration not modelled yet";
-const EXPR12: &str = "SHACL 1.2 node-expression vocabulary not modelled yet";
 const RULES12: &str = "SHACL 1.2 Inference Rules vocabulary not modelled yet";
 
 /// Each unmodelled term with the reason it is still missing.
@@ -56,33 +55,31 @@ pub(super) const NOT_YET_MODELLED: &[(&str, &str)] = &[
     ("expectedPredicate", CORE12),
     ("formalized", CORE12),
     ("intent", CORE12),
-    ("keyParameter", CORE12),
-    ("nodeByExpression", CORE12),
-    ("shape", CORE12),
-    ("ShapeClass", CORE12),
-    ("targetWhere", CORE12),
     ("TripleTerm", CORE12),
     ("unit", CORE12),
-    ("bodyExpression", EXPR12),
-    ("ListParameterExpression", EXPR12),
-    ("ListParameterExpressionFunction", EXPR12),
-    ("minus", EXPR12),
-    ("NamedParameterExpression", EXPR12),
-    ("NamedParameterExpressionFunction", EXPR12),
-    ("NodeExpressionFunction", EXPR12),
-    ("SelectExpression", EXPR12),
-    ("SelectExpression-prefixes", EXPR12),
-    ("SelectExpression-select", EXPR12),
-    ("sparqlExpr", EXPR12),
-    ("SPARQLExprExpression", EXPR12),
-    ("SPARQLExprExpression-prefixes", EXPR12),
-    ("SPARQLExprExpression-sparqlExpr", EXPR12),
     ("ruleProcessor", RULES12),
     ("RulesEntailment", RULES12),
     ("RulesGraph", RULES12),
     ("sourceRule", RULES12),
     ("SPARQLRuleTemplate", RULES12),
     ("tempTriple", RULES12),
+];
+
+/// AF node-expression terms the SHACL 1.2 vocabulary deprecates, each with the
+/// 1.2 replacement that models it. ADR 0001 retains no superseded form.
+pub(super) const SUPERSEDED: &[(&str, &str)] = &[
+    ("this", "shnex:var \"focusNode\": ExpressionForm::Var"),
+    (
+        "filterShape",
+        "shnex:filterShape: ExpressionForm::FilterShape",
+    ),
+    ("nodes", "shnex:nodes: ExpressionForm operands"),
+    (
+        "intersection",
+        "shnex:intersection: ExpressionForm::Intersection",
+    ),
+    ("union", "shnex:concat: ExpressionForm::Concat"),
+    ("minus", "shnex:remove: ExpressionForm::Remove"),
 ];
 
 /// SHACL-JS terms, outside the scope by ADR 0001.

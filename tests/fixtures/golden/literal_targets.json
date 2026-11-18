@@ -5,20 +5,28 @@
   "targets": [
     {
       "Node": {
-        "BlankNode": {
-          "scope": "urn:shapes:source",
-          "label": "focus"
-        }
+        "source": {
+          "BlankNode": {
+            "scope": "urn:shapes:source",
+            "label": "focus"
+          }
+        },
+        "form": "Empty"
       }
     },
     {
       "Node": {
-        "Literal": {
-          "lexical": "bonjour",
-          "metadata": {
-            "datatype": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
-            "facets": {
-              "Language": "fr"
+        "source": null,
+        "form": {
+          "Constant": {
+            "Literal": {
+              "lexical": "bonjour",
+              "metadata": {
+                "datatype": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
+                "facets": {
+                  "Language": "fr"
+                }
+              }
             }
           }
         }

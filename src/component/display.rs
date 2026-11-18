@@ -91,7 +91,8 @@ impl<
                 }
             }
             Self::Sparql(constraint) => format!("{:?}", constraint.select.text),
-            Self::Expression(constraint) => format!("{:?}", constraint.expression.node),
+            Self::Expression(constraint) => constraint.expression.display(),
+            Self::NodeByExpression(expression) => expression.display(),
             Self::Custom(constraint) => crate::local_name(&constraint.component),
             Self::ReifierShape {
                 shape,

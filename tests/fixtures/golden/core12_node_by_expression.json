@@ -1,0 +1,29 @@
+{
+  "NodeByExpression": {
+    "source": {
+      "BlankNode": {
+        "scope": "urn:shapes",
+        "label": "shapeLookup"
+      }
+    },
+    "form": {
+      "PathValues": {
+        "path": {
+          "Sequence": [
+            {
+              "Predicate": "https://example.org/dataSet"
+            },
+            {
+              "Predicate": "https://example.org/structure"
+            },
+            {
+              "Predicate": "https://example.org/hasShape"
+            }
+          ]
+        },
+        "path_node": null,
+        "focus_node": null
+      }
+    }
+  }
+}
