@@ -1,4 +1,4 @@
-//! Portable list declarations from SHACL 1.2 Core, Working Draft 2026-10-14.
+//! Portable list declarations from SHACL 1.2 Core, Working Draft 2026-11-16, section 6.10.5.
 
 use rdf_structural_model::{BlankNodeId, Literal};
 use serde::{Deserialize, Serialize};

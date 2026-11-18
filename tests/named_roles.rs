@@ -2,9 +2,10 @@
 
 use serde::{Deserialize, Serialize};
 use shacl_structural_model::{
-    Component, CustomConstraint, CustomConstraintComponent, ExpressionConstraint, ExpressionKind,
-    NodeExpression, NodeShape, Parameter, ParameterValues, PropertyShape, RuleKind, ShaclFunction,
-    ShaclPath, ShaclRule, SparqlQuery, SparqlSelectOrAsk, SparqlTargetType, Target,
+    Closedness, Component, CustomConstraint, CustomConstraintComponent, ExpressionConstraint,
+    ExpressionKind, NamedOrList, NodeExpression, NodeShape, Parameter, ParameterValues,
+    PropertyShape, RuleKind, ShaclFunction, ShaclPath, ShaclRule, SparqlQuery, SparqlSelectOrAsk,
+    SparqlTargetType, Target,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -68,7 +69,7 @@ fn lexical_named_roles_roundtrip_through_nested_shapes_rules_and_parameter_owner
             .with_component(Constraint::Class(named(lexical)))
             .with_component(Constraint::Datatype(named(lexical)))
             .with_component(Constraint::Closed {
-                is_closed: true,
+                closedness: Closedness::ByTypes,
                 ignored_properties: vec![named(lexical)],
             })
             .with_component(Constraint::Expression(Box::new(ExpressionConstraint {
@@ -84,7 +85,13 @@ fn lexical_named_roles_roundtrip_through_nested_shapes_rules_and_parameter_owner
             })),
         ));
         let property = Property::new("property".to_owned(), ShaclPath::Predicate(named(lexical)))
-            .with_component(Constraint::Equals(ShaclPath::Predicate(named(lexical))));
+            .with_component(Constraint::Equals(ShaclPath::Predicate(named(lexical))))
+            .with_component(Constraint::SubsetOf(ShaclPath::Predicate(named(lexical))))
+            .with_component(Constraint::RootClass(NamedOrList::One(named(lexical))))
+            .with_component(Constraint::UniqueValuesFor(NamedOrList::List(vec![
+                named(lexical),
+                named(lexical),
+            ])));
         let mut parameter = Declaration::new("parameter".to_owned(), named(lexical));
         parameter
             .components

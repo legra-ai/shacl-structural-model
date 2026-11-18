@@ -70,7 +70,9 @@ fn severities_sort_from_most_to_least_severe() {
     let custom = Severity::from_iri("https://example.org/severity/Blocking").unwrap();
     let mut severities = vec![
         custom.clone(),
+        Severity::Trace,
         Severity::Info,
+        Severity::Debug,
         Severity::Violation,
         Severity::Warning,
     ];
@@ -81,6 +83,8 @@ fn severities_sort_from_most_to_least_severe() {
             Severity::Violation,
             Severity::Warning,
             Severity::Info,
+            Severity::Debug,
+            Severity::Trace,
             custom
         ]
     );
@@ -119,7 +123,13 @@ fn standard_iris_come_from_the_vocabulary_module() {
         assert!(kind.as_iri().starts_with(vocabulary::NAMESPACE));
         assert_eq!(NodeKind::from_iri(kind.as_iri()), Ok(kind));
     }
-    for severity in [Severity::Violation, Severity::Warning, Severity::Info] {
+    for severity in [
+        Severity::Violation,
+        Severity::Warning,
+        Severity::Info,
+        Severity::Debug,
+        Severity::Trace,
+    ] {
         assert_eq!(Severity::from_iri(severity.as_iri()).unwrap(), severity);
     }
     assert_eq!(
