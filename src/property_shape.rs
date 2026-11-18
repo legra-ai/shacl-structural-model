@@ -2,7 +2,7 @@
 
 use iri_rfc3987::Iri;
 
-use crate::{Component, Severity, ShaclPath, ShaclRule, Target};
+use crate::{Component, NodeExpression, Severity, ShaclPath, ShaclRule, Target};
 
 /// A SHACL property shape.
 #[derive(
@@ -44,8 +44,12 @@ pub struct PropertyShape<
     pub descriptions: Vec<Value>,
     /// The original numeric `sh:order` literal for display and rule ordering.
     pub order: Option<Value>,
-    /// Default RDF value.
-    pub default_value: Option<Value>,
+    /// `sh:values` (SHACL 1.2 Core, Working Draft 16 November 2026, section
+    /// 6.9.4.2): a node expression whose output nodes are added to the value nodes.
+    pub values: Option<NodeExpression<Value, Named>>,
+    /// `sh:defaultValue` (Core sections 5 and 6.9.4.2): a node expression used
+    /// when the path and `sh:values` yield no value node.
+    pub default_value: Option<NodeExpression<Value, Named>>,
     /// RDF `sh:message` literals, including any language tags.
     pub messages: Vec<Value>,
     /// SHACL-AF rules attached to this shape.
@@ -68,6 +72,7 @@ impl<Value, Count, Flags, Pattern, Named> PropertyShape<Value, Count, Flags, Pat
             names: Vec::new(),
             descriptions: Vec::new(),
             order: None,
+            values: None,
             default_value: None,
             messages: Vec::new(),
             rules: Vec::new(),
@@ -126,9 +131,16 @@ impl<Value, Count, Flags, Pattern, Named> PropertyShape<Value, Count, Flags, Pat
         self
     }
 
-    /// Set the default RDF value.
+    /// Set the `sh:values` node expression.
     #[must_use]
-    pub fn with_default_value(mut self, value: Value) -> Self {
+    pub fn with_values(mut self, values: NodeExpression<Value, Named>) -> Self {
+        self.values = Some(values);
+        self
+    }
+
+    /// Set the `sh:defaultValue` node expression.
+    #[must_use]
+    pub fn with_default_value(mut self, value: NodeExpression<Value, Named>) -> Self {
         self.default_value = Some(value);
         self
     }

@@ -13,8 +13,8 @@ use rdf_structural_model::{BlankNodeId, LanguageTag, Literal};
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use shacl_structural_model::{
-    Closedness, Component, DefaultTerm, NamedOrList, NodeShape, PropertyShape, Severity, ShaclPath,
-    Target,
+    Closedness, Component, DefaultTerm, ExpressionForm, NamedOrList, NodeExpression, NodeShape,
+    PropertyShape, Severity, ShaclPath, Target,
 };
 
 const XSD_INTEGER: &str = "http://www.w3.org/2001/XMLSchema#integer";
@@ -94,8 +94,14 @@ fn logical_and_qualified_constraints_retain_blank_node_references() {
 #[test]
 fn target_nodes_can_be_literals_or_blank_nodes() {
     let shape = NodeShape::<DefaultTerm>::new(DefaultTerm::iri(iri("urn:shape")))
-        .with_target(Target::Node(blank("focus")))
-        .with_target(Target::Node(text("bonjour", "fr")));
+        .with_target(Target::Node(
+            NodeExpression::try_new(ExpressionForm::Empty)
+                .unwrap()
+                .with_source(blank("focus")),
+        ))
+        .with_target(Target::Node(NodeExpression::constant(text(
+            "bonjour", "fr",
+        ))));
     assert_golden("literal_targets", &shape);
 }
 
@@ -121,12 +127,14 @@ fn node_shape_order_preserves_decimal_precision() {
 fn property_shapes_have_targets_and_multilingual_annotations() {
     let path = ShaclPath::Inverse(Box::new(ShaclPath::Predicate(iri("urn:parent"))));
     let mut shape = PropertyShape::<DefaultTerm>::new(blank("property"), path)
-        .with_target(Target::Node(DefaultTerm::literal(Literal::string("focus"))))
+        .with_target(Target::Node(NodeExpression::constant(
+            DefaultTerm::literal(Literal::string("focus")),
+        )))
         .with_name(text("Name", "en"))
         .with_name(text("Naam", "nl"))
         .with_description(text("Description", "en"))
         .with_order(typed("1.0000000000000000000000001", XSD_DECIMAL))
-        .with_default_value(text("default", "en"));
+        .with_default_value(NodeExpression::constant(text("default", "en")));
     shape.path_node = Some(blank("inversePath"));
     assert_golden("property_shape", &shape);
 }

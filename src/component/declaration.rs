@@ -4,7 +4,8 @@ use iri_rfc3987::Iri;
 
 use super::{Closedness, NamedOrList};
 use crate::{
-    CustomConstraint, ExpressionConstraint, LanguageTag, NodeKind, ShaclPath, SparqlConstraint,
+    CustomConstraint, ExpressionConstraint, LanguageTag, NodeExpression, NodeKind, ShaclPath,
+    SparqlConstraint,
 };
 
 /// The default value type used by [`Component`].
@@ -113,7 +114,7 @@ pub enum Component<
     },
     /// A `sh:sparql` constraint declaration.
     Sparql(Box<SparqlConstraint<Value>>),
-    /// A `sh:expression` constraint declaration.
+    /// A `sh:expression` constraint (SHACL 1.2 Node Expressions section 7.1).
     Expression(Box<ExpressionConstraint<Value, Named>>),
     /// A use of a separately declared custom component.
     Custom(CustomConstraint<Value, Named>),
@@ -167,4 +168,8 @@ pub enum Component<
     /// share the same combination of values for these properties. The IRI or
     /// SHACL-list form is kept.
     UniqueValuesFor(NamedOrList<Named>),
+    /// `sh:nodeByExpression` (SHACL 1.2 Node Expressions, Working Draft
+    /// 16 November 2026, section 7.2): each value node must conform to every
+    /// shape IRI the expression yields with that value node as focus node.
+    NodeByExpression(Box<NodeExpression<Value, Named>>),
 }

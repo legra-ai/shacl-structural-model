@@ -19,11 +19,16 @@
   "targets": [
     {
       "Node": {
-        "Literal": {
-          "lexical": "focus",
-          "metadata": {
-            "datatype": "http://www.w3.org/2001/XMLSchema#string",
-            "facets": "None"
+        "source": null,
+        "form": {
+          "Constant": {
+            "Literal": {
+              "lexical": "focus",
+              "metadata": {
+                "datatype": "http://www.w3.org/2001/XMLSchema#string",
+                "facets": "None"
+              }
+            }
           }
         }
       }
@@ -79,13 +84,19 @@
       }
     }
   },
+  "values": null,
   "default_value": {
-    "Literal": {
-      "lexical": "default",
-      "metadata": {
-        "datatype": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
-        "facets": {
-          "Language": "en"
+    "source": null,
+    "form": {
+      "Constant": {
+        "Literal": {
+          "lexical": "default",
+          "metadata": {
+            "datatype": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
+            "facets": {
+              "Language": "en"
+            }
+          }
         }
       }
     }

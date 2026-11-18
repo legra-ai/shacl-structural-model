@@ -1,0 +1,120 @@
+[
+  {
+    "id": "https://example.org/AverageExpression",
+    "style": "Named",
+    "parameters": [
+      {
+        "id": {
+          "BlankNode": {
+            "scope": "urn:shapes",
+            "label": "param"
+          }
+        },
+        "path": "https://example.org/average",
+        "optional": false,
+        "key_parameter": true,
+        "order": null,
+        "names": [],
+        "descriptions": [],
+        "components": []
+      },
+      {
+        "id": {
+          "BlankNode": {
+            "scope": "urn:shapes",
+            "label": "other"
+          }
+        },
+        "path": "https://example.org/precision",
+        "optional": false,
+        "key_parameter": false,
+        "order": null,
+        "names": [],
+        "descriptions": [],
+        "components": []
+      }
+    ],
+    "body": {
+      "source": {
+        "BlankNode": {
+          "scope": "urn:shapes",
+          "label": "body"
+        }
+      },
+      "form": {
+        "Sparql": {
+          "function": "Divide",
+          "arguments": [
+            {
+              "source": {
+                "BlankNode": {
+                  "scope": "urn:shapes",
+                  "label": "sum"
+                }
+              },
+              "form": {
+                "Aggregate": {
+                  "aggregate": "Sum",
+                  "input": {
+                    "source": {
+                      "BlankNode": {
+                        "scope": "urn:shapes",
+                        "label": "arg"
+                      }
+                    },
+                    "form": {
+                      "Arg": {
+                        "Parameter": "https://example.org/average"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "source": null,
+              "form": {
+                "Constant": {
+                  "Literal": {
+                    "lexical": "2",
+                    "metadata": {
+                      "datatype": "http://www.w3.org/2001/XMLSchema#string",
+                      "facets": "None"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "https://example.org/spacedConcat",
+    "style": "List",
+    "parameters": [],
+    "body": {
+      "source": {
+        "BlankNode": {
+          "scope": "urn:shapes",
+          "label": "sparqlExpr"
+        }
+      },
+      "form": {
+        "SparqlExpr": {
+          "text": {
+            "Literal": {
+              "lexical": "CONCAT($arg0, ' ', $arg1)",
+              "metadata": {
+                "datatype": "http://www.w3.org/2001/XMLSchema#string",
+                "facets": "None"
+              }
+            }
+          },
+          "prefixes": null
+        }
+      }
+    }
+  }
+]

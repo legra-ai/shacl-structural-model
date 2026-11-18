@@ -15,7 +15,10 @@ pub(super) const MODELLED: &[(&str, &str)] = &[
         "NodeShape/PropertyShape/ShaclRule/SparqlConstraint::deactivated",
     ),
     ("targetClass", "Target::Class"),
-    ("targetNode", "Target::Node"),
+    ("targetNode", "Target::Node(NodeExpression)"),
+    ("targetWhere", "Target::Where"),
+    ("ShapeClass", "ClassDeclaration::ShapeClass"),
+    ("shape", "ExplicitShapeTarget"),
     ("targetObjectsOf", "Target::ObjectsOf"),
     ("targetSubjectsOf", "Target::SubjectsOf"),
     ("target", "Target::Sparql, Target::Custom"),
@@ -36,6 +39,7 @@ pub(super) const MODELLED: &[(&str, &str)] = &[
     ("description", "PropertyShape/Parameter::descriptions"),
     ("order", "*::order"),
     ("defaultValue", "PropertyShape::default_value"),
+    ("nodeByExpression", "Component::NodeByExpression"),
     // Node kinds.
     ("NodeKind", "NodeKind"),
     ("IRI", "NodeKind::Iri"),
@@ -47,7 +51,7 @@ pub(super) const MODELLED: &[(&str, &str)] = &[
     // Property paths.
     (
         "path",
-        "PropertyShape::path, Parameter::path, ExpressionKind::Path",
+        "PropertyShape::path, Parameter::path, ExpressionFunction parameters",
     ),
     ("inversePath", "ShaclPath::Inverse"),
     ("alternativePath", "ShaclPath::Alternative"),
@@ -148,6 +152,7 @@ pub(super) const MODELLED: &[(&str, &str)] = &[
     ("parameter", "*::parameters"),
     ("Parameter", "Parameter"),
     ("optional", "Parameter::optional"),
+    ("keyParameter", "Parameter::key_parameter"),
     ("labelTemplate", "*::label_templates"),
     ("resultAnnotation", "*::annotations"),
     ("ResultAnnotation", "ResultAnnotation"),
@@ -157,13 +162,37 @@ pub(super) const MODELLED: &[(&str, &str)] = &[
     ("Function", "ShaclFunction"),
     ("SPARQLFunction", "ShaclFunction"),
     ("returnType", "ShaclFunction::return_type"),
-    // Advanced Features node expressions and rules.
+    // SHACL 1.2 node expressions and custom node-expression functions.
     ("NodeExpression", "NodeExpression"),
-    ("this", "ExpressionKind::This"),
-    ("filterShape", "ExpressionKind::Filter::shape"),
-    ("nodes", "ExpressionKind::Path/Filter::nodes"),
-    ("union", "ExpressionKind::Union"),
-    ("intersection", "ExpressionKind::Intersection"),
+    ("NodeExpressionFunction", "FunctionName, ExpressionFunction"),
+    ("NamedParameterExpression", "ExpressionForm::CustomNamed"),
+    ("ListParameterExpression", "ExpressionForm::CustomList"),
+    (
+        "NamedParameterExpressionFunction",
+        "ExpressionFunction, ParameterStyle::Named",
+    ),
+    (
+        "ListParameterExpressionFunction",
+        "ExpressionFunction, ParameterStyle::List",
+    ),
+    ("bodyExpression", "ExpressionFunction::body"),
+    ("SelectExpression", "ExpressionForm::Select"),
+    ("SelectExpression-select", "SparqlExpressionText::text"),
+    (
+        "SelectExpression-prefixes",
+        "SparqlExpressionText::prefixes",
+    ),
+    ("SPARQLExprExpression", "ExpressionForm::SparqlExpr"),
+    ("sparqlExpr", "ExpressionForm::SparqlExpr"),
+    (
+        "SPARQLExprExpression-sparqlExpr",
+        "SparqlExpressionText::text",
+    ),
+    (
+        "SPARQLExprExpression-prefixes",
+        "SparqlExpressionText::prefixes",
+    ),
+    // Advanced Features rules.
     (
         "rule",
         "NodeShape/PropertyShape::rules, inference::ShapeRuleLink",

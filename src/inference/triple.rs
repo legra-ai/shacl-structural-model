@@ -1,9 +1,13 @@
 //! Independent triple-rule declarations with optional expression slots.
 use borrow_or_share::Bos;
 use iri_rfc3987::Iri;
-use rdf_structural_model::Subject;
+use rdf_structural_model::{Subject, Term};
 
-use super::{DirectExpression, RuleSchedule};
+use super::RuleSchedule;
+use crate::NodeExpression;
+
+/// A SHACL 1.2 node expression over the shared RDF term model.
+pub type RuleExpression<Text = String> = NodeExpression<Term<Text>, Iri<Text>>;
 
 /// A restricted draft triple-rule declaration, not an executable rule.
 ///
@@ -20,9 +24,9 @@ use super::{DirectExpression, RuleSchedule};
 pub struct TripleRuleDeclaration<Text: Bos<str> + AsRef<str> = String> {
     id: Subject<Text>,
     schedule: RuleSchedule<Text>,
-    subject: Option<DirectExpression<Text>>,
-    predicate: Option<DirectExpression<Text>>,
-    object: Option<DirectExpression<Text>>,
+    subject: Option<RuleExpression<Text>>,
+    predicate: Option<RuleExpression<Text>>,
+    object: Option<RuleExpression<Text>>,
 }
 impl<Text: Bos<str> + AsRef<str>> TripleRuleDeclaration<Text> {
     /// Create a declaration with all expression slots and scheduling metadata absent.
@@ -44,19 +48,19 @@ impl<Text: Bos<str> + AsRef<str>> TripleRuleDeclaration<Text> {
     }
     /// Set the subject expression.
     #[must_use]
-    pub fn with_subject(mut self, subject: DirectExpression<Text>) -> Self {
+    pub fn with_subject(mut self, subject: RuleExpression<Text>) -> Self {
         self.subject = Some(subject);
         self
     }
     /// Set the predicate expression.
     #[must_use]
-    pub fn with_predicate(mut self, predicate: DirectExpression<Text>) -> Self {
+    pub fn with_predicate(mut self, predicate: RuleExpression<Text>) -> Self {
         self.predicate = Some(predicate);
         self
     }
     /// Set the object expression.
     #[must_use]
-    pub fn with_object(mut self, object: DirectExpression<Text>) -> Self {
+    pub fn with_object(mut self, object: RuleExpression<Text>) -> Self {
         self.object = Some(object);
         self
     }
@@ -72,17 +76,17 @@ impl<Text: Bos<str> + AsRef<str>> TripleRuleDeclaration<Text> {
     }
     /// The optional subject expression.
     #[must_use]
-    pub const fn subject(&self) -> Option<&DirectExpression<Text>> {
+    pub const fn subject(&self) -> Option<&RuleExpression<Text>> {
         self.subject.as_ref()
     }
     /// The optional predicate expression.
     #[must_use]
-    pub const fn predicate(&self) -> Option<&DirectExpression<Text>> {
+    pub const fn predicate(&self) -> Option<&RuleExpression<Text>> {
         self.predicate.as_ref()
     }
     /// The optional object expression.
     #[must_use]
-    pub const fn object(&self) -> Option<&DirectExpression<Text>> {
+    pub const fn object(&self) -> Option<&RuleExpression<Text>> {
         self.object.as_ref()
     }
 }

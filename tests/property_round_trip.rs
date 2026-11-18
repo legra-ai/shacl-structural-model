@@ -3,93 +3,18 @@
 //! Every generated value must decode to an equal value from both formats, and
 //! a JSON object gaining an unknown field must be rejected, never discarded.
 
+#[path = "support/strategies.rs"]
+mod strategies;
+
 use iri_rfc3987::Iri;
 use proptest::prelude::*;
-use rdf_structural_model::{BlankNodeId, Literal};
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use shacl_structural_model::{
-    Closedness, Component, DefaultTerm, ExpressionConstraint, ExpressionKind, LanguageTag,
-    NamedOrList, NodeExpression, NodeKind, NodeShape, PropertyShape, Severity, ShaclPath, Target,
+    Closedness, Component, ExpressionConstraint, LanguageTag, NamedOrList, NodeExpression,
+    NodeKind, NodeShape, PropertyShape, Severity, Target,
 };
-
-fn iri() -> impl Strategy<Value = Iri<String>> {
-    "[a-z]{1,6}".prop_map(|local| format!("urn:x:{local}").parse().unwrap())
-}
-
-fn term() -> impl Strategy<Value = DefaultTerm> {
-    prop_oneof![
-        iri().prop_map(DefaultTerm::iri),
-        "[a-z][a-z0-9]{0,5}".prop_map(|label| DefaultTerm::BlankNode(
-            BlankNodeId::try_new("urn:scope".parse().unwrap(), label).unwrap()
-        )),
-        ".{0,8}".prop_map(|text| DefaultTerm::literal(Literal::string(text))),
-    ]
-}
-
-fn path() -> impl Strategy<Value = ShaclPath> {
-    iri()
-        .prop_map(ShaclPath::Predicate)
-        .prop_recursive(4, 24, 3, |inner| {
-            prop_oneof![
-                prop::collection::vec(inner.clone(), 2..4).prop_map(ShaclPath::Sequence),
-                prop::collection::vec(inner.clone(), 2..4).prop_map(ShaclPath::Alternative),
-                inner
-                    .clone()
-                    .prop_map(|path| ShaclPath::Inverse(Box::new(path))),
-                inner
-                    .clone()
-                    .prop_map(|path| ShaclPath::ZeroOrMore(Box::new(path))),
-                inner
-                    .clone()
-                    .prop_map(|path| ShaclPath::OneOrMore(Box::new(path))),
-                inner.prop_map(|path| ShaclPath::ZeroOrOne(Box::new(path))),
-            ]
-        })
-}
-
-fn expression() -> impl Strategy<Value = NodeExpression> {
-    let leaf = prop_oneof![
-        term().prop_map(|node| NodeExpression::new(node, ExpressionKind::This)),
-        term().prop_map(|node| NodeExpression::new(node, ExpressionKind::Constant)),
-    ];
-    leaf.prop_recursive(4, 24, 3, |inner| {
-        let nested = prop::collection::vec(inner.clone(), 0..3);
-        prop_oneof![
-            (
-                term(),
-                path(),
-                prop::option::of(term()),
-                prop::option::of(inner.clone())
-            )
-                .prop_map(|(node, path, path_node, nodes)| NodeExpression::new(
-                    node,
-                    ExpressionKind::Path {
-                        path,
-                        path_node,
-                        nodes: nodes.map(Box::new),
-                    }
-                )),
-            (term(), term(), inner.clone()).prop_map(|(node, shape, nodes)| NodeExpression::new(
-                node,
-                ExpressionKind::Filter {
-                    shape,
-                    nodes: Box::new(nodes),
-                }
-            )),
-            (term(), iri(), nested.clone()).prop_map(|(node, name, args)| NodeExpression::new(
-                node,
-                ExpressionKind::Function { name, args }
-            )),
-            (term(), nested.clone())
-                .prop_map(|(node, list)| NodeExpression::new(node, ExpressionKind::Union(list))),
-            (term(), nested).prop_map(|(node, list)| NodeExpression::new(
-                node,
-                ExpressionKind::Intersection(list)
-            )),
-        ]
-    })
-}
+use strategies::{expression, iri, path, term};
 
 fn language() -> impl Strategy<Value = LanguageTag> {
     prop::sample::select(vec!["en", "nl-BE", "zh-Hant-TW", "de-1996", "x-private"])
@@ -126,6 +51,7 @@ fn component() -> impl Strategy<Value = Component> {
                 messages,
             }))
         }),
+        expression().prop_map(|expression| Component::NodeByExpression(Box::new(expression))),
         any::<bool>().prop_map(Component::SingleLine),
         core12_component(),
     ]
@@ -189,7 +115,12 @@ fn node_shape() -> impl Strategy<Value = NodeShape> {
                 .with_severity(severity)
                 .with_deactivated(deactivated);
             shape.components = components;
-            shape.targets = targets.into_iter().map(Target::Node).collect();
+            shape.targets = targets
+                .iter()
+                .cloned()
+                .map(|target| Target::Node(NodeExpression::constant(target)))
+                .collect();
+            shape.targets.extend(targets.into_iter().map(Target::Where));
             shape
         })
 }
@@ -200,13 +131,21 @@ fn property_shape() -> impl Strategy<Value = PropertyShape> {
         path(),
         prop::collection::vec(component(), 0..4),
         prop::option::of(term()),
+        prop::option::of(expression()),
+        prop::option::of(expression()),
+        prop::collection::vec(expression(), 0..2),
     )
-        .prop_map(|(id, path, components, path_node)| {
-            let mut shape = PropertyShape::new(id, path);
-            shape.components = components;
-            shape.path_node = path_node;
-            shape
-        })
+        .prop_map(
+            |(id, path, components, path_node, values, default_value, targets)| {
+                let mut shape = PropertyShape::new(id, path);
+                shape.components = components;
+                shape.path_node = path_node;
+                shape.values = values;
+                shape.default_value = default_value;
+                shape.targets = targets.into_iter().map(Target::Node).collect();
+                shape
+            },
+        )
 }
 
 fn assert_round_trips<T>(value: &T) -> Result<(), TestCaseError>

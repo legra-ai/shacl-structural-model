@@ -3,10 +3,10 @@
 use iri_rfc3987::Iri;
 use shacl_structural_model::{
     Component, CustomConstraint, CustomConstraintComponent, CustomTarget, ExpressionConstraint,
-    ExpressionKind, NodeExpression, NodeShape, Parameter, ParameterValues, PrefixDeclaration,
-    PrefixDeclarations, ResultAnnotation, RuleKind, ShaclFunction, ShaclPath, ShaclRule,
-    SparqlConstraint, SparqlQuery, SparqlSelectOrAsk, SparqlTarget, SparqlTargetType,
-    SparqlValidator, Target,
+    ExpressionForm, IfBranches, NodeExpression, NodeShape, Parameter, ParameterValues,
+    PrefixDeclaration, PrefixDeclarations, ResultAnnotation, RuleKind, ShaclFunction, ShaclPath,
+    ShaclRule, SparqlConstraint, SparqlFunction, SparqlQuery, SparqlSelectOrAsk, SparqlTarget,
+    SparqlTargetType, SparqlValidator, Target, VariableName,
 };
 
 fn iri(value: &str) -> Iri<String> {
@@ -17,8 +17,10 @@ fn query(text: &str) -> SparqlQuery<String> {
     SparqlQuery::new(text.to_owned()).with_prefixes("_:prefixes".to_owned())
 }
 
-fn expression(id: &str, kind: ExpressionKind<String>) -> NodeExpression<String> {
-    NodeExpression::new(id.to_owned(), kind)
+fn expression(id: &str, form: ExpressionForm<String>) -> NodeExpression<String> {
+    NodeExpression::try_new(form)
+        .unwrap()
+        .with_source(id.to_owned())
 }
 
 fn round_trip<T>(value: &T)
@@ -148,33 +150,54 @@ fn direct_and_parameterized_targets_and_functions_retain_their_declarations() {
 }
 
 fn nested_expression() -> NodeExpression<String> {
-    let focus = expression("http://www.w3.org/ns/shacl#this", ExpressionKind::This);
-    let constant = expression("\"constant\"@en", ExpressionKind::Constant);
+    let focus = NodeExpression::focus_node();
+    let constant = NodeExpression::constant("\"constant\"@en".to_owned());
     let path = expression(
         "_:pathExpr",
-        ExpressionKind::Path {
+        ExpressionForm::PathValues {
             path: ShaclPath::Inverse(Box::new(ShaclPath::Predicate(iri("urn:parent")))),
             path_node: Some("_:inversePath".to_owned()),
-            nodes: Some(Box::new(focus.clone())),
+            focus_node: Some(Box::new(focus.clone())),
         },
     );
-    let union = expression("_:union", ExpressionKind::Union(vec![path, constant]));
+    let concat = expression(
+        "_:concat",
+        ExpressionForm::Concat(vec![Box::new(path), Box::new(constant)]),
+    );
     let intersection = expression(
         "_:intersection",
-        ExpressionKind::Intersection(vec![union, focus]),
+        ExpressionForm::Intersection(vec![Box::new(concat), Box::new(focus.clone())]),
     );
     let filtered = expression(
         "_:filter",
-        ExpressionKind::Filter {
+        ExpressionForm::FilterShape {
             shape: "_:condition".to_owned(),
             nodes: Box::new(intersection),
         },
     );
-    expression(
+    let call = expression(
         "_:call",
-        ExpressionKind::Function {
-            name: iri("urn:compute"),
-            args: vec![filtered],
+        ExpressionForm::CustomList {
+            function: iri("urn:compute"),
+            arguments: vec![Box::new(filtered)],
+        },
+    );
+    expression(
+        "_:if",
+        ExpressionForm::If {
+            condition: Box::new(expression(
+                "_:bound",
+                ExpressionForm::Sparql {
+                    function: SparqlFunction::Bound,
+                    arguments: vec![Box::new(
+                        NodeExpression::try_new(ExpressionForm::Var(
+                            VariableName::try_new("value").unwrap(),
+                        ))
+                        .unwrap(),
+                    )],
+                },
+            )),
+            branches: IfBranches::Then(Box::new(call)),
         },
     )
 }
@@ -186,11 +209,8 @@ fn triple_rules_and_expression_constraints_preserve_nested_expressions_and_metad
     let mut rule = ShaclRule::new(
         "_:rule".to_owned(),
         RuleKind::Triple(Box::new(shacl_structural_model::TripleRule {
-            subject: NodeExpression::new(
-                "http://www.w3.org/ns/shacl#this".to_owned(),
-                ExpressionKind::This,
-            ),
-            predicate: NodeExpression::new("urn:derived".to_owned(), ExpressionKind::Constant),
+            subject: NodeExpression::focus_node(),
+            predicate: NodeExpression::constant("urn:derived".to_owned()),
             object: expression.clone(),
         })),
     );
@@ -217,7 +237,7 @@ fn callers_can_use_opaque_terms_without_clone_debug_or_serde() {
     struct Handle(u64);
     let shape = NodeShape::<Handle, i128>::new(Handle(1))
         .with_property_shape(Handle(2))
-        .with_target(Target::Node(Handle(3)))
+        .with_target(Target::Node(NodeExpression::constant(Handle(3))))
         .with_message(Handle(4))
         .with_component(Component::Node(Handle(2)))
         .with_component(Component::MinCount(i128::MAX));

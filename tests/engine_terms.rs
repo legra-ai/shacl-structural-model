@@ -4,8 +4,8 @@ use rdf_structural_model::{BlankNodeId, LanguageTag};
 
 use oxrdf::{BlankNode, Literal, NamedNode, Term};
 use shacl_structural_model::{
-    Component, DefaultTerm, NodeShape, PropertyShape, ShaclPath, SparqlConstraint, SparqlQuery,
-    Target,
+    Component, DefaultTerm, NodeExpression, NodeShape, PropertyShape, ShaclPath, SparqlConstraint,
+    SparqlQuery, Target,
 };
 
 #[test]
@@ -27,14 +27,17 @@ fn oxigraph_terms_move_directly_into_structural_values() {
     sparql.messages.push(message.clone());
     let shape = NodeShape::<Term>::new(id.clone())
         .with_property_shape(property.clone())
-        .with_target(Target::Node(focus.clone()))
+        .with_target(Target::Node(NodeExpression::constant(focus.clone())))
         .with_message(message.clone())
         .with_component(Component::Node(property.clone()))
         .with_component(Component::Sparql(Box::new(sparql)));
     assert_eq!(shape.id, id);
     assert_eq!(shape.property_shapes, [property]);
     assert_eq!(shape.messages, [message]);
-    assert_eq!(shape.targets, [Target::Node(focus)]);
+    assert_eq!(
+        shape.targets,
+        [Target::Node(NodeExpression::constant(focus))]
+    );
 }
 
 #[test]
@@ -50,7 +53,7 @@ fn borrowed_engine_terms_need_no_owned_conversion() {
     .into();
     let shape =
         PropertyShape::<&Term, i128>::new(&id, ShaclPath::Predicate("urn:name".parse().unwrap()))
-            .with_target(Target::Node(&message))
+            .with_target(Target::Node(NodeExpression::constant(&message)))
             .with_message(&message)
             .with_name(&message)
             .with_description(&message)
@@ -73,7 +76,7 @@ fn default_rdf_terms_round_trip_blank_ids_and_language_messages() {
     ));
     let shape = NodeShape::<DefaultTerm>::new(id)
         .with_message(message.clone())
-        .with_target(Target::Node(message));
+        .with_target(Target::Node(NodeExpression::constant(message)));
     let encoded = serde_json::to_string(&shape).unwrap();
     let decoded: NodeShape = serde_json::from_str(&encoded).unwrap();
     assert_eq!(decoded, shape);

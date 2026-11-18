@@ -1,0 +1,60 @@
+{
+  "id": {
+    "Iri": "https://example.org/Person"
+  },
+  "targets": [
+    {
+      "Node": {
+        "source": null,
+        "form": {
+          "Constant": {
+            "Iri": "https://example.org/Alice"
+          }
+        }
+      }
+    },
+    {
+      "Node": {
+        "source": {
+          "BlankNode": {
+            "scope": "urn:shapes",
+            "label": "instances"
+          }
+        },
+        "form": {
+          "InstancesOf": {
+            "source": null,
+            "form": {
+              "Constant": {
+                "Iri": "https://example.org/Concept"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "Where": {
+        "BlankNode": {
+          "scope": "urn:shapes",
+          "label": "adult"
+        }
+      }
+    },
+    {
+      "ImplicitClass": {
+        "class": {
+          "Iri": "https://example.org/Person"
+        },
+        "declaration": "ShapeClass"
+      }
+    }
+  ],
+  "components": [],
+  "property_shapes": [],
+  "deactivated": false,
+  "severity": "Violation",
+  "messages": [],
+  "rules": [],
+  "order": null
+}

@@ -28,6 +28,9 @@ pub struct Parameter<
     pub path: Named,
     /// Whether the parameter is optional.
     pub optional: bool,
+    /// SHACL 1.2 `sh:keyParameter`: whether this parameter identifies a custom
+    /// named parameter function (Node Expressions section 6.1).
+    pub key_parameter: bool,
     /// The original numeric `sh:order` literal, without conversion to a float.
     pub order: Option<Value>,
     /// RDF `sh:name` literals.
@@ -46,11 +49,19 @@ impl<Value, Count, Flags, Pattern, Named> Parameter<Value, Count, Flags, Pattern
             id,
             path,
             optional: false,
+            key_parameter: false,
             order: None,
             names: Vec::new(),
             descriptions: Vec::new(),
             components: Vec::new(),
         }
+    }
+
+    /// Set `sh:keyParameter`.
+    #[must_use]
+    pub fn with_key_parameter(mut self, key_parameter: bool) -> Self {
+        self.key_parameter = key_parameter;
+        self
     }
 }
 

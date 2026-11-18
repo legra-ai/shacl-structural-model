@@ -1,0 +1,615 @@
+[
+  {
+    "source": null,
+    "form": "Empty"
+  },
+  {
+    "source": null,
+    "form": {
+      "Var": "focusNode"
+    }
+  },
+  {
+    "source": null,
+    "form": {
+      "List": {
+        "first": {
+          "Literal": {
+            "lexical": "a",
+            "metadata": {
+              "datatype": "http://www.w3.org/2001/XMLSchema#string",
+              "facets": "None"
+            }
+          }
+        },
+        "rest": [
+          {
+            "Literal": {
+              "lexical": "b",
+              "metadata": {
+                "datatype": "http://www.w3.org/2001/XMLSchema#string",
+                "facets": "None"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "source": null,
+    "form": {
+      "PathValues": {
+        "path": {
+          "ZeroOrMore": {
+            "Predicate": "https://example.org/broader"
+          }
+        },
+        "path_node": null,
+        "focus_node": {
+          "source": null,
+          "form": {
+            "Constant": {
+              "Iri": "https://example.org/focus"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "source": null,
+    "form": {
+      "Exists": {
+        "source": null,
+        "form": {
+          "PathValues": {
+            "path": {
+              "Predicate": "https://example.org/capitalOf"
+            },
+            "path_node": null,
+            "focus_node": null
+          }
+        }
+      }
+    }
+  },
+  {
+    "source": null,
+    "form": {
+      "If": {
+        "condition": {
+          "source": null,
+          "form": {
+            "PathValues": {
+              "path": {
+                "Predicate": "https://example.org/flag"
+              },
+              "path_node": null,
+              "focus_node": null
+            }
+          }
+        },
+        "branches": {
+          "Both": {
+            "then": {
+              "source": null,
+              "form": {
+                "Constant": {
+                  "Iri": "https://example.org/blue"
+                }
+              }
+            },
+            "otherwise": {
+              "source": null,
+              "form": {
+                "Constant": {
+                  "Iri": "https://example.org/red"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "source": null,
+    "form": {
+      "Distinct": {
+        "source": null,
+        "form": {
+          "PathValues": {
+            "path": {
+              "Predicate": "https://example.org/p"
+            },
+            "path_node": null,
+            "focus_node": null
+          }
+        }
+      }
+    }
+  },
+  {
+    "source": null,
+    "form": {
+      "Intersection": [
+        {
+          "source": null,
+          "form": {
+            "PathValues": {
+              "path": {
+                "Predicate": "https://example.org/p"
+              },
+              "path_node": null,
+              "focus_node": null
+            }
+          }
+        },
+        {
+          "source": null,
+          "form": {
+            "PathValues": {
+              "path": {
+                "Predicate": "https://example.org/q"
+              },
+              "path_node": null,
+              "focus_node": null
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "source": null,
+    "form": {
+      "Concat": [
+        {
+          "source": null,
+          "form": {
+            "PathValues": {
+              "path": {
+                "Predicate": "https://example.org/parent"
+              },
+              "path_node": null,
+              "focus_node": null
+            }
+          }
+        },
+        {
+          "source": null,
+          "form": {
+            "PathValues": {
+              "path": {
+                "Predicate": "https://example.org/sibling"
+              },
+              "path_node": null,
+              "focus_node": null
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "source": null,
+    "form": {
+      "Remove": {
+        "remove": {
+          "source": null,
+          "form": {
+            "PathValues": {
+              "path": {
+                "Predicate": "https://example.org/onLeave"
+              },
+              "path_node": null,
+              "focus_node": null
+            }
+          }
+        },
+        "nodes": {
+          "source": null,
+          "form": {
+            "PathValues": {
+              "path": {
+                "Predicate": "https://example.org/author"
+              },
+              "path_node": null,
+              "focus_node": null
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "source": null,
+    "form": {
+      "FilterShape": {
+        "shape": {
+          "Iri": "https://example.org/Male"
+        },
+        "nodes": {
+          "source": null,
+          "form": {
+            "PathValues": {
+              "path": {
+                "Predicate": "https://example.org/child"
+              },
+              "path_node": null,
+              "focus_node": null
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "source": null,
+    "form": {
+      "Limit": {
+        "limit": {
+          "Literal": {
+            "lexical": "2",
+            "metadata": {
+              "datatype": "http://www.w3.org/2001/XMLSchema#string",
+              "facets": "None"
+            }
+          }
+        },
+        "nodes": {
+          "source": null,
+          "form": {
+            "PathValues": {
+              "path": {
+                "Predicate": "https://example.org/child"
+              },
+              "path_node": null,
+              "focus_node": null
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "source": null,
+    "form": {
+      "Offset": {
+        "offset": {
+          "Literal": {
+            "lexical": "1",
+            "metadata": {
+              "datatype": "http://www.w3.org/2001/XMLSchema#string",
+              "facets": "None"
+            }
+          }
+        },
+        "nodes": {
+          "source": null,
+          "form": {
+            "PathValues": {
+              "path": {
+                "Predicate": "https://example.org/child"
+              },
+              "path_node": null,
+              "focus_node": null
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "source": null,
+    "form": {
+      "OrderBy": {
+        "order_by": {
+          "source": null,
+          "form": {
+            "PathValues": {
+              "path": {
+                "Predicate": "https://example.org/dateOfBirth"
+              },
+              "path_node": null,
+              "focus_node": null
+            }
+          }
+        },
+        "nodes": {
+          "source": null,
+          "form": {
+            "PathValues": {
+              "path": {
+                "Predicate": "https://example.org/child"
+              },
+              "path_node": null,
+              "focus_node": null
+            }
+          }
+        },
+        "descending": false
+      }
+    }
+  },
+  {
+    "source": null,
+    "form": {
+      "FlatMap": {
+        "flat_map": {
+          "source": null,
+          "form": {
+            "PathValues": {
+              "path": {
+                "Predicate": "https://example.org/skill"
+              },
+              "path_node": null,
+              "focus_node": null
+            }
+          }
+        },
+        "nodes": {
+          "source": null,
+          "form": {
+            "PathValues": {
+              "path": {
+                "Predicate": "https://example.org/employee"
+              },
+              "path_node": null,
+              "focus_node": null
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "source": null,
+    "form": {
+      "FindFirst": {
+        "shape": {
+          "Iri": "https://example.org/Senior"
+        },
+        "nodes": null
+      }
+    }
+  },
+  {
+    "source": null,
+    "form": {
+      "MatchAll": {
+        "shape": {
+          "Iri": "https://example.org/Active"
+        },
+        "nodes": null
+      }
+    }
+  },
+  {
+    "source": null,
+    "form": {
+      "Aggregate": {
+        "aggregate": "Count",
+        "input": {
+          "source": null,
+          "form": {
+            "PathValues": {
+              "path": {
+                "Predicate": "https://example.org/p"
+              },
+              "path_node": null,
+              "focus_node": null
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "source": null,
+    "form": {
+      "Aggregate": {
+        "aggregate": "Min",
+        "input": {
+          "source": null,
+          "form": {
+            "PathValues": {
+              "path": {
+                "Predicate": "https://example.org/p"
+              },
+              "path_node": null,
+              "focus_node": null
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "source": null,
+    "form": {
+      "Aggregate": {
+        "aggregate": "Max",
+        "input": {
+          "source": null,
+          "form": {
+            "PathValues": {
+              "path": {
+                "Predicate": "https://example.org/p"
+              },
+              "path_node": null,
+              "focus_node": null
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "source": null,
+    "form": {
+      "Aggregate": {
+        "aggregate": "Sum",
+        "input": {
+          "source": null,
+          "form": {
+            "PathValues": {
+              "path": {
+                "Predicate": "https://example.org/p"
+              },
+              "path_node": null,
+              "focus_node": null
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "source": null,
+    "form": {
+      "InstancesOf": {
+        "source": null,
+        "form": {
+          "Constant": {
+            "Iri": "https://example.org/Person"
+          }
+        }
+      }
+    }
+  },
+  {
+    "source": null,
+    "form": {
+      "NodesMatching": {
+        "Iri": "https://example.org/BigCompany"
+      }
+    }
+  },
+  {
+    "source": null,
+    "form": {
+      "ConformsToShape": {
+        "node": {
+          "source": null,
+          "form": {
+            "Var": "focusNode"
+          }
+        },
+        "shape": {
+          "source": null,
+          "form": {
+            "Constant": {
+              "Iri": "https://example.org/CompanyShape"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "source": null,
+    "form": {
+      "Sparql": {
+        "function": "Coalesce",
+        "arguments": [
+          {
+            "source": null,
+            "form": {
+              "PathValues": {
+                "path": {
+                  "Predicate": "https://example.org/fullName"
+                },
+                "path_node": null,
+                "focus_node": null
+              }
+            }
+          },
+          {
+            "source": null,
+            "form": {
+              "Constant": {
+                "Iri": "https://example.org/fallback"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "source": null,
+    "form": {
+      "Select": {
+        "text": {
+          "Literal": {
+            "lexical": "SELECT ?x WHERE {}",
+            "metadata": {
+              "datatype": "http://www.w3.org/2001/XMLSchema#string",
+              "facets": "None"
+            }
+          }
+        },
+        "prefixes": null
+      }
+    }
+  },
+  {
+    "source": null,
+    "form": {
+      "SparqlExpr": {
+        "text": {
+          "Literal": {
+            "lexical": "STRLEN(STR($this))",
+            "metadata": {
+              "datatype": "http://www.w3.org/2001/XMLSchema#string",
+              "facets": "None"
+            }
+          }
+        },
+        "prefixes": {
+          "Iri": "https://example.org/prefixes"
+        }
+      }
+    }
+  },
+  {
+    "source": null,
+    "form": {
+      "CustomNamed": [
+        {
+          "parameter": "https://example.org/average",
+          "value": {
+            "source": null,
+            "form": {
+              "PathValues": {
+                "path": {
+                  "Predicate": "https://example.org/p"
+                },
+                "path_node": null,
+                "focus_node": null
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "source": null,
+    "form": {
+      "Arg": {
+        "Position": {
+          "Literal": {
+            "lexical": "0",
+            "metadata": {
+              "datatype": "http://www.w3.org/2001/XMLSchema#string",
+              "facets": "None"
+            }
+          }
+        }
+      }
+    }
+  }
+]
