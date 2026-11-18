@@ -2,7 +2,7 @@
 
 use iri_rfc3987::Iri;
 
-use crate::{Component, NodeExpression, Severity, ShaclPath, ShaclRule, Target};
+use crate::{Component, NodeExpression, Severity, ShaclPath, ShaclRule, ShapeAnnotations, Target};
 
 /// A SHACL property shape.
 #[derive(
@@ -34,8 +34,10 @@ pub struct PropertyShape<
     pub components: Vec<Component<Value, Count, Flags, Pattern, Named>>,
     /// IRI or blank-node references to nested property shapes.
     pub property_shapes: Vec<Value>,
-    /// Whether this shape is deactivated.
-    pub deactivated: bool,
+    /// The `sh:deactivated` node expression (SHACL 1.2 Core, Working Draft 16
+    /// November 2026, section 3.1.6). `None` when absent; the consumer
+    /// evaluates the expression, whose only output node must be `true` or `false`.
+    pub deactivated: Option<NodeExpression<Value, Named>>,
     /// The severity for results from this shape.
     pub severity: Severity,
     /// RDF `sh:name` literals, including any language tags.
@@ -52,8 +54,12 @@ pub struct PropertyShape<
     pub default_value: Option<NodeExpression<Value, Named>>,
     /// RDF `sh:message` literals, including any language tags.
     pub messages: Vec<Value>,
+    /// Non-validating characteristics (Core section 6.11).
+    pub annotations: ShapeAnnotations<Value, Named>,
     /// SHACL-AF rules attached to this shape.
     pub rules: Vec<ShaclRule<Value, Named>>,
+    /// The `sh:group` reference to a `PropertyGroup` (Core section 6.11.8).
+    pub group: Option<Value>,
 }
 
 impl<Value, Count, Flags, Pattern, Named> PropertyShape<Value, Count, Flags, Pattern, Named> {
@@ -67,7 +73,7 @@ impl<Value, Count, Flags, Pattern, Named> PropertyShape<Value, Count, Flags, Pat
             targets: Vec::new(),
             components: Vec::new(),
             property_shapes: Vec::new(),
-            deactivated: false,
+            deactivated: None,
             severity: Severity::default(),
             names: Vec::new(),
             descriptions: Vec::new(),
@@ -75,7 +81,9 @@ impl<Value, Count, Flags, Pattern, Named> PropertyShape<Value, Count, Flags, Pat
             values: None,
             default_value: None,
             messages: Vec::new(),
+            annotations: ShapeAnnotations::new(),
             rules: Vec::new(),
+            group: None,
         }
     }
 
@@ -96,10 +104,18 @@ impl<Value, Count, Flags, Pattern, Named> PropertyShape<Value, Count, Flags, Pat
         self
     }
 
-    /// Set whether this shape is deactivated.
+    /// Set the `sh:deactivated` node expression. A Core constant is
+    /// `NodeExpression::constant` of a boolean literal.
     #[must_use]
-    pub fn with_deactivated(mut self, deactivated: bool) -> Self {
-        self.deactivated = deactivated;
+    pub fn with_deactivated(mut self, deactivated: NodeExpression<Value, Named>) -> Self {
+        self.deactivated = Some(deactivated);
+        self
+    }
+
+    /// Set the non-validating characteristics (Core section 6.11).
+    #[must_use]
+    pub fn with_annotations(mut self, annotations: ShapeAnnotations<Value, Named>) -> Self {
+        self.annotations = annotations;
         self
     }
 
@@ -163,6 +179,13 @@ impl<Value, Count, Flags, Pattern, Named> PropertyShape<Value, Count, Flags, Pat
     #[must_use]
     pub fn with_rule(mut self, rule: ShaclRule<Value, Named>) -> Self {
         self.rules.push(rule);
+        self
+    }
+
+    /// Set the `sh:group` reference.
+    #[must_use]
+    pub fn with_group(mut self, group: Value) -> Self {
+        self.group = Some(group);
         self
     }
 

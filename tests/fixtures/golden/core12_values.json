@@ -10,7 +10,7 @@
     "targets": [],
     "components": [],
     "property_shapes": [],
-    "deactivated": false,
+    "deactivated": null,
     "severity": "Violation",
     "names": [],
     "descriptions": [],
@@ -112,7 +112,15 @@
     },
     "default_value": null,
     "messages": [],
-    "rules": []
+    "annotations": {
+      "intents": [],
+      "agent_instructions": [],
+      "code_identifier": null,
+      "code_type": null,
+      "units": []
+    },
+    "rules": [],
+    "group": null
   },
   {
     "id": {
@@ -125,7 +133,7 @@
     "targets": [],
     "components": [],
     "property_shapes": [],
-    "deactivated": false,
+    "deactivated": null,
     "severity": "Violation",
     "names": [],
     "descriptions": [],
@@ -138,6 +146,14 @@
       }
     },
     "messages": [],
-    "rules": []
+    "annotations": {
+      "intents": [],
+      "agent_instructions": [],
+      "code_identifier": null,
+      "code_type": null,
+      "units": []
+    },
+    "rules": [],
+    "group": null
   }
 ]

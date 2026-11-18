@@ -11,8 +11,8 @@ use proptest::prelude::*;
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use shacl_structural_model::{
-    Closedness, Component, ExpressionConstraint, LanguageTag, NamedOrList, NodeExpression,
-    NodeKind, NodeShape, PropertyShape, Severity, Target,
+    Closedness, CodeIdentifier, Component, ExpressionConstraint, Intent, LanguageTag, NamedOrList,
+    NodeExpression, NodeKind, NodeShape, PropertyShape, Severity, ShapeAnnotations, Target,
 };
 use strategies::{expression, iri, path, term};
 
@@ -27,7 +27,8 @@ fn component() -> impl Strategy<Value = Component> {
         prop::sample::select(vec![
             NodeKind::Iri,
             NodeKind::Literal,
-            NodeKind::BlankNodeOrIri
+            NodeKind::BlankNodeOrIri,
+            NodeKind::TripleTerm
         ])
         .prop_map(Component::NodeKind),
         term().prop_map(Component::MinCount),
@@ -102,27 +103,56 @@ fn severity() -> impl Strategy<Value = Severity> {
     ]
 }
 
+fn annotations() -> impl Strategy<Value = ShapeAnnotations> {
+    (
+        prop::collection::vec((term(), prop::option::of(any::<bool>())), 0..3),
+        prop::collection::vec(term(), 0..2),
+        prop::option::of("[a-zA-Z_][a-zA-Z0-9_]{0,8}"),
+        prop::option::of(iri()),
+        prop::collection::vec(term(), 0..2),
+    )
+        .prop_map(
+            |(intents, agent_instructions, code_identifier, code_type, units)| ShapeAnnotations {
+                intents: intents
+                    .into_iter()
+                    .map(|(statement, formalized)| Intent {
+                        statement,
+                        formalized,
+                    })
+                    .collect(),
+                agent_instructions,
+                code_identifier: code_identifier.map(|name| CodeIdentifier::try_new(name).unwrap()),
+                code_type,
+                units,
+            },
+        )
+}
+
 fn node_shape() -> impl Strategy<Value = NodeShape> {
     (
         term(),
         prop::collection::vec(component(), 0..4),
         prop::collection::vec(term(), 0..3),
         severity(),
-        any::<bool>(),
+        prop::option::of(expression()),
+        annotations(),
     )
-        .prop_map(|(id, components, targets, severity, deactivated)| {
-            let mut shape = NodeShape::new(id)
-                .with_severity(severity)
-                .with_deactivated(deactivated);
-            shape.components = components;
-            shape.targets = targets
-                .iter()
-                .cloned()
-                .map(|target| Target::Node(NodeExpression::constant(target)))
-                .collect();
-            shape.targets.extend(targets.into_iter().map(Target::Where));
-            shape
-        })
+        .prop_map(
+            |(id, components, targets, severity, deactivated, annotations)| {
+                let mut shape = NodeShape::new(id)
+                    .with_severity(severity)
+                    .with_annotations(annotations);
+                shape.deactivated = deactivated;
+                shape.components = components;
+                shape.targets = targets
+                    .iter()
+                    .cloned()
+                    .map(|target| Target::Node(NodeExpression::constant(target)))
+                    .collect();
+                shape.targets.extend(targets.into_iter().map(Target::Where));
+                shape
+            },
+        )
 }
 
 fn property_shape() -> impl Strategy<Value = PropertyShape> {
@@ -134,10 +164,18 @@ fn property_shape() -> impl Strategy<Value = PropertyShape> {
         prop::option::of(expression()),
         prop::option::of(expression()),
         prop::collection::vec(expression(), 0..2),
+        (
+            prop::option::of(expression()),
+            annotations(),
+            prop::option::of(term()),
+        ),
     )
         .prop_map(
-            |(id, path, components, path_node, values, default_value, targets)| {
-                let mut shape = PropertyShape::new(id, path);
+            |(id, path, components, path_node, values, default_value, targets, extra)| {
+                let (deactivated, annotations, group) = extra;
+                let mut shape = PropertyShape::new(id, path).with_annotations(annotations);
+                shape.deactivated = deactivated;
+                shape.group = group;
                 shape.components = components;
                 shape.path_node = path_node;
                 shape.values = values;

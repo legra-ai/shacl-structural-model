@@ -1,0 +1,26 @@
+[
+  {
+    "graph": "http://example.com/myDataGraph",
+    "role": "DataGraph"
+  },
+  {
+    "from": "http://example.com/myDataGraph",
+    "kind": "ShapesGraph",
+    "to": "http://example.com/graph-shapes1"
+  },
+  {
+    "from": "http://example.com/myShapesGraph",
+    "kind": "DataGraph",
+    "to": "http://example.com/bridges-2026"
+  },
+  {
+    "shapes_graph": "http://example.com/my-shapes",
+    "entailment": "Rules"
+  },
+  {
+    "shapes_graph": "http://example.com/my-shapes",
+    "entailment": {
+      "Regime": "http://example.com/RuleSet2"
+    }
+  }
+]

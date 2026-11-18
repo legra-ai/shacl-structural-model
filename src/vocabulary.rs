@@ -48,6 +48,32 @@ pub const BLANK_NODE_OR_IRI: &str = sh!("BlankNodeOrIRI");
 pub const BLANK_NODE_OR_LITERAL: &str = sh!("BlankNodeOrLiteral");
 /// `sh:IRIOrLiteral`, the node kind of IRIs and literals.
 pub const IRI_OR_LITERAL: &str = sh!("IRIOrLiteral");
+/// `sh:TripleTerm`, the SHACL 1.2 node kind of triple terms (Core 6.10.1.3).
+pub const TRIPLE_TERM: &str = sh!("TripleTerm");
+
+/// `sh:Graph`, the class of graphs (Core 6.1).
+pub const GRAPH: &str = sh!("Graph");
+/// `sh:DataGraph`, the class of graphs in the data-graph role (Core 6.2).
+pub const DATA_GRAPH_CLASS: &str = sh!("DataGraph");
+/// `sh:ShapesGraph`, the class of graphs in the shapes-graph role (Core 6.1).
+pub const SHAPES_GRAPH_CLASS: &str = sh!("ShapesGraph");
+/// `sh:RulesGraph`, the class of graphs in the rules-graph role (Inference Rules 5).
+pub const RULES_GRAPH_CLASS: &str = sh!("RulesGraph");
+/// `sh:shapesGraph`, a data graph's link to a shapes graph (Core 6.5).
+pub const SHAPES_GRAPH: &str = sh!("shapesGraph");
+/// `sh:dataGraph`, a shapes graph's link to a data graph (Core 6.6).
+pub const DATA_GRAPH: &str = sh!("dataGraph");
+/// `sh:suggestedShapesGraph`, an ontology's suggested shapes graph.
+pub const SUGGESTED_SHAPES_GRAPH: &str = sh!("suggestedShapesGraph");
+/// `sh:RulesEntailment`, the SHACL rules entailment regime (Inference Rules 6.1).
+pub const RULES_ENTAILMENT: &str = sh!("RulesEntailment");
+
+/// `sh:SPARQLRule`, the SHACL SPARQL rule type (Inference Rules 11.1).
+pub const SPARQL_RULE: &str = sh!("SPARQLRule");
+/// `sh:TripleRule`, the triple rule type (Inference Rules 11.2).
+pub const TRIPLE_RULE: &str = sh!("TripleRule");
+/// `sh:SPARQLRuleTemplate`, the class of SPARQL rule templates (Inference Rules 12).
+pub const SPARQL_RULE_TEMPLATE: &str = sh!("SPARQLRuleTemplate");
 
 /// The SHACL 1.2 node-expression namespace IRI, `shnex:`.
 pub const NODE_EXPR_NAMESPACE: &str = shnex!("");

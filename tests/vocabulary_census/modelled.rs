@@ -12,7 +12,8 @@ pub(super) const MODELLED: &[(&str, &str)] = &[
     ("PropertyShape", "PropertyShape"),
     (
         "deactivated",
-        "NodeShape/PropertyShape/ShaclRule/SparqlConstraint::deactivated",
+        "NodeShape/PropertyShape/SparqlConstraint::deactivated (NodeExpression), \
+         ConstraintDeactivation, ShaclRule::deactivated, inference::RuleMetadata::deactivated",
     ),
     ("targetClass", "Target::Class"),
     ("targetNode", "Target::Node(NodeExpression)"),
@@ -46,6 +47,7 @@ pub(super) const MODELLED: &[(&str, &str)] = &[
     ("BlankNode", "NodeKind::BlankNode"),
     ("Literal", "NodeKind::Literal"),
     ("BlankNodeOrIRI", "NodeKind::BlankNodeOrIri"),
+    ("TripleTerm", "NodeKind::TripleTerm"),
     ("BlankNodeOrLiteral", "NodeKind::BlankNodeOrLiteral"),
     ("IRIOrLiteral", "NodeKind::IriOrLiteral"),
     // Property paths.
@@ -126,7 +128,7 @@ pub(super) const MODELLED: &[(&str, &str)] = &[
     ("SPARQLConstructExecutable", "RuleKind::Sparql"),
     ("select", "SparqlQuery::text"),
     ("ask", "SparqlQuery::text"),
-    ("construct", "SparqlQuery::text"),
+    ("construct", "SparqlQuery::text, inference::ConstructQuery"),
     ("prefixes", "SparqlQuery::prefixes"),
     ("declare", "PrefixDeclarations::declarations"),
     ("PrefixDeclaration", "PrefixDeclaration"),
@@ -202,15 +204,59 @@ pub(super) const MODELLED: &[(&str, &str)] = &[
         "TripleRule",
         "RuleKind::Triple, inference::TripleRuleDeclaration",
     ),
-    ("SPARQLRule", "RuleKind::Sparql"),
+    (
+        "SPARQLRule",
+        "RuleKind::Sparql, inference::SparqlRuleDeclaration, RuleType::Sparql",
+    ),
     ("subject", "TripleRule::subject"),
     ("predicate", "TripleRule::predicate"),
     ("object", "TripleRule::object"),
-    ("condition", "ShaclRule::conditions"),
+    (
+        "condition",
+        "ShaclRule::conditions, inference::RuleMetadata::conditions",
+    ),
     // SHACL 1.2 Inference Rules.
     ("RuleSet", "inference::RuleSet"),
     ("hasRule", "inference::RuleSetMembership"),
     ("includesRuleSet", "inference::RuleSetInclusion"),
     ("layer", "inference::RuleSchedule::layer"),
     ("runOnce", "inference::RuleSchedule::run_once"),
+    (
+        "expectedPredicate",
+        "inference::RuleMetadata::expected_predicates",
+    ),
+    (
+        "ruleProcessor",
+        "inference::RuleProcessor, RuleMetadata/RuleSet::processors",
+    ),
+    ("RulesEntailment", "graph::Entailment::Rules"),
+    ("RulesGraph", "graph::GraphRole::RulesGraph"),
+    ("sourceRule", "inference::InferenceAnnotation::SourceRule"),
+    ("tempTriple", "inference::InferenceAnnotation::TempTriple"),
+    ("SPARQLRuleTemplate", "inference::SparqlRuleTemplate"),
+    // SHACL 1.2 Core non-validating shape characteristics.
+    ("intent", "ShapeAnnotations::intents, Intent::statement"),
+    ("formalized", "Intent::formalized"),
+    ("agentInstruction", "ShapeAnnotations::agent_instructions"),
+    (
+        "codeIdentifier",
+        "ShapeAnnotations::code_identifier, CodeIdentifier",
+    ),
+    ("codeType", "ShapeAnnotations::code_type"),
+    ("unit", "ShapeAnnotations::units"),
+    ("group", "PropertyShape::group"),
+    ("PropertyGroup", "PropertyGroup"),
+    // SHACL 1.2 Core graphs, entailment and incomplete data.
+    ("Graph", "graph::GraphRole::Graph"),
+    ("DataGraph", "graph::GraphRole::DataGraph"),
+    ("ShapesGraph", "graph::GraphRole::ShapesGraph"),
+    ("shapesGraph", "graph::GraphLinkKind::ShapesGraph"),
+    ("dataGraph", "graph::GraphLinkKind::DataGraph"),
+    (
+        "suggestedShapesGraph",
+        "graph::GraphLinkKind::SuggestedShapesGraph",
+    ),
+    ("entailment", "graph::EntailmentDeclaration"),
+    ("incomplete", "graph::IncompleteNode"),
+    ("incompleteURIStart", "graph::IncompleteUriStart"),
 ];

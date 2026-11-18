@@ -15,17 +15,33 @@ use rdf_structural_model::Subject;
 )]
 pub struct RuleSet<Text: Bos<str> + AsRef<str> = String> {
     id: Iri<Text>,
+    processors: Vec<super::RuleProcessor<Text>>,
 }
 impl<Text: Bos<str> + AsRef<str>> RuleSet<Text> {
     /// Construct one record from already checked RDF identities.
     #[must_use]
     pub const fn new(id: Iri<Text>) -> Self {
-        Self { id }
+        Self {
+            id,
+            processors: Vec::new(),
+        }
+    }
+    /// Add a `sh:ruleProcessor` (section 10). Processors of included rule
+    /// sets also apply; the consumer follows the inclusion edges.
+    #[must_use]
+    pub fn with_processor(mut self, processor: super::RuleProcessor<Text>) -> Self {
+        self.processors.push(processor);
+        self
     }
     /// The rule-set IRI.
     #[must_use]
     pub const fn id(&self) -> &Iri<Text> {
         &self.id
+    }
+    /// The processors declared directly on this rule set.
+    #[must_use]
+    pub fn processors(&self) -> &[super::RuleProcessor<Text>] {
+        &self.processors
     }
 }
 

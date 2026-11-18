@@ -1,0 +1,12 @@
+[
+  {
+    "prefix": "http://example.com/companies/",
+    "incomplete_uri_start": true
+  },
+  {
+    "node": {
+      "Iri": "http://example.com/companies/Globex"
+    },
+    "incomplete": false
+  }
+]

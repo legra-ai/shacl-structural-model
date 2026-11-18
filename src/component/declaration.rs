@@ -113,7 +113,7 @@ pub enum Component<
         ignored_properties: Vec<Named>,
     },
     /// A `sh:sparql` constraint declaration.
-    Sparql(Box<SparqlConstraint<Value>>),
+    Sparql(Box<SparqlConstraint<Value, Named>>),
     /// A `sh:expression` constraint (SHACL 1.2 Node Expressions section 7.1).
     Expression(Box<ExpressionConstraint<Value, Named>>),
     /// A use of a separately declared custom component.

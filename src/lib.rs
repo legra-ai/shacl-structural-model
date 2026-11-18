@@ -3,11 +3,14 @@
 
 //! Typed structural values for SHACL shapes without an RDF-store dependency.
 
+mod annotation;
 mod component;
 mod custom_component;
+mod deactivation;
 mod decode;
 mod error;
 mod function;
+pub mod graph;
 pub mod inference;
 mod language_tag;
 mod local_name;
@@ -23,8 +26,10 @@ mod sparql;
 mod target;
 pub mod vocabulary;
 
+pub use annotation::{CodeIdentifier, Intent, PropertyGroup, ShapeAnnotations};
 pub use component::{Closedness, Component, NamedOrList};
 pub use custom_component::{CustomConstraint, CustomConstraintComponent};
+pub use deactivation::ConstraintDeactivation;
 pub use decode::DecodeLimits;
 pub use error::{LexicalRole, StructuralModelError};
 pub use function::ShaclFunction;
@@ -37,6 +42,7 @@ pub use node_expression::{
     SparqlExpressionText, SparqlFunction, VariableName,
 };
 pub use node_kind::NodeKind;
+pub use node_shape::CORE_DRAFT;
 pub use node_shape::NodeShape;
 pub use parameter::{Parameter, ParameterValues};
 pub use path::ShaclPath;
