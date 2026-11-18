@@ -9,8 +9,8 @@ use rdf_structural_model::{BlankNodeId, Literal};
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use shacl_structural_model::{
-    Component, DefaultTerm, ExpressionConstraint, ExpressionKind, LanguageTag, NodeExpression,
-    NodeKind, NodeShape, PropertyShape, Severity, ShaclPath, Target,
+    Closedness, Component, DefaultTerm, ExpressionConstraint, ExpressionKind, LanguageTag,
+    NamedOrList, NodeExpression, NodeKind, NodeShape, PropertyShape, Severity, ShaclPath, Target,
 };
 
 fn iri() -> impl Strategy<Value = Iri<String>> {
@@ -127,6 +127,41 @@ fn component() -> impl Strategy<Value = Component> {
             }))
         }),
         any::<bool>().prop_map(Component::SingleLine),
+        core12_component(),
+    ]
+}
+
+fn named_or_list() -> impl Strategy<Value = NamedOrList<Iri<String>>> {
+    prop_oneof![
+        iri().prop_map(NamedOrList::One),
+        prop::collection::vec(iri(), 0..4).prop_map(NamedOrList::List),
+    ]
+}
+
+fn core12_component() -> impl Strategy<Value = Component> {
+    prop_oneof![
+        (
+            prop::sample::select(vec![
+                Closedness::Open,
+                Closedness::Closed,
+                Closedness::ByTypes
+            ]),
+            prop::collection::vec(iri(), 0..3)
+        )
+            .prop_map(|(closedness, ignored_properties)| Component::Closed {
+                closedness,
+                ignored_properties,
+            }),
+        path().prop_map(Component::SubsetOf),
+        term().prop_map(Component::SomeValue),
+        (term(), prop::option::of(any::<bool>())).prop_map(|(shape, reification_required)| {
+            Component::ReifierShape {
+                shape,
+                reification_required,
+            }
+        }),
+        named_or_list().prop_map(Component::RootClass),
+        named_or_list().prop_map(Component::UniqueValuesFor),
     ]
 }
 
@@ -135,6 +170,8 @@ fn severity() -> impl Strategy<Value = Severity> {
         Just(Severity::Violation),
         Just(Severity::Warning),
         Just(Severity::Info),
+        Just(Severity::Debug),
+        Just(Severity::Trace),
         iri().prop_map(Severity::Custom),
     ]
 }

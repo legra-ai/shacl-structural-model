@@ -1,4 +1,4 @@
-//! Structural coverage of the SHACL 1.2 Core 2026-10-14 singleLine draft.
+//! Structural coverage of SHACL 1.2 Core, Working Draft 2026-11-16, section 6.10.4.4 (singleLine).
 
 use shacl_structural_model::{Component, NodeShape, PropertyShape, ShaclPath};
 

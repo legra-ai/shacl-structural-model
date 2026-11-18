@@ -13,7 +13,8 @@ use rdf_structural_model::{BlankNodeId, LanguageTag, Literal};
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use shacl_structural_model::{
-    Component, DefaultTerm, NodeShape, PropertyShape, Severity, ShaclPath, Target,
+    Closedness, Component, DefaultTerm, NamedOrList, NodeShape, PropertyShape, Severity, ShaclPath,
+    Target,
 };
 
 const XSD_INTEGER: &str = "http://www.w3.org/2001/XMLSchema#integer";
@@ -150,4 +151,31 @@ fn unrecognized_shape_fields_fail_instead_of_disappearing() {
     );
     let encoded = serde_json::to_string(&fields).unwrap();
     assert!(serde_json::from_str::<NodeShape<DefaultTerm>>(&encoded).is_err());
+}
+
+#[test]
+fn shacl12_core_components_and_severities_keep_their_encoding() {
+    let components: Vec<Component> = vec![
+        Component::Closed {
+            closedness: Closedness::ByTypes,
+            ignored_properties: vec![iri("https://example.org/note")],
+        },
+        Component::Closed {
+            closedness: Closedness::Open,
+            ignored_properties: vec![],
+        },
+        Component::SubsetOf(ShaclPath::Predicate(iri("https://example.org/child"))),
+        Component::SomeValue(blank("duck")),
+        Component::ReifierShape {
+            shape: blank("provenance"),
+            reification_required: Some(false),
+        },
+        Component::RootClass(NamedOrList::One(iri("https://example.org/Animal"))),
+        Component::UniqueValuesFor(NamedOrList::List(vec![
+            iri("https://example.org/aCode"),
+            iri("https://example.org/bCode"),
+        ])),
+    ];
+    assert_golden("core12_components", &components);
+    assert_golden("core12_severities", &[Severity::Debug, Severity::Trace]);
 }

@@ -30,23 +30,43 @@ The stable baseline is the [SHACL Recommendation](https://www.w3.org/TR/shacl/).
 SPARQL and AF declarations follow that recommendation and
 [SHACL Advanced Features](https://www.w3.org/TR/shacl-af/).
 Representing these declarations does not establish validator conformance or
-pySHACL compatibility. The `Component::SingleLine(bool)` declaration follows
-[SHACL 1.2 Core, Working Draft 14 October 2026, section 7.4.4](https://www.w3.org/TR/2026/WD-shacl12-core-20261014/#SingleLineConstraintComponent).
-It preserves both `true` and explicit `false` through nested JSON and binary
-serialization. The draft marks this constraint at risk; this crate represents
-the declaration without executing it. SHACL 1.2 is the target specification,
-tracked at its newest drafts: each draft feature is added as a model-only declaration as it is modelled, and
-the declarations listed in this README are the ones modelled so far.
-SHACL-JS is outside the scope.
+pySHACL compatibility. SHACL 1.2 is the target specification, tracked at its
+newest drafts: each draft feature is added as a model-only declaration as it is
+modelled, and the declarations listed in this README are the ones modelled so
+far. SHACL-JS is outside the scope.
 
-The same draft's [list constraint declarations (section 7.5)](https://www.w3.org/TR/2026/WD-shacl12-core-20261014/)
-are represented by `MemberShape(Value)`, `MinListLength(Count)`,
-`MaxListLength(Count)` and `UniqueMembers(bool)`. Member-shape references retain
-caller-owned RDF identity; length bounds retain exact RDF values or independent
-compiled counts without a machine-integer limit. Explicit `UniqueMembers(false)`
-relaxes uniqueness while still requiring a valid SHACL list in the draft.
-Consumers own integer validation, list traversal, member validation, equality
-and report construction. These declarations do not traverse or collect lists.
+### SHACL 1.2 Core declarations
+
+These follow [SHACL 1.2 Core, Working Draft 16 November 2026](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/). The crate
+represents each declaration; it does not evaluate it.
+
+| Declaration | Model | Draft section |
+| --- | --- | --- |
+| `sh:Debug`, `sh:Trace` severities | `Severity::Debug`, `Severity::Trace` | [3.1.4](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#severity) |
+| `sh:singleLine` (at risk) | `Component::SingleLine(bool)` | [6.10.4.4](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#SingleLineConstraintComponent) |
+| `sh:memberShape` | `Component::MemberShape(Value)` | [6.10.5.1](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#MemberShapeConstraintComponent) |
+| `sh:minListLength` | `Component::MinListLength(Count)` | [6.10.5.2](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#MinListLengthConstraintComponent) |
+| `sh:maxListLength` | `Component::MaxListLength(Count)` | [6.10.5.3](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#MaxListLengthConstraintComponent) |
+| `sh:uniqueMembers` | `Component::UniqueMembers(bool)` | [6.10.5.4](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#UniqueMembersConstraintComponent) |
+| `sh:subsetOf` | `Component::SubsetOf(ShaclPath<Named>)` | [6.10.6.3](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#SubsetOfConstraintComponent) |
+| `sh:someValue` | `Component::SomeValue(Value)` | [6.10.8.3](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#SomeValueConstraintComponent) |
+| `sh:reifierShape`, `sh:reificationRequired` | `Component::ReifierShape { shape, reification_required }` | [6.10.8.5](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#ReifierShapeConstraintComponent) |
+| `sh:closed sh:ByTypes` | `Component::Closed { closedness: Closedness::ByTypes, .. }` | [6.10.9.1](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#ClosedConstraintComponent) |
+| `sh:rootClass` | `Component::RootClass(NamedOrList<Named>)` | [6.10.9.4](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#RootClassConstraintComponent) |
+| `sh:uniqueValuesFor` | `Component::UniqueValuesFor(NamedOrList<Named>)` | [6.10.9.5](https://www.w3.org/TR/2026/WD-shacl12-core-20261116/#UniqueValuesForConstraintComponent) |
+
+`SingleLine` preserves both `true` and explicit `false`. Member-shape
+references retain caller-owned RDF identity; list length bounds retain exact
+RDF values or independent compiled counts without a machine-integer limit.
+Explicit `UniqueMembers(false)` relaxes uniqueness while still requiring a
+valid SHACL list. `Debug` and `Trace` are messages that are not constraint
+violations (`Severity::is_violation` returns `Some(false)`). `Closedness` keeps
+`sh:closed true`, explicit `false` and `sh:ByTypes`. `NamedOrList` keeps whether
+`sh:rootClass` or `sh:uniqueValuesFor` was written as one IRI or as a SHACL list.
+An absent `sh:reificationRequired` is `None`, distinct from explicit `false`.
+Consumers own parameter checking, list traversal, reifier lookup, type-based
+property collection, target-node computation and report construction. These
+declarations do not traverse or collect lists or graphs.
 
 ## Example
 
@@ -158,7 +178,7 @@ generic parameters do, so consumers can sort shapes, components, paths,
 targets, expressions and rules canonically. The default
 `rdf_structural_model::Term` has no order, so canonical sorting needs an
 ordered caller term type. `Severity` orders from most to least severe:
-`Violation < Warning < Info`, followed by application-defined severities in IRI
+`Violation < Warning < Info < Debug < Trace`, followed by application-defined severities in IRI
 order. The `inference` declarations retain RDF literals and subjects, which are
 unordered, and so remain unordered.
 
@@ -281,6 +301,21 @@ The parser/consumer checks RDF node kinds, cardinality, query syntax, shape
 references and expression cycles. This crate does not inspect opaque `Value`
 payloads or certify a declaration as well-formed. Serde rejects unrecognized
 fields on shapes and the new declarations, rather than discarding them.
+
+## Migrating from 6.4.7
+
+This is a breaking API and Serde format change:
+
+- `Component::Closed { is_closed: bool, .. }` becomes
+  `Component::Closed { closedness: Closedness, .. }`. Map `true` to
+  `Closedness::Closed` and `false` to `Closedness::Open`
+  (`Closedness::from_boolean`); `sh:ByTypes` is `Closedness::ByTypes`.
+- `Severity` gains `Debug` and `Trace` before `Custom`. `sh:Debug` and
+  `sh:Trace` no longer decode as `Severity::Custom`, and the Postcard variant
+  index of `Severity::Custom` changes, so stored Postcard severities must be
+  re-encoded.
+- `Component` gains `SubsetOf`, `SomeValue`, `ReifierShape`, `RootClass` and
+  `UniqueValuesFor`; exhaustive matches need the new variants.
 
 ## Migrating from 6.4
 

@@ -1,0 +1,53 @@
+[
+  {
+    "Closed": {
+      "closedness": "ByTypes",
+      "ignored_properties": [
+        "https://example.org/note"
+      ]
+    }
+  },
+  {
+    "Closed": {
+      "closedness": "Open",
+      "ignored_properties": []
+    }
+  },
+  {
+    "SubsetOf": {
+      "Predicate": "https://example.org/child"
+    }
+  },
+  {
+    "SomeValue": {
+      "BlankNode": {
+        "scope": "urn:shapes:source",
+        "label": "duck"
+      }
+    }
+  },
+  {
+    "ReifierShape": {
+      "shape": {
+        "BlankNode": {
+          "scope": "urn:shapes:source",
+          "label": "provenance"
+        }
+      },
+      "reification_required": false
+    }
+  },
+  {
+    "RootClass": {
+      "One": "https://example.org/Animal"
+    }
+  },
+  {
+    "UniqueValuesFor": {
+      "List": [
+        "https://example.org/aCode",
+        "https://example.org/bCode"
+      ]
+    }
+  }
+]

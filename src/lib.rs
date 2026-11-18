@@ -22,7 +22,7 @@ mod sparql;
 mod target;
 pub mod vocabulary;
 
-pub use component::Component;
+pub use component::{Closedness, Component, NamedOrList};
 pub use custom_component::{CustomConstraint, CustomConstraintComponent};
 pub use error::{LexicalRole, StructuralModelError};
 pub use expression::{ExpressionConstraint, ExpressionKind, NodeExpression};

@@ -18,8 +18,15 @@ pub const NAMESPACE: &str = sh!("");
 pub const VIOLATION: &str = sh!("Violation");
 /// `sh:Warning`, the intermediate standard result severity.
 pub const WARNING: &str = sh!("Warning");
-/// `sh:Info`, the least severe standard result severity.
+/// `sh:Info`, the least severe standard severity that reports a violation.
 pub const INFO: &str = sh!("Info");
+/// `sh:Debug`, a SHACL 1.2 severity for a debug message that is not a violation.
+pub const DEBUG: &str = sh!("Debug");
+/// `sh:Trace`, the least severe SHACL 1.2 standard severity.
+pub const TRACE: &str = sh!("Trace");
+
+/// `sh:ByTypes`, the SHACL 1.2 `sh:closed` value that closes a shape by types.
+pub const BY_TYPES: &str = sh!("ByTypes");
 
 /// `sh:IRI`, the node kind of IRIs.
 pub const IRI: &str = sh!("IRI");
