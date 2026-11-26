@@ -27,7 +27,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: legra-ai/github-actions/.github/actions/prepare-cargo-release@fbe4d05b41aaff86a7a38bd0228943d8cfead4e1
+      - uses: legra-ai/github-actions/.github/actions/prepare-cargo-release@49efdb43fdabe6f5be5ac9bac23e126e4f5aca97
         id: release
         with:
           breaking-change-bump: minor
@@ -87,7 +87,7 @@ jobs:
           private-key: ${{ secrets.RELEASE_WRITER_APP_KEY }}
           owner: ${{ github.repository_owner }}
           repositories: ${{ github.event.repository.name }}
-      - uses: legra-ai/github-actions/.github/actions/prepare-cargo-release@fbe4d05b41aaff86a7a38bd0228943d8cfead4e1
+      - uses: legra-ai/github-actions/.github/actions/prepare-cargo-release@49efdb43fdabe6f5be5ac9bac23e126e4f5aca97
         id: release
         with:
           breaking-change-bump: minor
