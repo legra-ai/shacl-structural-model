@@ -9,7 +9,7 @@ pub enum LexicalRole {
     NodeKindIri,
     /// A `sh:severity` value, a standard or application-defined absolute IRI.
     SeverityIri,
-    /// A `sh:languageIn` member, a well-formed BCP 47 language tag.
+    /// A `sh:languageIn` member, an RFC 4647 basic language range.
     LanguageTag,
     /// A `sh:codeIdentifier` value, matching `^[a-zA-Z_][a-zA-Z0-9_]*$`.
     CodeIdentifier,
@@ -20,7 +20,7 @@ impl fmt::Display for LexicalRole {
         formatter.write_str(match self {
             Self::NodeKindIri => "SHACL node kind IRI",
             Self::SeverityIri => "SHACL severity IRI",
-            Self::LanguageTag => "BCP 47 language tag",
+            Self::LanguageTag => "RFC 4647 basic language range",
             Self::CodeIdentifier => "SHACL code identifier",
         })
     }
