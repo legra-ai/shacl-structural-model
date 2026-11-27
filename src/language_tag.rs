@@ -8,25 +8,37 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::{LexicalRole, StructuralModelError};
 
-/// A well-formed BCP 47 language tag, as listed by `sh:languageIn`.
+/// An RFC 4647 basic language range, as listed by `sh:languageIn`.
 ///
-/// The check is syntactic (RFC 5646 well-formedness, including unique variants
-/// and extension singletons); the IANA registry is not consulted. Spelling is
-/// preserved, while equality, hashing and ordering are ASCII case-insensitive.
+/// This is a filtering range, not an RDF literal's RFC 5646 language tag:
+/// `*` and repeated subtags are permitted. The first subtag has one to eight
+/// ASCII letters; later subtags have one to eight ASCII letters or digits.
+/// Spelling is preserved, while equality, hashing and ordering are ASCII case-insensitive.
 /// Serde decoding applies the same check as [`LanguageTag::try_new`].
 #[derive(Debug, Clone)]
 pub struct LanguageTag(String);
 
 impl LanguageTag {
-    /// Validate a language tag.
+    /// Validate a basic language range.
     ///
     /// # Errors
     ///
     /// Returns [`StructuralModelError::InvalidSyntax`] with
-    /// [`LexicalRole::LanguageTag`] for a malformed tag.
+    /// [`LexicalRole::LanguageTag`] for a malformed range.
     pub fn try_new(lexical: impl Into<String>) -> Result<Self, StructuralModelError> {
         let lexical = lexical.into();
-        if rdf_structural_model::LanguageTag::try_new(lexical.as_str()).is_err() {
+        let valid = lexical == "*"
+            || lexical.split('-').enumerate().all(|(index, subtag)| {
+                (1..=8).contains(&subtag.len())
+                    && subtag.bytes().all(|byte| {
+                        if index == 0 {
+                            byte.is_ascii_alphabetic()
+                        } else {
+                            byte.is_ascii_alphanumeric()
+                        }
+                    })
+            });
+        if !valid {
             return Err(StructuralModelError::InvalidSyntax {
                 lexical,
                 expected: LexicalRole::LanguageTag,
@@ -116,6 +128,6 @@ mod tests {
                 expected: LexicalRole::LanguageTag,
             })
         );
-        assert!(LanguageTag::try_new("de-1996-1996").is_err());
+        assert!(LanguageTag::try_new("en-*").is_err());
     }
 }

@@ -245,8 +245,8 @@ Severity retains its independent checked IRI contract.
 ## Checked values, errors and ordering
 
 `sh:languageIn` members are `LanguageTag` values. `LanguageTag::try_new`
-checks BCP 47 well-formedness (without consulting the IANA registry), and Serde
-decoding applies the same check, so a malformed tag cannot be loaded from JSON
+checks RFC 4647 basic language-range syntax, including `*`, rather than RFC 5646
+language-tag syntax. Serde decoding applies the same check, so a malformed range cannot be loaded from JSON
 or Postcard. Spelling is preserved; equality, hashing and ordering ignore ASCII
 case.
 
@@ -385,8 +385,8 @@ direct structural values; they are not a replacement for streaming an entire
 input document.
 
 This is a parsed structural model, not an RDF graph archive. Paths retain
-their structure but not all RDF-list cell identities. Boolean parameters and
-`sh:languageIn` members are checked language tags. Regex patterns and flags retain
+their structure but not all RDF-list cell identities. Boolean parameters are checked,
+and `sh:languageIn` members are checked basic language ranges. Regex patterns and flags retain
 their RDF values or caller-defined compiled representations. Callers that need
 exact source triples or graph context must retain those separately. `path_node`
 can retain a path's source root for result reporting. Display helpers are
