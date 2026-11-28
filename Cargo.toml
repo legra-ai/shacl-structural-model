@@ -28,8 +28,8 @@ doctest = true
 
 [dependencies]
 borrow-or-share = "=0.2.4"
-iri-rfc3987 = "=0.3.0"
-rdf-structural-model = "=0.4.0"
+iri-rfc3987 = "=0.3.9"
+rdf-structural-model = "=0.7.0"
 serde = { version = "1", features = ["derive"] }
 thiserror = "2"
 
